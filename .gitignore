@@ -1,0 +1,40 @@
+node_modules/
+.env*
+*.log
+.DS_Store
+
+# Local production data and credentials must never enter a deployment commit.
+data/
+uploads/
+.local-backups/
+.local-tests/
+.local-storage-migrations/
+.kiro/
+
+# Local reports, snapshots and temporary backup copies.
+*.backup
+*.backup-*
+test-checkpoint-report.json
+PHASE*-REPORT.md
+PHASE*-REVIEW.md
+PHASE*-GUIDE.md
+TASK-*-IMPLEMENTATION.md
+
+# Deployment packages contain source and public assets only.
+*.db
+*.sqlite
+*.sqlite3
+*.sqlite-*
+*.dump
+*.sql.gz
+*.bak
+*.pem
+*.key
+*.p12
+*.pfx
+*.bundle
+coverage/
+playwright-report/
+test-results/
+blob-report/
+Source/

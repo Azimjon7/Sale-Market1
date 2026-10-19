@@ -1,0 +1,47 @@
+DODOLA — YAKUNIY LUXURY UI/UX POLISH
+2026-10-19. Faqat lokal o‘zgarishlar.
+
+NATIJA
+390px mobil checkout, bir xil savat va profil: 2 932px dan 1 857px ga qisqardi (36.7%). Tasdiqlangan lavender/purple, serif va original rasmlar saqlandi.
+
+- Mobil buyurtma tarkibi native details/summary bilan ochiladi/yig‘iladi. Mahsulot soni va server hisoblagan summa yig‘iq holatda ham ko‘rinadi. Promokod hamda jami hisoblar doim mavjud.
+- Payme, Click, Uzum va bank karta: 56px radio qatorlar. Har bir kartadagi takroriy matn o‘rniga bitta aniq ogohlantirish.
+- Majburiy ism, telefon, shahar, tuman, ko‘cha va uy maydonlari yashirilmagan. Ma’lum mijoz va asosiy manzil avtomatik to‘ldiriladi. “Yangi manzil” eski qiymatlarni tozalaydi; tashqi shahar yuborish tugmasini bloklaydi. Validatsiya va server narxlari saqlandi.
+- Ixtiyoriy izoh native disclosure ichiga ko‘chirildi. Formaning oralig‘i, stepper va heading ixchamlashtirildi.
+- Mobil pastki panel: yakuniy summa + “Buyurtmani tasdiqqa yuborish”. Fokus forma maydonida bo‘lsa yoki visualViewport klaviatura ochilishini ko‘rsatsa, panel forma oqimiga qaytadi. Safe-area va pastki bo‘shliq hisoblangan; checkout’da boshqa bottom navigation chiqmaydi.
+- Desktop savat: narx va mahsulot ma’lumoti bir qatorda; bosh banner va kartalarda ortiqcha bo‘shliq kamaydi.
+- Shared search: 44px bosiladigan tugma, mobil input 16px (iOS fokus zoomini kamaytirish uchun). Mavjud ixcham header saqlandi.
+- Checkout va order history/detail uchun rasm bo‘lmasa mahalliy Dodola fallback rasmi chiqadi; buzilgan URL uchun mavjud shared error fallback ishlaydi.
+- Quote yuklanmaguncha submit bloklangan; initial native submit oldi olindi.
+
+TEKSHIRUV
+- 22 mijoz sahifasi/holati × 8 kenglik (320, 360, 375, 390, 430, 768, 1024, 1440) = 176 brauzer tekshiruvi; 0 issue, 0 pageerror.
+- Checkout polish: 202 interaktiv assertion. Summary click/Enter, payment 4 variant, promo qo‘llash/olib tashlash/noto‘g‘ri kod, saved/new address, city boundary, required fields, prefill, keyboard-focus holati, totals binding, readonly submit va cart preservation.
+- Mavjud savat/filtr interaksiyalari: 36 passed.
+- Core checkout/customer/marketplace: 18 testdan 17 passed, 0 failed, 1 skipped (haqiqiy PostgreSQL concurrency suite bu muhitda yo‘q).
+- Security/customer-auth: 99 passed, 0 failed. Jami core: 116 passed, 1 skipped.
+- 390px va 1440px key pages, 320/375/430/768 screenshotlari, full-page va bottom viewportlar vizual ko‘rib chiqildi. Native details keyboard ishlaydi; maxsus dialog va navigation regressiyasi ham tekshirildi.
+
+FAYLLAR
+- checkout.html
+- js/checkout-v2.js
+- css/dodola-marketplace.css
+- js/dodola-orders.js
+- test/checkout-polish-browser.cjs
+- Ushbu hisobot. .local-tests/final-polish-* ichidagi QA dalillari lokal artefaktlar.
+
+XAVFSIZLIK
+Checkpoint: .local-backups/final-polish-1792434592394. 5 source nusxasi hash bilan tekshirildi. 3 524 himoyalangan faylning yakuniy hash tekshiruvida o‘zgarish yo‘q. Shu ish boshlangan paytdagi katalog/customer/order ma’lumotlari saqlandi: hozirgi lokal nusxada 1 164 mahsulot, 14 buyurtma va 3 mijoz bor.
+PUBLIC_WRITES_ENABLED=false browser fixture’da health va POST 503 orqali tekshirildi. Test fixtures vaqtinchalik lokal sintetik ma’lumotlarni tayyorlaydi; production manbalari ishlatilmaydi. Production DB/Neon/R2/DNS/secrets o‘zgarmadi, schema migration, push va deploy bajarilmadi. Live to‘lovlar yoqilmadi.
+
+TO‘LOVLAR VA CHEKLOVLAR
+Click: UI-only. Payme: UI-only. Uzum: UI-only. Bank kartasi: UI-only. Sandbox merchant-connected yoki LIVE merchant-connected provayder yo‘q. Karta raqami/CVV maydoni va soxta muvaffaqiyatli real to‘lov yo‘q. Mavjudlik tasdig‘idan keyingina to‘lov bosqichi saqlandi.
+Fizik iPhone/Android klaviaturasi va Safari qurilmasi tekshirilmadi; Microsoft Edge real browser viewport, focus va visualViewport logikasi tekshirildi. Tashqi Google Maps iframe testlarda tarmoqdan uzilgan, shuning uchun QA rasmida xarita yuklanmaydi.
+
+DALILLAR
+.local-tests/final-polish-pages/index.html — key pages galereyasi.
+.local-tests/final-polish-pages/checkout-before-after-390.jpg — yonma-yon oldin/keyin.
+.local-tests/polish-pages.txt — 176 layout natijasi.
+.local-tests/polish-interactions.txt — 202 assertion natijasi.
+.local-tests/polish-core.txt va polish-security.txt — core/security natijalari.
+.local-tests/polish-preservation.json — himoyalangan fayl va backup tekshiruvi.

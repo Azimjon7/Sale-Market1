@@ -1,0 +1,24 @@
+# Reference only. Do not copy over the existing .env or expose secrets in chat.
+# Providers default to disabled. No changes to PUBLIC_WRITES_ENABLED are needed.
+PAYMENT_MODE=disabled
+PAYMENT_RETURN_ORIGIN=
+# Live enablement requires a separate approved launch and merchant acceptance.
+PAYMENT_LIVE_APPROVED=no
+
+PAYME_MERCHANT_ID=
+PAYME_KEY=
+
+CLICK_MERCHANT_ID=
+CLICK_SERVICE_ID=
+CLICK_MERCHANT_USER_ID=
+CLICK_SECRET_KEY=
+# Set yes only for a test service issued/confirmed by Click.
+CLICK_TEST_SERVICE_CONFIRMED=no
+
+# Use only the API origin and checkout host assigned by Uzum to this terminal.
+UZUM_API_ORIGIN=
+UZUM_CHECKOUT_HOST=
+UZUM_TERMINAL_ID=
+UZUM_API_KEY=
+# Requires a confirmed fiscal receipt integration/arrangement with Uzum.
+UZUM_FISCALIZATION_READY=no

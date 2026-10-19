@@ -1,0 +1,44 @@
+DODOLA — 1-BOSQICH DIZAYN PILOTI
+Faqat bosh sahifa. Keyingi sahifalar uchun foydalanuvchi tasdig‘i kutilmoqda.
+
+O‘zgarishlar: lavanda/charcoal/ivory palitra, serif display sarlavha,
+assimetrik fotografik hero, arkali foto va kategoriyalar, ikki yordamchi blok,
+haqiqiy katalogdan sakkiz mahsulot, telefon uchun ikki ustunli kartalar.
+Narxlar API katalogidan olinadi; maxsus suratlar yoki soxta reklama yaratilmagan.
+Asl rasmlar o‘zgartirilmagan. CSS faqat body.luxury-pilot sahifasiga taalluqli.
+Katalogning qolgan qismini havola orqali ochish mumkin. Mavjud savat mexanizmi
+saqlangan; server to‘lov yoki order logikasi o‘zgarmagan.
+
+Fayllar:
+index.html
+js/index-products.js
+css/dodola-luxury-pilot.css (yangi)
+test/luxury-pilot-browser.cjs (yangi, faqat read-only mahalliy ko‘rish/test)
+Ushbu hisobot.
+
+Tekshiruvlar:
+320, 360, 375, 390, 393, 412, 430, 480, 768, 1024, 1440 px — 11/11 o‘tdi.
+Gorizontal overflow, tashqariga chiqqan asosiy tugma yoki buzilgan rasm yo‘q.
+Har kenglikda savatga qo‘shish/localStorage/toast va asosiy katalog havolalari
+tekshirildi. 8 mahsulot va 6 kategoriya mavjud. Browser pageerror: 0.
+1440 desktop, 390 va 430 mobile haqiqiy browser skrinshotlari ko‘zdan kechirildi.
+320 px hero rasm balandligi va yon blokdagi kontrast tuzatildi.
+test/marketplace-ui.test.cjs: 2/2 o‘tdi. JS syntax va git diff --check o‘tdi.
+Haqiqiy telefon/Safari yoki live merchant operatsiyasi bu pilotda sinalmagan.
+
+Dalillar: .local-tests/luxury-pilot/results.json,
+.local-tests/luxury-pilot-run.txt, .local-tests/luxury-unit.txt.
+Skrinshotlar: .local-tests/luxury-pilot/home-{1440,390,430}.png (to‘liq)
+va home-{1440,390,430}-top.png (ekran ko‘rinishi).
+
+Xavfsizlik: mahalliy preview barcha yozuvchi HTTP usullarini 403 bilan rad
+etadi; publicWritesEnabled=false. .env o‘zgartirilmadi (unda ushbu flag avval
+ham yozilmagan). Bu preview runtime holati; production sozlamasi tekshirilmadi
+yoki o‘zgartirilmadi. Preview katalogni faqat o‘qiydi va live API/Neon/R2ga
+ulanmaydi. Savat sinovi faqat brauzer localStorage faylashtirishidan iborat.
+Source backup .local-backups/luxury-pilot-1792354443582/ SHA-256 bilan tekshirildi.
+Nazorat qilingan .env/products/orders/customers/inventory fayllarida farq yo‘q.
+1,164 mahsulot, 13 mahalliy buyurtma. Schema, push, deploy yoki live yozuv yo‘q.
+
+Click/Payme/Uzum/bank kartasi oldingi holatida: UI-only; merchant ulanmagan.
+Ushbu bosqich faqat bosh sahifa dizayni uchun tasdiqqa taqdim etiladi.

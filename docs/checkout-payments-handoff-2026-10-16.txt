@@ -1,0 +1,177 @@
+DODOLA — MAHALLIY CHECKOUT / TO‘LOV ISHLARI
+2026-10-16. Ishchi loyiha: Sale-Market-Catalog-Gallery-Upgrade.
+
+HOLAT
+Yangi kod mahalliy ishlab chiqildi. Production deploy, Git push, Neon import,
+live migratsiya va R2 yozuvi bajarilmadi. PUBLIC_WRITES_ENABLED o‘zgartirilmadi.
+Hech qaysi provider merchant hisobiga ulanmagan. Mahalliy protokol testlari
+providerning haqiqiy sandbox sinovi deb hisoblanmaydi.
+
+Click: UI-only; hosted checkout / imzo / Merchant API adapteri mahalliy testlangan.
+Payme: UI-only; hosted checkout / Merchant API adapteri mahalliy testlangan.
+Uzum: UI-only; hosted checkout / autentifikatsiyali status API mahalliy testlangan.
+Bank kartasi: UI-only; Uzum hosted checkout orqali rejalashtirilgan, alohida
+bank ekvayringi ulanmagan. Qaysi karta turlari qabul qilinishini terminal
+shartnomasi belgilaydi. Saqlangan kartalar hozir yo‘q; profil tanlovi va tarix bor.
+
+JORIY LOYIHA AUDITI VA O‘ZGARISHLAR
+- Express createApp, JSON/PostgreSQL repositorylar, sessiyali mijoz kabineti,
+  R2/public fayl qatlamlari, cart/checkout/admin va made-to-order oqimi ko‘rildi.
+- Eski checkout skrinshot yuborishga tayangan. Yangi checkoutda skrinshot,
+  PAN, CVV yoki sayt ichida karta rekvizitini kiritish maydonlari yo‘q.
+- Eski promo tekshiruvi mijoz subtotal qiymatiga tayangan. Endi narxlar server
+  katalogidan olinadi; buyurtma saqlanishida PostgreSQL katalog/promo bloklari
+  ostida qayta hisoblanadi. Foiz 0 dan katta, 90 gacha; muddat, boshlanish,
+  limit, minimum, maksimum chegirma tekshiriladi; bir buyurtmaga bitta kod.
+- Yangi buyurtma: pending_confirmation -> confirmed -> awaiting_payment -> paid.
+  Ombor rezervatsiyasi va tarixiy ma’lumotlar qayta yozilmadi. Admin karta
+  to‘lovini qo‘lda paid qila olmaydi; tasdiqlanmagan mahsulotdan pul olinmaydi.
+- Yetkazish: faqat tashkent-city, 12 ta tuman, to‘liq ko‘cha/uy; summa 0.
+  Toshkent viloyati, Qibray, Zangiota, Chirchiq va boshqa shaharlar rad etiladi.
+  Bu manzil maydonlari validatsiyasi; xarita/geokod orqali joylashuv kafolati emas.
+- Profil: buyurtmalar, to‘lov holatlari/urinishlari, tuzilgan manzillar va
+  shu brauzerda saqlanadigan afzal to‘lov usuli. Raw karta ma’lumoti olinmaydi.
+- Admin: promo tahriri va limitlar; provayder sozlamasi holati; oxirgi 100 urinish
+  va provayderdan qayta tekshirish. Xato javobda yolg‘on saqlandi deyilmaydi.
+
+ASOSIY FAYLLAR
+checkout.html, css/checkout-premium.css, js/checkout-v2.js
+payment.html, js/payment-page.js
+account.html, js/account-page.js, js/commerce-profile.js, css/customer-account.css
+admin.html, js/cart-page.js, js/order-schema.js, js/order-labels.js
+server.js, utils/commerceRules.js, utils/customerAuth.js
+utils/payments/{adapters,service,webhooks,routes}.js
+utils/postgres/{orderInventoryRepository,orderReadRepository,promoCodeRepository,
+customerRepository}.js
+db/migrations/003_checkout_payments.sql, docs/payment-environment.example
+
+XAVFSIZLIK VA TO‘LOV HOLATLARI
+- Attempt ID, idempotency key, provider transaction ID va buyurtma bog‘lanadi.
+  Order row lock va DB unique cheklovlari parallel so‘rovlarda ikki marta
+  to‘lashga yo‘l qo‘ymaydi. Mablag‘ tiyinlarda tekshiriladi, currency UZS.
+- Guest token hash / tekshirilgan mijoz sessiyasi orqali faqat buyurtma egasi
+  to‘lovni ochadi; CSRF, admin autentifikatsiyasi va rate limitlar ishlaydi.
+- Click: rasmiy MD5 imzosi constant-time tekshiriladi, sign_time 10 daqiqa
+  oynasida; prepare/complete va summalar bog‘lanadi. error va click_paydoc_id
+  imzoga kirmagani sababli server avval status_by_mti orqali payment_id ni
+  aynan attemptga bog‘laydi, keyin payment/status orqali tasdiqlaydi.
+- Payme: rasmiy Merchant API HTTPS Basic autentifikatsiyasi constant-time
+  tekshiriladi. Protokol body uchun alohida HMAC imzosini bermaydi; bunday
+  soxta imzo mexanizmi o‘ylab topilmadi. 12 soat TTL, takroriy so‘rovlar,
+  Create/Perform/Cancel/Check/GetStatement, qaytarish va replay himoyasi bor.
+- Uzum callback faqat tekshirish signali: yuborilgan SUCCESS hech narsani
+  to‘langan qilmaydi. Server terminal kaliti bilan getOrderStatus chaqirib
+  provider order ID, merchant order ID, amount, completed/refunded/reversed
+  summalarini tekshiradi. Rasmiy docsda callback body imzosi ko‘rsatilmagan.
+- Browser return URL yoki skrinshot paid holatini o‘rnata olmaydi.
+- Noaniq registration review holatida qoladi, yana pul olishga urinmaydi.
+  Kech kelgan transport xatosi allaqachon tasdiqlangan to‘lovni pasaytirmaydi.
+- Sozlama va schema bo‘lmasa providerlar yopiq turadi. Live uchun alohida
+  PAYMENT_LIVE_APPROVED=yes darvozasi bor; bu merchant tasdig‘ining o‘rnini bosmaydi.
+
+MERCHANT ONBOARDING — KEYINGI ANIQ QADAMLAR
+1. Dodola uchun har bir xizmatning internet-do‘kon/merchant shartnomasini
+   rasmiylashtiring. Hisob-kitob rekvizitlari, komissiya, fiskal chek va refund
+   shartlarini provayder bilan tasdiqlang. Kerakli hujjatlar ro‘yxatini aynan
+   o‘sha provayder beradi; shartnoma mavjud deb taxmin qilinmagan.
+2. Payme: merchant/kassa ID va alohida TEST key oling. Merchant API hisob
+   maydoni order_id bo‘lsin (qiymat ichki payment attempt UUID bo‘ladi).
+   Staging HTTPS endpoint: /api/payments/webhooks/payme.
+   Merchant test kabinetida barcha JSON-RPC metodlarini sinang; hosted URL
+   checkout.test.paycom.uz. Faqat qabul testidan so‘ng live keyga o‘tiladi.
+3. Click: merchant_id, service_id, merchant_user_id, secret_key va provayder
+   tasdiqlagan TEST service oling. SHOP API prepare va complete uchun bitta
+   HTTPS endpoint: /api/payments/webhooks/click. Merchant API status_by_mti
+   hamda payment/status ruxsatini so‘rang. Oddiy live service ni sandbox deb
+   belgilash mumkin emas. Status/refund/cancel kodlari va kech callback
+   qayta yuborilish tartibini Click bilan tasdiqlash talab qilinadi.
+4. Uzum: ONE_STEP hosted checkout uchun TEST terminal ID, API key, tayinlangan
+   API origin va checkout redirect hostname oling. Fiskalizatsiya tartibini
+   tasdiqlang. Callback: /api/payments/webhooks/uzum; orderNumber=attempt UUID,
+   orderId=provider ID. Terminalda qo‘llanadigan karta turlarini tasdiqlang.
+5. Kalitlarni chatga yoki Git’ga yubormang. Maxfiy konfiguratsiyaga kiritiladi;
+   docs/payment-environment.example faqat bo‘sh namunadir. Mavjud .env ustidan yozmang.
+6. Tasdiqlangan alohida staging HTTPS domenida callback URLlarni merchant
+   kabinetlariga kiriting; PAYMENT_RETURN_ORIGIN shu origin bo‘ladi.
+   Bu bosqich uchun staging deploy va konfiguratsiyaga alohida ruxsat kerak.
+7. Haqiqiy provider sandboxida muvaffaqiyat, rad etish, timeout, retry, takroriy
+   callback, noto‘g‘ri summa, refund va merchant hisobotini solishtirishni
+   bajaring. Provayder qabul qilganidan keyingina sandbox-tested deb belgilang.
+8. Live oldidan ruxsat asosida Neon backup + alohida bazaga restore tekshiruvi,
+   product/order/customer/inventory sanog‘i, R2 audit, migratsiya va rollback
+   rejasi bajariladi. Production import yoki reset ishlatilmasin. Deploy va
+   live merchant kalitlariga o‘tish uchun alohida foydalanuvchi tasdig‘i kerak.
+
+QOLGAN CHEKLOVLAR / BLOKERLAR
+- Haqiqiy merchant hisoblari va sandbox credentials berilmagan; tarmoqli
+  provider sinovlari va real settlement tasdiqlanmagan.
+- Click public docsda faqat success status 1 aniq; noma’lum/refund kodlari
+  taxmin qilinmaydi. Ular tekshirilmaguncha avtomatik Click refund/cancel
+  klassifikatsiyasi va retry ochilmaydi. Merchant bilan bu xarita shart.
+- Refundni saytdan boshlash tugmasi yo‘q. Payme cancellation va Uzum tasdiqlangan
+  full/partial refund holatlarini qabul qiladi. Provayder kabinetidan rasmiy
+  qaytarish jarayoni va fiskal qaytarish merchant qabul sinoviga kiradi.
+- Reconciliation webhook, mijoz/admin tekshirishida ishlaydi. Davriy worker
+  o‘rnatilmagan. Payme merchant ledgerni CheckTransaction/GetStatement orqali
+  provider o‘zi tekshiradi; alohida bank settlement report importi yo‘q.
+- Noaniq Uzum registrationda provider ID kelmagan bo‘lsa, merchant kabinetida
+  attempt UUID orqali aniqlashtirish kerak; avtomatik qayta registration yo‘q.
+- Oldingi orderlar ko‘rinadi; confirmed_at bo‘lmagan eski payment_pending
+  order avtomatik haq ololmaydi. Mavjudlikni alohida tasdiqlash/backfill jarayoni
+  live ma’lumotlar bilan ruxsatsiz bajarilmaydi.
+- JSON backendda buyurtma/profil ishlaydi, onlayn payment ledger PostgreSQLni
+  talab qiladi. Neon’ga ulanish yoki live backup bu ishda qilinmadi.
+
+ZAXIRA VA SAQLANISH
+.local-backups/checkout-2026-10-16-1792156311930/
+236 source/data nusxasi SHA-256 bilan tekshirildi (verification.json).
+.env nusxalanmadi yoki ko‘rsatilmadi; faqat hash taqqoslandi. 3,524 ta mahalliy
+data/asset/env fayl uchun preservation.json mavjud. Bu live PostgreSQL backup emas.
+Mahalliy katalog: 1,164 mahsulot, 12 tarixiy order. Business data, mijozlar,
+inventory, .env va rasm fayllari hash bilan saqlangan.
+Yakuniy solishtirishda 2 runtime fayli boshqacha: customer-sessions.json ning
+cookie expires/originalMaxAge va uploads/buyo/gallery-manifest.json keshi.
+19:25 da ishga tushgan alohida server jarayoni mavjud; bu runtime yangilanishlari
+uning ishga tushishi bilan vaqt jihatidan mos. Ular ustidan backup yozilmadi.
+R2ga tegilmadi; foydalanuvchi bildirgan 3,490 remote obyekt qayta sanalmadi.
+
+YAKUNIY SINOV NATIJALARI
+142 ta Node/API test: 142 pass, 0 fail, 0 skip.
+test/checkout-payments.test.cjs: 14 ta; aynan lokal PostgreSQL 18, 127.0.0.1:55439,
+faqat sintetik vaqtinchalik bazalar, migrations 001–003. Real parallel SQL
+testida 6 ta bir martalik promo so‘rovidan faqat bittasi o‘tadi; 8 takroriy
+payment start bitta attemptga keladi; 5 takroriy order bir ID/token va bitta
+redemptionga keladi. Hech qaysi test live connection stringdan foydalanmaydi.
+Qolgan to‘plamlar: security-correctness, customer-auth, postgres-express-integration,
+warehouse-inventory, postgres-migration, admin-order-management, public-launch-lock.
+Oldingi registration race testi qaysi so‘rov birinchi kelishini taxmin qilardi;
+endi qaysi biri yutishidan qat’i nazar bitta 201 va bitta 409 ni tekshiradi.
+
+test/checkout-browser.cjs: Edge/Playwright, 29 tekshiruv, 0 pageerror.
+1440/390/320 px checkout, Toshkentdan tashqari manzil, promo hisoblash,
+HTTP 400/500, yolg‘on/mavjud bo‘lmagan acknowledgement, noto‘g‘ri JSON,
+network uzilishi, savatni saqlash, muvaffaqiyatli buyurtma acknowledgement,
+tasdiqdan oldin to‘lov yopiq, profil manzili/tanlovi, admin promo tahriri/saqlash
+va provider holati tekshirildi. UI sinovi haqiqiy pul o‘tkazmasi emas.
+Skrinshotlar: .local-tests/checkout-browser/ (checkout-1440/390/320.png,
+confirmation-1440/390/320.png, profile-payments-390.png,
+admin-promos-payments-1440.png). Desktop, mobile va admin rasmlari ko‘zdan kechirildi.
+Dalillar: .local-tests/checkout-final-all.txt, checkout-final-races.txt,
+checkout-final-browser.txt. git diff --check: whitespace xatosi yo‘q.
+
+Qayta ishlatish (faqat o‘sha izolyatsiyalangan lokal PostgreSQL yoqilganida):
+$env:DODOLA_TEST_PG_PORT='55439'
+node --test test/checkout-payments.test.cjs test/security-correctness.test.cjs test/customer-auth.test.cjs test/postgres-express-integration.test.cjs test/warehouse-inventory.test.cjs test/postgres-migration.test.cjs test/admin-order-management.test.cjs test/public-launch-lock.test.cjs
+node test/checkout-browser.cjs
+PostgreSQLsiz checkout-payments testida pg-mem ishlaydi va haqiqiy parallel
+SQL testi skip bo‘ladi. Bu yakuniy ishda parallel test skip qilinmadi.
+Test serverlari va brauzerlar yopiladi; loyiha .env fayli testga yuklanmaydi.
+
+RASMIY PROTOKOL MANBALARI
+https://docs.click.uz/en/shop-api/requests
+https://docs.click.uz/en/merchant-api/requests
+https://docs.click.uz/en/click-button
+https://developer.help.paycom.uz/protokol-merchant-api/format-zaprosa/
+https://developer.help.paycom.uz/initsializatsiya-platezhey/otpravka-cheka-po-metodu-get/
+https://developer.uzumbank.uz/en/checkout/
+https://developer.uzumbank.uz/en/redocusaurus/en_checkout.yaml

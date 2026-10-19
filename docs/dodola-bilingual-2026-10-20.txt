@@ -1,0 +1,56 @@
+DODOLA — UX VA O‘ZBEKCHA / RUSCHA YANGILANISH
+2026-10-20 · Faqat mahalliy muhit
+
+BAJARILDI
+Lavanda, chuqur binafsha, ivory ranglari va serif uslubi saqlandi. Mobil hero, sarlavhalar, header, katalog kirish bloki ixchamlashtirildi. Footer oldidagi ortiqcha bo‘shliqning sababi eski main padding-bottom:88px va takroriy footer oralig‘i edi; asosiy sabab tuzatildi. Rasmlar, narxlar va chegirmalar tahrirlanmadi.
+
+Checkout’da ixcham to‘lov qatorlari va yig‘iladigan mahsulotlar saqlandi. Mobil navigatsiya checkout, mahsulot, savat, to‘lov holati va kuzatishda mavjud. Sticky tugmalar navigatsiya ustida, sahifa oxirida yetarli joy ajratilgan. Avval mavjudlik tasdig‘i, keyin to‘lov qoidasi saqlandi.
+
+Profil amaliy menyuga aylantirildi: buyurtmalar, kuzatish, manzillar, saralanganlar, to‘lovlar, sozlamalar, yordam, qaytarish bo‘yicha aloqa, til va chiqish. Alohida profil sozlamalari sahifasi ism, familiya, ixtiyoriy otasining ismi, telefon va emailni tahrirlaydi. Aloqa ma’lumotlarini almashtirishda joriy parol, CSRF va server tekshiruvi talab qilinadi. Email o‘zgarsa eski tasdiq havolalari bekor qilinadi. Telefon/email tahriri o‘z-o‘zidan tasdiqlangan hisoblanmaydi. Server xatosi muvaffaqiyat deb ko‘rsatilmaydi.
+
+Saralanganlar haqiqiy ishlaydi va shu brauzerda saqlanadi; boshqa qurilmalar bilan sinxronlash yo‘q. Qaytarish bo‘limi haqiqiy qo‘llab-quvvatlash kontaktlariga olib boradi; avtomatik refund va’dasi yo‘q.
+
+Markaziy js/dodola-i18n.js orqali o‘zbekcha/ruscha UI: menyular, kategoriyalar, tumanlar, checkout, profil, buyurtma holatlari, autentifikatsiya, xatolar va email shablonlari. Tanlov localStorage va til cookie’sida saqlanadi. Mehmonlar ham header’dan til tanlaydi. Option qiymatlari tarjimadan oldin saqlanadi, serverning manzil qiymatlari o‘zgarmaydi. Mahsulot nomlari/tavsiflari va foydalanuvchi kiritgan manzillar uydirma tarjima qilinmadi. Ruscha/lotincha/kirillcha qidiruv uchun alias va transliteratsiya qo‘shildi.
+
+Admin: Promokodlar sarlavhasining takrori olib tashlandi; parallel holat so‘rovlari to‘lov tarixi blokini ko‘paytirmaydi; mobil promo forma ustunlari sig‘adi, jadval o‘z hududida suriladi. Kategoriya saqlash muvaffaqiyatsiz bo‘lsa lokal ma’lumotni soxta yangilash va success xabari chiqarish tuzatildi.
+
+JORIY BOSQICHDA O‘ZGARGAN FAYLLAR
+admin.html
+css/admin-mobile.css
+css/dodola-luxury-pilot.css
+css/dodola-marketplace.css
+css/mobile-homepage.css
+js/account-page.js
+js/dodola-ui.js
+js/helpers.js
+js/search-engine.js
+utils/customerAuth.js
+utils/emailTemplates.js
+utils/postgres/customerRepository.js
+utils/publicFiles.js
+
+YANGI FAYLLAR
+favorites.html, profile-settings.html
+js/dodola-i18n.js, js/favorites.js, js/profile-settings.js
+test/profile-bilingual.test.cjs
+test/bilingual-browser.cjs
+test/bilingual-flows-browser.cjs
+test/bilingual-guest-browser.cjs
+
+TEKSHIRUV VA DALILLAR
+Backend regressiya: 120 testdan 119 muvaffaqiyatli, 1 skip, 0 xato. Skip: haqiqiy PostgreSQL parallel tranzaksiya sinovi; jonli bazaga ulanish qilinmadi. Profil xavfsizligi, CSRF, parol, eski email tokeni, tasdiqlash flaglari, email escaping va kirillcha qidiruv yangi testlarda tekshirildi.
+Asosiy UI: 12 holat × 11 kenglik × 2 til = 264 brauzer tekshiruvi, overflow va JS xatosi yo‘q. Kengliklar: 320,360,375,390,393,412,430,480,768,1024,1440.
+Savat, kirish va ro‘yxatdan o‘tish: qo‘shimcha 66 tekshiruv (3 sahifa × 11 kenglik × 2 til), overflow va JS xatosi yo‘q. Yakuniy 390/1440px suratlar alohida qayta tekshirildi. Shunday qilib responsiv sinovlar jami 330 ta.
+Amaliy oqim: 20 tekshiruv — til saqlanishi, profilning haqiqiy read-only xatosi, filtr/qidiruv, saralanganlar, chiqish, bo‘sh savat, noto‘g‘ri promo, sticky joylashuvi va admin takrorlanishi. Yakuniy JSON/loglar .local-tests/bilingual/ va .local-tests/bilingual-*.txt ichida.
+Brauzer sinovlari alohida pg-mem va vaqtinchalik fayllardagi sun’iy hisoblar/buyurtmalarda bajarildi, production yozuvlarida emas. Suratlarda mavjud katalogdan tanlangan mahsulotlar ishlatildi.
+Suratlar galereyasi: .local-tests/bilingual/index.html. 390px / 1440px, UZ / RU to‘liq sahifalar; ruscha qidiruv, filtr va admin ham bor. Oldingi checkout: .local-tests/final-polish-before/checkout-390.png.
+
+MA’LUMOTLAR HIMOYASI
+Checkpoint: .local-backups/bilingual-1792438038188 — 153 source fayl nusxasi SHA-256 orqali tekshirildi.
+3 524 himoyalangan faylning hash’i o‘zgarmagan. Mahalliy baseline: 1 164 mahsulot, 14 buyurtma, 3 mijoz. Bu bosqich hech birini o‘zgartirmadi. Audit: .local-tests/bilingual-preservation.json.
+Schema migratsiyasi talab qilinmadi: ixtiyoriy profil ma’lumotlari mavjud legacy_payload orqali saqlanadi. Live DB import/migratsiya qilinmadi. R2/DNS/secrets o‘zgarmadi. Push/deploy yo‘q. Preview PUBLIC_WRITES_ENABLED=false bilan ishladi; yozuv testlari faqat ajratilgan test muhitida.
+
+CHEGARALAR
+Payme — UI-only; Click — UI-only; Uzum — UI-only; bank kartasi — UI-only. Sandbox va LIVE merchant ulanishi tekshirilmagan. Karta raqami/CVV olinmaydi. SMS OTP yoqilmadi. Jonli Resend email jo‘natilmadi; shablonlar mahalliy tekshirildi.
+Merchant ulanishi uchun har bir provayder bilan savdogar shartnomasi, rasmiy API/sandbox hujjatlari va test rekvizitlari, callback URL/secret hamda keyingi alohida LIVE tasdig‘i kerak.
+Haqiqiy Android/iPhone klaviaturasi va Safari qurilma sinovi bajarilmadi; desktop Chromium mobil viewport sinovlari bajarildi. Native input klaviaturasining barcha OS holatlari jismoniy qurilmada qo‘shimcha tekshirilishi kerak.

@@ -1,0 +1,48 @@
+DODOLA LUXURY V3 — PHASE 2 LOCAL QA HISOBOTI
+Sana: 2026-10-19
+
+NATIJA
+Phase 1 tasdiqlangan luxury uslubi butun mijozlar oqimiga qo‘llandi: katalog va kategoriyalar, aksiya, mahsulot sahifasi, savat, checkout, buyurtma/to‘lov holati, shaxsiy kabinet, manzillar, buyurtmalar, tracking, aloqa, kirish, ro‘yxatdan o‘tish, parol tiklash va email tasdiqlash.
+
+QAYTA ISHLATILGAN DIZAYN TIZIMI
+- Umumiy tokenlar: ivory #fcfaf7, lavender #f0e8f8, premium binafsha #7343ab, chuqur plum #302238 va Phase 1 dagi serif sarlavhalar.
+- Bir xil yumaloq kartalar, nozik chegaralar, lavender gradientlar, pill tugmalar, hover/focus holatlari va reduced-motion qoidalari qo‘llandi.
+- Telefonlarda header 60–61px, logo 24–25px; hero 28–32px, bo‘lim sarlavhalari 22–24px. Pastki navigatsiya 58px va safe-area uchun joy qoldiradi.
+- Rasmlar o‘zining mavjud katalog fotosuratlari; object-fit: contain va lazy-loading saqlandi. Narx, eski narx va chegirma nishonlari server/katalog ma’lumotidan olinadi.
+
+SAHIFALAR
+Homepage, catalog, category, sale/offers, product details, cart, checkout, profile, orders, addresses, settings, payment preferences, order details, payment status, tracking, receipt, contact, login, register, password recovery, reset va verification holati ko‘rib chiqildi.
+
+TO‘LOV HOLATI
+- Click — UI-only.
+- Payme — UI-only.
+- Uzum — UI-only.
+- Bank kartasi — UI-only.
+Hech qaysi provayder live merchant yoki sandbox-ga ulanmagan. Soxta muvaffaqiyatli to‘lov yaratilmagan, karta raqami yoki CVV saqlanmagan. SMS OTP joriy etilmagan.
+
+TEKSHIRUVLAR
+- Asosiy brauzer matritsasi: 22 holat × 11 kenglik (320, 360, 375, 390, 393, 412, 430, 480, 768, 1024, 1440) = 242 tekshiruv; 0 issue, 0 brauzer xatosi.
+- Yakuniy mobil qayta-kadrlar: 22 holat × 320/375/390/430/768; kompakt header va typography qoidalari bilan.
+- Desktop yakuniy qayta-kadrlar: Catalog, Product, Cart, Checkout, Profile, Orders, Login, Register — 1440px; 8/8, 0 issue, 0 brauzer xatosi.
+- Core regressiya: 117 testdan 116 o‘tdi, 0 fail, 1 skip (real PostgreSQL paralel integratsiyasi bu lokal muhitda ishga tushirilmagan).
+- Checkout: 29 o‘tdi; Profile: 90 tekshiruv, 0 issue; savat/filtr interaksiyasi: 36 o‘tdi.
+- Tekshiruvlar horizontal overflow, tashqariga chiqib ketgan boshqaruv, rasmlar proporsiyasi, lazy-loading, discount yozuvlari, dialog klaviaturasi, mobil fixed-barlar va PUBLIC_WRITES_ENABLED=false ni qamrab oldi.
+
+MA’LUMOTLAR VA XAVFSIZLIK
+- Schema migratsiyasi ishga tushirilmadi.
+- Xavfsiz lokal checkpoint: .local-backups/luxury-phase2-1792383188496; 117 source fayl nusxasi hash bilan tekshirildi.
+- 3,524 himoyalangan faylning yakuniy SHA-256 tekshiruvida o‘zgarish yo‘q.
+- Lokal katalog 1,164 mahsulot, lokal tarix 13 buyurtma va 2 mijoz bilan qoldi.
+- Browser preview PUBLIC_WRITES_ENABLED=false rejimida tekshirildi: buyurtma yaratish POST so‘rovi 503 qaytardi. Interaktiv regressiya testlari vaqtinchalik izolyatsiyalangan fixture ma’lumotida bajarildi.
+- Production DB, Neon, R2, DNS, secrets va tashqi xizmatlarga yozuv bo‘lmadi. GitHub push, Railway/TCloud deploy va pullik xizmatlar ishlatilmadi.
+
+PHASE 2 DA BEVOSITA O‘ZGARGAN FAYLLAR
+- css/dodola-tokens.css
+- css/dodola-marketplace.css
+- css/dodola-luxury-pilot.css
+- test/marketplace-fixture.cjs
+- test/marketplace-browser.cjs
+- test/customer-ui-browser.cjs
+
+ESLATMA
+Fizik Android/iPhone qurilmalarida Safari/Chrome qo‘lda sinov qilinmadi; Microsoft Edge Playwright viewportlari bilan yuqoridagi kengliklarda tekshirildi. Live payment merchant credentials va provider callbacklari bo‘lmagani sababli to‘lovlar faqat tayyor UI holatidadir.

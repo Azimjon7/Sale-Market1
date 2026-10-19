@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Dodola | Buyurtmani kuzatish</title>
+  <link rel="stylesheet" href="css/bootstrap.min.css" type="text/css" />
+  <link rel="stylesheet" href="css/font-awesome.min.css" type="text/css" />
+  <link rel="stylesheet" href="css/elegant-icons.css" type="text/css" />
+  <link rel="stylesheet" href="css/slicknav.min.css" type="text/css" />
+  <link rel="stylesheet" href="css/style.css" type="text/css" />
+  <link rel="stylesheet" href="css/marketplace-upgrade.css" type="text/css" />
+  <link rel="stylesheet" href="css/mobile-premium.css" type="text/css" />
+  <link rel="stylesheet" href="css/shared-header.css" type="text/css" />
+  <link rel="stylesheet" href="css/mobile-320-480-fix.css" type="text/css" />
+  <link rel="stylesheet" href="css/live-upgrade-fixes.css" type="text/css">
+  <link rel="stylesheet" href="css/customer-navigation.css" type="text/css">
+<link rel="stylesheet" href="css/dodola-tokens.css"><link rel="stylesheet" href="css/dodola-customer.css"><link rel="stylesheet" href="css/dodola-marketplace.css"></head>
+<body class="market-body track-page dodola">
+
+  <a class="dodola-skip" href="#dodola-content">Asosiy mazmunga o‘tish</a><header class="dodola-header"><div class="dodola-header__inner"><a class="dodola-logo" href="index.html" aria-label="Dodola — bosh sahifa">Dodola<span>·</span></a><form class="dodola-search" action="shop.html" method="get" role="search"><input type="search" name="search" placeholder="Nima izlayapsiz?" aria-label="Mahsulotlarni qidirish"><button aria-label="Qidirish" type="submit">⌕</button></form><nav aria-label="Do‘kon bo‘limlari"><a data-nav-page="shop" href="shop.html">Katalog</a><a data-nav-page="shop-cart" href="shop-cart.html"><span class="nav-label">Savat</span> <span class="js-cart-count">0</span></a><a data-nav-page="account" href="account.html">Profilim</a></nav></div></header>
+
+
+  <section class="breadcrumb-custom market-page-hero">
+    <div class="container">
+      <h2>Buyurtmani kuzatish</h2>
+      <p>Buyurtma raqami orqali yetkazib berish holatini xavfsiz tekshiring.</p>
+    </div>
+  </section>
+
+  <section class="track-section spad">
+    <div class="container">
+      <div class="track-card">
+        <div class="track-form">
+          <div>
+            <label for="orderNumber">Buyurtma raqami</label>
+            <input id="orderNumber" type="text" placeholder="DOD-ORD-1001" autocomplete="off" />
+          </div>
+          <div>
+            <label for="trackingToken">Maxfiy kuzatuv kaliti</label>
+            <input id="trackingToken" type="password" placeholder="Buyurtmadan keyin berilgan kalit" autocomplete="off" />
+          </div>
+          <button class="site-btn" type="button" onclick="trackOrder()">Buyurtmani tekshirish</button>
+        </div>
+        <div id="trackMessage" class="form-message"></div>
+        <div id="trackResult"></div>
+      </div>
+    </div>
+  </section>
+
+  <footer class="sm-footer">
+    <div class="sm-footer__grid">
+      <div class="sm-footer__brand">
+        <a class="market-logo" href="index.html" aria-label="Dodola">
+          <span class="market-logo__mark">D</span>
+          <span style="color:#fff">Dodola</span>
+        </a>
+        <p>O'zbekistonda qulay va ishonchli online xarid. Katalog, savat, checkout va buyurtma kuzatuvi bir joyda.</p>
+      </div>
+      <div>
+        <h6>Bo'limlar</h6>
+        <a href="shop.html">Katalog</a>
+        <a href="shop-cart.html">Savat</a>
+        <a href="checkout.html">Buyurtma</a>
+      </div>
+      <div>
+        <h6>Yordam</h6>
+        <a href="track-order.html">Buyurtmani kuzatish</a>
+        <a href="contact.html">Bog'lanish</a>
+      </div>
+      <div>
+        <h6>Aloqa</h6>
+        <a href="https://t.me/salemarket_uz1" target="_blank" rel="noopener"><i class="fa fa-telegram" aria-hidden="true"></i> Telegram</a>
+        <a href="tel:+998990020015"><i class="fa fa-phone" aria-hidden="true"></i> +998 99 002 00 15</a>
+      </div>
+    </div>
+    <div class="sm-footer__bottom">© 2026 Dodola</div>
+  </footer>
+
+
+  <script src="js/jquery-3.3.1.min.js"></script>
+  <script src="js/bootstrap.min.js"></script>
+  <script src="js/jquery.slicknav.js"></script>
+  <script src="js/main.js"></script>
+  <script src="js/product-rules.js"></script>
+  <script src="js/store.js"></script>
+  <script src="js/panel-manager.js"></script>
+  <script src="js/marketplace-upgrade.js"></script>
+  <script src="js/shared-header-init.js"></script>
+  <script src="js/order-labels.js"></script>
+  <script src="js/dodola-orders.js"></script>
+  <script>
+    const ORDER_LABELS = window.DodolaOrderLabels;
+    const STATUS_LABELS = ORDER_LABELS.statusLabels;
+
+    const STATUS_ALIASES = {
+      yangi: "new",
+      "qabul qilindi": "new",
+      new: "new",
+      tasdiqlandi: "confirmed",
+      tayyorlanmoqda: "production",
+      confirmed: "confirmed",
+      "tasdiqlashni kutmoqda": "pending_confirmation",
+      pending_confirmation: "pending_confirmation",
+      "to'lov kutilmoqda": "payment_pending",
+      payment_pending: "payment_pending",
+      production: "production",
+      "yo'lda": "shipped",
+      "yo`lda": "shipped",
+      "yo‘lda": "shipped",
+      "yo’lda": "shipped",
+      yolda: "shipped",
+      yuborildi: "shipped",
+      yetkazilmoqda: "shipped",
+      shipped: "shipped",
+      yetkazildi: "delivered",
+      delivered: "delivered",
+      "bekor qilindi": "cancelled",
+      cancelled: "cancelled",
+      "rad etildi": "rejected",
+      rejected: "rejected",
+    };
+
+    const STATUS_STEPS = [
+      { status: 'payment_confirmed', label: ORDER_LABELS.payment('collected') },
+      { status: 'production', label: ORDER_LABELS.status('production') },
+      { status: "shipped", label: ORDER_LABELS.status('shipped') },
+      { status: "delivered", label: ORDER_LABELS.status('delivered') },
+    ];
+
+    function formatMoney(value) {
+      return Number(value || 0).toLocaleString("uz-UZ") + " so'm";
+    }
+
+    function formatDate(value) {
+      const date = new Date(value);
+      if (Number.isNaN(date.getTime())) return "-";
+      return new Intl.DateTimeFormat("uz-UZ", {
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+        hour: "2-digit",
+        minute: "2-digit",
+      }).format(date);
+    }
+
+    function escapeHtml(value) {
+      return String(value ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+    }
+
+    Object.keys(STATUS_LABELS).forEach(key => { STATUS_ALIASES[key] = key; });
+
+    function normalizeStatus(status) {
+      const value = String(status || "").trim();
+      return STATUS_ALIASES[value.toLowerCase()] || "new";
+    }
+
+    function statusLabel(status) {
+      return ORDER_LABELS.status(normalizeStatus(status));
+    }
+
+    function statusClass(status) {
+      return "track-badge--" + normalizeStatus(status);
+    }
+
+    function renderTimeline(status, paymentStatus) {
+      const normalized = normalizeStatus(status);
+      return DodolaOrders.timeline({status:normalized,paymentStatus,confirmedAt:['confirmed','awaiting_payment','payment_pending','paid','production','shipped','delivered'].includes(normalized)});
+    }
+
+    function renderOrder(order) {
+      document.getElementById("trackResult").innerHTML = `
+        <div class="track-result">
+          <div class="track-field"><span>Buyurtma raqami</span><strong>${escapeHtml(order.orderNumber || '-')}</strong></div>
+          <div class="track-status"><span>Holati</span><strong class="track-badge ${statusClass(order.status)}">${escapeHtml(statusLabel(order.status))}</strong></div>
+          ${order.paymentStatus === 'pending' ? `<p>To'lov tasdiqlanishi kutilmoqda.</p>` : ''}
+          ${order.paymentStatus === 'pending' && order.paymentDeadline ? `<p>To'lov muddati: ${escapeHtml(formatDate(order.paymentDeadline))}</p>` : ''}
+          ${renderTimeline(order.status || "new", order.paymentStatus)}
+          <div class="track-grid">
+            <div class="track-field"><span>Buyurtma vaqti</span><strong>${formatDate(order.createdAt)}</strong></div>
+            <div class="track-field"><span>Oxirgi yangilanish</span><strong>${formatDate(order.updatedAt)}</strong></div>
+          </div>
+          <p class="track-privacy-note">To‘liq tafsilotlarni shaxsiy kabinetingizda ko‘rishingiz mumkin.</p>
+        </div>
+      `;
+    }
+
+    async function trackOrder() {
+      const orderNumber = document.getElementById("orderNumber").value.trim().toUpperCase();
+      const trackingToken = document.getElementById('trackingToken').value.trim();
+      const msg = document.getElementById("trackMessage");
+      msg.innerHTML = "";
+      document.getElementById("trackResult").innerHTML = "";
+
+      if (!/^DOD-ORD-\d{4,}$/.test(orderNumber)) {
+        msg.innerHTML = '<span class="checkout-msg checkout-msg--error">DOD-ORD-1001 formatidagi buyurtma raqamini kiriting.</span>';
+        return;
+      }
+
+      try {
+        const res = trackingToken
+          ? await fetch('/api/orders/track/secure', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ orderNumber, trackingToken }) })
+          : await fetch("/api/orders/track?" + new URLSearchParams({ orderNumber }).toString(), { cache: "no-store" });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) throw new Error(data.message || "Buyurtma topilmadi");
+        renderOrder(data.order || data);
+      } catch (error) {
+        const message = /Buyurtma topilmadi/i.test(error.message || '')
+          ? 'Buyurtma topilmadi'
+          : "Buyurtmani tekshirib bo'lmadi. Qayta urinib ko'ring.";
+        msg.innerHTML = '<span class="checkout-msg checkout-msg--error">' + message + "</span>";
+      }
+    }
+
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("orderNumber")) document.getElementById("orderNumber").value = params.get("orderNumber");
+    if (params.get('token')) document.getElementById('trackingToken').value = params.get('token');
+  </script>
+  <script src="js/header-account.js"></script>
+<script src="js/dodola-ui.js"></script></body>
+</html>
+
+
+

@@ -1,0 +1,20 @@
+'use strict';
+const test=require('node:test'),assert=require('node:assert/strict'),request=require('supertest'),crypto=require('crypto'),{customerUiFixture}=require('./customer-ui-fixture.cjs');
+test('profile contact edits require password, preserve private data and invalidate old verification tokens',async t=>{
+ const c=await customerUiFixture();t.after(c.close);const current=(await c.agent.get('/api/customer/profile')).body.customer;
+ await request(c.app).patch('/api/customer/profile').send({firstName:'Unsafe'}).expect(401);
+ await c.agent.patch('/api/customer/profile').send({firstName:'Unsafe'}).expect(403);
+ const patch=body=>c.agent.patch('/api/customer/profile').set('X-CSRF-Token',c.csrf).send(body);
+ let r=await patch({firstName:'Yangi',lastName:'Mijoz',middleName:'Otasining ismi',language:'ru',emailVerified:true,phoneVerified:true});assert.equal(r.status,200);assert.equal(r.body.customer.middleName,'Otasining ismi');assert.equal(r.body.customer.emailVerified,false);assert.equal(r.body.customer.passwordHash,undefined);assert.equal(r.body.customer.addresses.length,current.addresses.length);
+ await patch({firstName:''}).expect(400);await patch({middleName:'x'.repeat(81)}).expect(400);await patch({language:'en'}).expect(400);
+ await patch({email:'new@example.invalid'}).expect(400);await patch({phone:'+998900000099',currentPassword:'incorrect'}).expect(400);
+ await c.pool.query('UPDATE customers SET email_verified_at=now() WHERE id=$1',[current.id]);
+ const raw='old-verification-token',hash=crypto.createHash('sha256').update(raw).digest('hex');
+ await c.pool.query('INSERT INTO auth_tokens(id,customer_id,token_type,token_hash,expires_at,created_at,legacy_payload) VALUES($1,$2,$3,$4,$5,now(),$6)',[crypto.randomUUID(),current.id,'verify_email',hash,new Date(Date.now()+60000),'{}']);
+ r=await patch({email:'NEW@example.invalid',phone:'+998900000099',currentPassword:c.credentials.password});assert.equal(r.status,200);assert.equal(r.body.customer.email,'new@example.invalid');assert.equal(r.body.customer.emailVerified,false);assert.equal(r.body.customer.phoneVerified,false);
+ assert.ok((await c.pool.query('SELECT used_at FROM auth_tokens WHERE token_hash=$1',[hash])).rows[0].used_at);
+ await c.agent.post('/api/auth/verify-email').set('X-CSRF-Token',c.csrf).send({token:raw}).expect(400);
+ const stored=(await c.pool.query('SELECT password_hash,session_version FROM customers WHERE id=$1',[current.id])).rows[0];assert.ok(stored.password_hash);assert.equal(Number(stored.session_version),1);
+});
+test('Russian auth emails escape names and preserve the secure action URL',()=>{const {verificationEmail,passwordResetEmail}=require('../utils/emailTemplates');for(const fn of [verificationEmail,passwordResetEmail]){const email=fn({language:'ru',firstName:'<unsafe>',actionUrl:'https://example.invalid/auth?token=synthetic'});assert.match(email.html,/lang="ru"/);assert.match(email.html,/Здравствуйте/);assert.match(email.html,/&lt;unsafe&gt;/);assert.doesNotMatch(email.html,/<unsafe>/);assert.match(email.text,/https:\/\/example.invalid\/auth\?token=synthetic/);}});
+test('Russian/Cyrillic search aliases work independently of interface language',()=>{const vm=require('node:vm'),fs=require('node:fs'),context={window:{}};vm.createContext(context);vm.runInContext(fs.readFileSync('js/search-engine.js','utf8'),context);const p=[{id:'bag',name:'Ayollar klatch-sumkasi',category:'Sumkalar'},{id:'pants',name:'Flis shimlar',category:'Shimlar'},{id:'chair',name:'Kreslo chexoli',category:'Mebel'}];for(const [q,id]of [['сумка','bag'],['клатч','bag'],['sumka','bag'],['брюки','pants'],['шим','pants'],['кресло','chair']])assert.ok(context.window.MBSearch.searchProducts(p,q).some(x=>x.id===id),q);});

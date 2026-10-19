@@ -1,0 +1,112 @@
+DODOLA — MOBIL VA DESKTOP YANGILANISHI
+2026-10-19. Faqat mahalliy ish; push va deploy bajarilmadi.
+
+NATIJALAR
+Mijoz sahifalari yagona to‘q moviy-yashil, mint va coral uslubiga o‘tdi.
+Mobil katalog ikki ustunli; rasmlar nisbatini saqlaydi, ekrandan tashqaridagi
+rasmlar lazy-load qilinadi. Narx, chegirma, savat tugmasi va mahsulot nomi
+320 px da ham sig‘adi. Mahsulot galereyasi, checkout, profil, manzil va
+buyurtma kartalari kichik ekranga moslashtirildi. Pastki navigatsiya safe-area
+hisobga oladi; xarid paneli bilan takrorlanmaydi. Reduced-motion qo‘llanadi.
+Filtr ochish tugmasi, qidiruvni tozalash, dialog klaviatura fokusi, savatga
+qo‘shish xabari va bo‘sh savat/checkout holatlari tuzatildi.
+Mahsulot matni va rasm atributlari HTML uchun xavfsiz kodlanadi.
+
+JORIY VIZUAL ISHDA O‘ZGARGAN FAYLLAR
+HTML: index.html, shop.html, product-details.html, shop-cart.html,
+checkout.html, payment.html, account.html, auth.html, reset-password.html,
+success.html, track-order.html, contact.html.
+CSS: css/dodola-tokens.css; yangi css/dodola-marketplace.css.
+JavaScript: js/helpers.js, js/index-products.js, js/shop-products.js,
+js/dodola-ui.js, js/cart-page.js, js/checkout-v2.js.
+Test: test/customer-ui-fixture.cjs, test/customer-ui-browser.cjs;
+yangi test/marketplace-fixture.cjs, test/marketplace-browser.cjs,
+test/marketplace-interactions.cjs, test/marketplace-ui.test.cjs.
+Ushbu hisobot. Oldingi checkout/backend ishlari alohida
+docs/checkout-payments-handoff-2026-10-16.txt da yozilgan.
+
+TEKSHIRUVLAR
+- Node/API: 114 o‘tdi, 1 skip, 0 xato. Joriy ishda haqiqiy PostgreSQL
+  parallel testi ishlatilmadi; pg-mem bu testni skip qiladi.
+- Mahsulot HTML xavfsizligi va chegirma chegaralari: 2 o‘tdi.
+- 22 sahifa/holat x 11 kenglik: 242, overflow yoki browser xatosi yo‘q.
+  Kengliklar: 320, 360, 375, 390, 393, 412, 430, 480, 768, 1024, 1440.
+- Filtr/savat/qidiruv/bo‘sh holatlar: 36 o‘tdi.
+- Profil, manzil va mijoz interfeysi: 90, xato yo‘q.
+- Checkout, admin promo va provider holati: 29, pageerror yo‘q.
+- Oxirgi rang/bo‘shliq tuzatishlaridan keyin home/cart/tracking/receipt:
+  6 kenglikda 24 qayta sinov, issues/errors bo‘sh; skrinshotlar qayta ko‘rildi.
+- git diff --check: whitespace xatosi yo‘q.
+Asosiy 22 holat: home, catalog, category, offers, product, cart, checkout,
+profile, orders, addresses, settings, payments, order-details, payment-status,
+tracking, receipt, contact, login, register, forgot, reset, verification.
+320/375/390/430/768 px rasmlar ko‘zdan kechirildi; 1440 px ham tekshirildi.
+Bu haqiqiy Edge/Chromium brauzer skrinshotlari; telefon qurilmasi yoki Safari
+sinovi emas. Virtual telefon klaviaturasi alohida sinovdan o‘tkazilmadi.
+
+DALILLAR
+.local-tests/marketplace-core-tests.txt
+.local-tests/marketplace-ui-tests.txt
+.local-tests/marketplace-browser-verified.txt
+.local-tests/dodola-marketplace/full-results.json
+.local-tests/marketplace-interactions.txt
+.local-tests/marketplace-profile-browser.txt
+.local-tests/marketplace-checkout-browser.txt
+.local-tests/marketplace-final-refinements.txt
+.local-tests/dodola-marketplace/ — haqiqiy skrinshotlar va review kollajlari.
+.local-tests/dodola-marketplace/index.html — 390 px skrinshotlar galereyasi.
+Testlar vaqtinchalik, izolyatsiyalangan ma’lumot bilan ishlaydi. Vizual katalog
+uchun mavjud katalogdan 12 mahsulot/rasm faqat o‘qib olindi; mijozlar va
+buyurtmalar sintetik. Tashqi tarmoq browser testlarida bloklangan.
+
+MA’LUMOTLAR VA ZAXIRA
+.local-backups/dodola-mobile-1792259534037/ — 175 source nusxasi SHA-256
+tekshiruvidan o‘tgan. Bu live DB backup emas. Ushbu vizual ishda schema
+o‘zgarmadi; Neon, R2 yoki production ma’lumotlariga yozilmadi.
+3,524 himoyalangan fayldan 3,522 o‘zgarmagan. Farq
+data/customer-sessions.json va uploads/buyo/gallery-manifest.json runtime
+sessiya/kesh fayllarida; o‘zgarish tashabbuskori aniq
+tasdiqlanmagan. Faol sessiyalar ustidan eski backup yozilmadi.
+1,164 mahsulot va ushbu bosqich boshidagi 13 mahalliy buyurtma saqlangan.
+Avvalgi 12 buyurtma soni eski bosqichga tegishli; yangi audit 13 bilan boshlandi.
+Mijozlar, inventory, mahsulot/rasm fayllari va .env o‘zgarmagan.
+Foydalanuvchi bildirgan 3,490 remote R2 obyekt qayta sanalmadi.
+PUBLIC_WRITES_ENABLED o‘zgartirilmadi. Tekshiruv:
+.local-tests/mobile-preservation.json.
+
+TO‘LOV PROVAYDERLARI — HAQIQIY HOLAT
+Click: UI-only; merchant ulanmagan, haqiqiy sandbox sinovi yo‘q.
+Payme: UI-only; merchant ulanmagan, haqiqiy sandbox sinovi yo‘q.
+Uzum: UI-only; merchant ulanmagan, haqiqiy sandbox sinovi yo‘q.
+Bank kartasi: UI-only; ekvayring ulanmagan, haqiqiy sandbox sinovi yo‘q.
+Adapterlarning mahalliy protokol testlari bor; bu pul o‘tkazmasi emas.
+PAN/CVV olinmaydi va saqlanmaydi. Profil usul afzalligi va tarixni ko‘rsatadi.
+Soxta muvaffaqiyat yoki skrinshot orqali paid qilish yo‘q.
+Admin mavjudlikni tasdiqlagandan keyingina to‘lov oqimi ochiladi:
+pending_confirmation -> confirmed -> awaiting_payment -> paid.
+Toshkent SHAHRI, tuman va to‘liq manzil serverda tekshiriladi; yetkazish 0.
+
+MERCHANT ULASH UCHUN KEYINGI QADAMLAR
+1. Click, Payme va Uzum bilan biznes nomidan merchant/ekvayring shartnomasi
+   rasmiylashtirish; hisob-kitob rekvizitlari va fiskalizatsiya talablarini olish.
+2. Click service/merchant identifikatorlari va Shop/Merchant API test kalitlari;
+   Payme kassa ID va Merchant API test kaliti; Uzum test terminali va Checkout
+   API kalitlarini provider kabinetidan olish. Karta turlari terminal
+   shartnomasida rasman qo‘llanishini tasdiqlash.
+3. Kalitlarni chatga yubormasdan staging maxfiy sozlamalariga joylash;
+   joriy rasmiy API hujjatlari bilan adapterlar mosligini tekshirish.
+4. HTTPS staging callback/return manzillarini providerda ro‘yxatdan o‘tkazish.
+   Har provider uchun real sandbox success, failure, cancel, refund, retry,
+   takroriy callback, summa/order mosligi va reconciliation sinovini o‘tkazish.
+5. Live oldidan DB backup va restore tekshiruvi, merchant tasdig‘i, so‘ng
+   foydalanuvchining alohida migratsiya/deploy roziligi kerak.
+Aniq mavjud adapterlar, rasmiy manbalar va oldingi test dalillari:
+docs/checkout-payments-handoff-2026-10-16.txt.
+
+CHEKLOVLAR
+Google Maps tashqi iframe offline sinovda yuklanmaydi; xarita xizmatining
+o‘zi tekshirilmagan. Ba’zi asl mahsulot rasmlarida eski reklama foizi rasmning
+ichiga yozilgan (masalan -63%); fayllar saqlandi. UI chegirma belgisi esa
+katalogdagi haqiqiy eski/yangi narxdan hisoblanadi. Asl reklama rasmlari
+kontentini keyinchalik alohida tekshirish kerak.
+Bu mahalliy tayyorlangan interfeys. dodola.uz hali yangilanmagan.

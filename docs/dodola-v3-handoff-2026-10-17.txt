@@ -1,0 +1,99 @@
+DODOLA V3 — YAKUNIY MAHALLIY HISOBOT
+2026-10-17. Loyiha: C:\Users\azimj\Downloads\Sale-Market-Catalog-Gallery-Upgrade
+
+BAJARILDI
+Checkout uslubidagi umumiy ivory/charcoal/bronze dizayn tokenlari va yagona Dodola navigatsiyasi yaratildi. Profil, so‘nggi buyurtmalar, buyurtmalar ro‘yxati, to‘lov tarixi, manzillar, buyurtma tafsilotlari, tracking, kirish/ro‘yxatdan o‘tish/parolni tiklash shu uslubga moslandi. Bosh sahifa, katalog, mahsulot va savatdagi eski ranglar ham birlashtirildi.
+Asosiy manzil tanlash mijoz egaligi va CSRF tekshiruvi bilan ishlaydi; manzil tahririda tanlov saqlanadi. PostgreSQL customer row lock parallel asosiy manzil so‘rovlarini ketma-ketlashtiradi. Checkout asosiy manzilni tanlaydi. Mavjud JSON metadata ishlatildi; yangi schema migratsiyasi yo‘q.
+Buyurtma tafsilotlari faqat egasi yoki haqiqiy guest token bilan ochiladi. Server narxi, mahsulotlar, mavjud rasm, manzil, promo va holatlar ko‘rsatiladi. Ichki admin izohlari va tracking hash berilmaydi. Kelajakdagi timeline bosqichlari bajarilgan deb ko‘rsatilmaydi.
+Success sahifasi URL dagi summa/sana yoki qaytishni tasdiq deb qabul qilmaydi; holat serverdan olinadi. Qayta tekshirishdagi xato muvaffaqiyat xabari bilan almashtirilmaydi. Providerlar ulanmaganda yoki mavjudlik tasdiqlanmaganda to‘lov tugmalari yopiq.
+
+BREND VA OLDIN/KEYIN
+Oldingi profilning ajralib turgan standart oq/binafsha ko‘rinishi o‘rniga checkout bilan bir xil sarlavha, kartalar, formalar, badge va navigatsiya ishlatiladi. Avvalgi source holati tekshirilgan backupda saqlandi; alohida oldingi screenshot to‘plami saqlanmagan.
+Mijozga ko‘rinadigan eski SaleMarket nomlari Dodola bo‘ldi: title/meta/header/footer/contact/email/Telegram xabar matni. Mahsulot rasmi bo‘lmaganda yangi Dodola SVG ishlatiladi; mavjud rasm fayli almashtirilmadi.
+Ataylab saqlanganlar: package/repository nomi sale-market, sm-/mb- CSS identifikatorlari, mujskoy_cart/mujskoy_orders storage kalitlari, DB/API/env/ID/migratsiya nomlari, integratsiya yo‘llari va haqiqiy salemarket_uz/salemarket_uz1 Telegram/Instagram URLlari. URL yorliqlari Dodola/Telegram. Ulanmagan upstream blog/main demo fayllarining Ashion/Colorlib attribution manbasi saqlandi; ommaviy demo route bosh sahifaga qaytaradi. Provayder brendlari o‘zgarmadi.
+
+TESTLAR — HAQIQIY NATIJA
+node --test test/customer-ui.test.cjs test/customer-auth.test.cjs test/postgres-express-integration.test.cjs test/checkout-payments.test.cjs test/resend-email.test.cjs test/security-correctness.test.cjs
+Natija: 121 pass, 0 fail, 1 skip. Skip bo‘lgan real concurrency testi quyidagi PostgreSQL run’da o‘tdi.
+Faqat 127.0.0.1:55439 dagi izolyatsiyalangan PostgreSQL: test/customer-ui.test.cjs + test/checkout-payments.test.cjs — 16 pass, 0 fail, 0 skip. Bu 16 testning bir qismi yuqoridagi testlarni takrorlaydi; jami noyob test sifatida qo‘shilmaydi.
+Parallel promo redemption, takroriy order/payment attempts, asosiy manzil races, CSRF/ownership, soxta callback/auth, summa va order bog‘lanishi, refund/failure/retry, shahar chegaralari, karta ma’lumotlarini rad etish tekshirildi.
+node test/customer-ui-browser.cjs — 90 viewport/sahifa holati: 375, 430, 768, 1024, 1440 px. Gorizontal overflow 0, eski ko‘rinadigan brend 0, pageerror 0. Login UI, asosiy manzil tanlash, delete cancel, profil saqlash, serverdan mustaqil receipt query’ni qabul qilmaslik ham tekshirildi.
+node test/checkout-browser.cjs — 29 pass, 0 pageerror: 1440/390/320 px, promo, shahar cheklovi, order acknowledgement xatolari, savatni saqlash, disabled payments, profil va admin oqimi.
+git diff --check — whitespace xatosi yo‘q.
+Dalillar: .local-tests/v3-regression.txt, v3-real-pg.txt, v3-browser.txt, v3-checkout-browser.txt; .local-tests/dodola-v3/results.json.
+
+HAQIQIY BRAUZER SKRINSHOTLARI (SINTETIK MAHALLIY MA’LUMOTLAR)
+C:\Users\azimj\Downloads\Sale-Market-Catalog-Gallery-Upgrade\.local-tests\dodola-v3\profile-1440.png
+C:\Users\azimj\Downloads\Sale-Market-Catalog-Gallery-Upgrade\.local-tests\dodola-v3\profile-375.png
+C:\Users\azimj\Downloads\Sale-Market-Catalog-Gallery-Upgrade\.local-tests\dodola-v3\orders-1440.png
+C:\Users\azimj\Downloads\Sale-Market-Catalog-Gallery-Upgrade\.local-tests\dodola-v3\orders-375.png
+C:\Users\azimj\Downloads\Sale-Market-Catalog-Gallery-Upgrade\.local-tests\dodola-v3\order-details-1440.png
+C:\Users\azimj\Downloads\Sale-Market-Catalog-Gallery-Upgrade\.local-tests\dodola-v3\payment-status-1440.png
+C:\Users\azimj\Downloads\Sale-Market-Catalog-Gallery-Upgrade\.local-tests\dodola-v3\login-375.png
+C:\Users\azimj\Downloads\Sale-Market-Catalog-Gallery-Upgrade\.local-tests\dodola-v3\register-375.png
+Qo‘shimcha screenshotlar shu papkada: katalog, bosh sahifa, mahsulot, cart/checkout, manzillar, tracking, contact, receipt va reset.
+
+SAQLANISH VA CHEKLOVLAR
+168 source backup fayli SHA-256 bilan tekshirildi, 0 mismatch: C:\Users\azimj\Downloads\Sale-Market-Catalog-Gallery-Upgrade\.local-backups\dodola-v3-1792175578641
+3,524 himoyalangan data/asset/env fayldan 3,523 tasi boshlang‘ich hash bilan bir xil. Faqat data/customer-sessions.json runtime sessiya fayli boshqacha; alohida oldindan ishlayotgan mahalliy server ham mavjud. Bu o‘zgarishning aniq tashabbuskori isbotlanmagan; faol sessiyalarni buzmaslik uchun ustidan backup yozilmadi.
+Joriy mahalliy sanoq: 1,164 mahsulot, 13 buyurtma yozuvi. Oldingi topshiriqda 12 deyilgan edi, ammo orders.json V3 boshlanishidagi hash bilan aynan bir xil. Shu ishda buyurtma qo‘shilmadi/o‘chirilmadi. Mijozlar, inventory, mahsulotlar va .env o‘zgarmagan.
+Live Neon/PostgreSQL va Cloudflare R2 o‘qilmadi/yozilmadi. Foydalanuvchi bildirgan 3,490 remote obyekt qayta sanalmadi. Bu backup live DB backup emas.
+Telefon/email profil sahifasida faqat ko‘rish uchun: mavjud backendda ularni xavfsiz almashtirish va qayta tasdiqlash oqimi yo‘q. Ism/familiya tahriri ishlaydi. Tekshirilmagan kontakt tasdiqlangan deyilmaydi.
+Public checkout, production env va provider LIVE holati o‘zgartirilmadi. Git push, deploy, DNS o‘zgarishi, live migratsiya yoki pullik operatsiya bajarilmadi.
+
+PROVAYDER HOLATI
+Click — UI-only; protokol adapteri mahalliy testlangan; haqiqiy sandbox/LIVE merchant ulanmagan.
+Payme — UI-only; protokol adapteri mahalliy testlangan; haqiqiy sandbox/LIVE merchant ulanmagan.
+Uzum — UI-only; protokol adapteri mahalliy testlangan; haqiqiy sandbox/LIVE merchant ulanmagan.
+Bank kartasi — UI-only; Uzum hosted checkout yo‘li, alohida bank ekvayringi ulanmagan. PAN/CVV saqlanmaydi. Saqlangan karta o‘rniga tarix va afzal usul ko‘rsatiladi.
+Keyingi merchant qadamlari: har bir provider bilan merchant shartnomasi; Click TEST service va Merchant API ruxsati, Payme merchant/kassa ID + TEST key, Uzum TEST terminal + API key/rasmiy endpoint va fiskalizatsiya; ruxsatli staging HTTPS callbacklarini ro‘yxatga olish; real provider sandbox qabul/refund/retry/reconciliation testlari. Keyin alohida ruxsat bilan live DB backup/restore tekshiruvi va deploy. Kalitlar chatga yoki Git’ga kiritilmaydi.
+Aniq callback yo‘llari, credentials nomlari va ma’lum provider cheklovlari: docs/checkout-payments-handoff-2026-10-16.txt, “MERCHANT ONBOARDING — KEYINGI ANIQ QADAMLAR”. Ushbu V3 ishida provider integratsiyasi qayta yoqilmadi.
+
+V3 BOSHLANG‘ICH HOLATIGA NISBATAN O‘ZGARGAN FAYLLAR
+- account.html
+- admin.html
+- auth.html
+- checkout.html
+- contact.html
+- css/checkout-premium.css
+- css/customer-account.css
+- index.html
+- js/account-page.js
+- js/admin-upgrade.js
+- js/cart-page.js
+- js/checkout-v2.js
+- js/helpers.js
+- js/hero-preview.js
+- js/index-products.js
+- js/marketplace-upgrade.js
+- js/payment-page.js
+- js/product-page.js
+- js/store.js
+- payment.html
+- product-details.html
+- reset-password.html
+- shop-cart.html
+- shop.html
+- success.html
+- test/checkout-browser.cjs
+- test/checkout-fixture.cjs
+- track-order.html
+- utils/customerAuth.js
+- utils/emailTemplates.js
+- utils/payments/routes.js
+- utils/postgres/customerRepository.js
+- utils/postgres/orderReadRepository.js
+- utils/publicFiles.js
+- utils/telegram.js
+
+YANGI FAYLLAR
+- css/dodola-customer.css
+- css/dodola-tokens.css
+- js/dodola-orders.js
+- js/dodola-ui.js
+- test/customer-ui-browser.cjs
+- test/customer-ui-fixture.cjs
+- test/customer-ui.test.cjs
+- img/placeholders/dodola-product.svg
+- docs/dodola-v3-handoff-2026-10-17.txt
+Oldingi checkout/payment vazifasining mavjud o‘zgarishlari shu ro‘yxatga qayta kiritilmadi. .local-tests ichidagi yordamchi sinov fayllari va screenshotlar Git’dan ignored.

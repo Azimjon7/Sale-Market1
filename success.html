@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Dodola | Buyurtma qabul qilindi</title>
+  <link rel="stylesheet" href="css/design-system.css" type="text/css">
+  <link rel="stylesheet" href="css/components.css" type="text/css">
+  <link rel="stylesheet" href="css/bootstrap.min.css" type="text/css" />
+  <link rel="stylesheet" href="css/font-awesome.min.css" type="text/css" />
+  <link rel="stylesheet" href="css/elegant-icons.css" type="text/css" />
+  <link rel="stylesheet" href="css/slicknav.min.css" type="text/css" />
+  <link rel="stylesheet" href="css/style.css" type="text/css" />
+  <link rel="stylesheet" href="css/marketplace-upgrade.css" type="text/css" />
+  <link rel="stylesheet" href="css/mobile-premium.css" type="text/css" />
+  <link rel="stylesheet" href="css/shared-header.css" type="text/css" />
+  <link rel="stylesheet" href="css/mobile-320-480-fix.css" type="text/css" />
+  <link rel="stylesheet" href="css/live-upgrade-fixes.css" type="text/css">
+  <link rel="stylesheet" href="css/customer-navigation.css" type="text/css">
+<link rel="stylesheet" href="css/dodola-tokens.css"><link rel="stylesheet" href="css/dodola-customer.css"><link rel="stylesheet" href="css/dodola-marketplace.css"></head>
+<body class="market-body dodola">
+  <a class="dodola-skip" href="#dodola-content">Asosiy mazmunga o‘tish</a><header class="dodola-header"><div class="dodola-header__inner"><a class="dodola-logo" href="index.html" aria-label="Dodola — bosh sahifa">Dodola<span>·</span></a><form class="dodola-search" action="shop.html" method="get" role="search"><input type="search" name="search" placeholder="Nima izlayapsiz?" aria-label="Mahsulotlarni qidirish"><button aria-label="Qidirish" type="submit">⌕</button></form><nav aria-label="Do‘kon bo‘limlari"><a data-nav-page="shop" href="shop.html">Katalog</a><a data-nav-page="shop-cart" href="shop-cart.html"><span class="nav-label">Savat</span> <span class="js-cart-count">0</span></a><a data-nav-page="account" href="account.html">Profilim</a></nav></div></header>
+
+
+  <main id="dodola-content">
+
+  <section class="success-section spad">
+    <div class="container">
+      <div class="success-card">
+
+        <!-- Success mark -->
+        <div class="success-mark">
+          <i class="fa fa-shopping-bag"></i>
+        </div>
+
+        <h1 id="successTitle">Buyurtma ma’lumotlari</h1>
+        <p id="successMessage">Holat buyurtma raqami orqali serverdan tekshiriladi.</p>
+
+        <div class="success-details">
+          <div class="success-detail">
+            <span>Buyurtma raqami</span>
+            <strong id="successOrderId">-</strong>
+          </div>
+          <div class="success-detail">
+            <span>Sana</span>
+            <strong id="successDate">-</strong>
+          </div>
+          <div class="success-detail">
+            <span>Summa</span>
+            <strong id="successTotal">0 so'm</strong>
+          </div>
+        </div>
+
+        <div class="success-actions">
+          <a id="trackLink" class="site-btn" href="track-order.html">
+            <i class="fa fa-truck"></i> Buyurtmani kuzatish
+          </a>
+          <a class="site-btn site-btn--ghost" href="shop.html">
+            <i class="fa fa-shopping-bag"></i> Do'konga qaytish
+          </a>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  </main>
+
+  <footer class="sm-footer">
+    <div class="sm-footer__grid">
+      <div class="sm-footer__brand">
+        <a class="sm-logo" href="index.html" aria-label="Dodola">
+          <i class="fa fa-shopping-bag" aria-hidden="true"></i>
+          <span>Dodola</span>
+        </a>
+        <p>O'zbekistonda qulay va ishonchli online xarid. Katalog, savat, checkout va buyurtma kuzatuvi bir joyda.</p>
+      </div>
+      <div>
+        <h6>Bo'limlar</h6>
+        <a href="shop.html">Katalog</a>
+        <a href="shop-cart.html">Savat</a>
+        <a href="checkout.html">Buyurtma</a>
+      </div>
+      <div>
+        <h6>Yordam</h6>
+        <a href="track-order.html">Buyurtmani kuzatish</a>
+        <a href="contact.html">Bog'lanish</a>
+      </div>
+      <div>
+        <h6>Aloqa</h6>
+        <a href="https://t.me/salemarket_uz" target="_blank" rel="noopener"><i class="fa fa-telegram" aria-hidden="true"></i> Telegram</a>
+        <a href="tel:+998990020015"><i class="fa fa-phone" aria-hidden="true"></i> +998 99 002 00 15</a>
+      </div>
+    </div>
+    <div class="sm-footer__bottom">© 2026 Dodola</div>
+  </footer>
+
+  <script src="js/jquery-3.3.1.min.js"></script>
+  <script src="js/bootstrap.min.js"></script>
+  <script src="js/jquery.slicknav.js"></script>
+  <script src="js/main.js"></script>
+  <script src="js/product-rules.js"></script>
+  <script src="js/store.js"></script>
+  <script src="js/panel-manager.js"></script>
+  <script src="js/marketplace-upgrade.js"></script>
+  <script src="js/shared-header-init.js"></script>
+  <script src="js/order-labels.js"></script>
+  <script>
+    function formatMoney(value) {
+      return Number(value || 0).toLocaleString("uz-UZ") + " so'm";
+    }
+
+    function formatDate(value) {
+      const date = new Date(value);
+      if (Number.isNaN(date.getTime())) return "-";
+      return new Intl.DateTimeFormat("uz-UZ", {
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+        hour: "2-digit",
+        minute: "2-digit",
+      }).format(date);
+    }
+
+    const params = new URLSearchParams(window.location.search);
+    const orderNumber = params.get("orderNumber") || "-";
+    document.getElementById("successOrderId").textContent = orderNumber && orderNumber !== "-" ? orderNumber : "—";
+    document.getElementById("successDate").textContent = "—";
+    document.getElementById("successTotal").textContent = "Shaxsiy kabinetda";
+    if (orderNumber !== '-') (async () => {
+      try {
+        const response = await fetch('/api/orders/track?' + new URLSearchParams({ orderNumber }), { cache: 'no-store' });
+        if (!response.ok) throw Error('Buyurtma topilmadi. Raqamni tekshiring.');
+        const order = await response.json();
+        document.getElementById('successTitle').textContent = DodolaOrderLabels.status(order.status);
+        document.getElementById('successMessage').textContent = 'Serverdagi joriy holat. To‘lov va to‘liq tafsilotlar shaxsiy kabinetda ko‘rsatiladi.';
+        document.getElementById('successDate').textContent = formatDate(order.createdAt);
+      } catch (error) { document.getElementById('successMessage').textContent = error.message; }
+    })();
+    const trackingToken = params.get('trackingToken');
+    const trackingParams = new URLSearchParams({ orderNumber });
+    if (trackingToken) trackingParams.set('token', trackingToken);
+    document.getElementById("trackLink").href = "track-order.html?" + trackingParams.toString();
+  </script>
+  <script src="js/header-account.js"></script>
+<script src="js/dodola-ui.js"></script></body>
+</html>
+
+
+

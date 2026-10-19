@@ -1,0 +1,217 @@
+DODOLA — HOSTING AUDITI VA KO'CHIRISH REJASI
+Tekshiruv sanasi: 14-oktabr 2026, Toshkent vaqti.
+Bu hujjat tekshiruv natijasi va kelajak rejasi; deploy yoki xarid uchun ruxsat emas.
+
+1. QAROR
+
+Hozir ishlayotgan Railway muhitini saqlash, dodola.uz aktivatsiyasini yakunlash
+va launch to'siqlarini ketma-ket bartaraf etish ma'qul. TCloud'ga shoshilinch
+ko'chirish uchun yetarli texnik yoki narx kafolati olinmadi.
+
+2. BEVOSITA TASDIQLANGAN HOLAT
+
+Repo: C:/Users/azimj/Downloads/Sale-Market-Catalog-Gallery-Upgrade
+Boshlang'ich Git holati toza; HEAD 050569f (Prepare Dodola for secured Railway staging).
+Railway: Dodola-Production / production / dodola-web.
+Oxirgi deployment: 3d2cb18e-a70c-46ad-ba77-37ef942cdf97, SUCCESS, stopped=false.
+Bu production nomli muhit hozir yozuvlari yopiq staging vazifasida ishlayapti.
+URL: https://dodola-web-production.up.railway.app
+
+Faqat o'qish tekshiruvlari:
+- /api/health: 200, ok=true, storageBackend=postgresql, fileStorageBackend=r2,
+  publicWritesEnabled=false. Healthning o'zi barcha integratsiyani to'liq sinamaydi.
+- / va /shop.html: 200; katalog brauzerda ko'rindi.
+- /api/products: 200, 1164 mahsulot, 1164 noyob SKU. Bu PostgreSQL o'qishini ham tekshiradi.
+- Bitta mahsulot rasmi: R2'dan 206, image/webp, 32 baytlik Range javobi.
+- /api/orders autentifikatsiyasiz: 401.
+- /uploads/payment-proofs/nonexistent-audit.jpg: 404 (sintetik yo'l).
+- Jonli checkout, email yuborish, admin tahriri, import yoki ombor amali bajarilmadi.
+  Tarixiy 12 buyurtma/ombor sonlari bu auditda bazadan qayta sanalmadi.
+
+Railway haqiqiy muhitida: NODE_ENV=production, PUBLIC_WRITES_ENABLED=false,
+STORAGE_BACKEND=postgresql, FILE_STORAGE_BACKEND=r2, DATABASE_POOL_MAX=10,
+DATABASE_SSL_MODE=require. Maxfiy qiymatlar ko'rsatilmagan va faylga saqlanmagan.
+AUTH_BASE_URL va ALLOWED_ORIGIN vaqtinchalik Railway URL'iga o'rnatilgan.
+EMAIL_FROM hali onboarding@resend.dev test jo'natuvchisi.
+R2_PUBLIC_BASE_URL hali r2.dev test manzili.
+
+Railway trial oynasi: 29 kun YOKI $4.97 kredit qolgan — qaysi biri oldin tugasa.
+CLI joriy sarfi: taxminan $0.03112. API ko'rsatgan billing intervali to'liq oy emas;
+uning $0.04407 taxminini oylik narx yoki trial tugash sanasi deb qabul qilmang.
+Dashboard aniq tugash timestampini ko'rsatmadi; 29 kun yaxlitlangan raqam.
+Hozirgi usageLimit=null; kelajak limit/ogohlantirish sozlamalari alohida ruxsat talab qiladi.
+Oxirgi 24 soat: RAM o'rtacha 61.36 MB, maksimum 68.32 MB; CPU juda kam.
+Bu savdo ochilmagan muhit ko'rsatkichlari, yuklama testi emas.
+
+3. DOMEN: BILLUR TUZATISHI OLDINGA SILJIGAN, INTERNETDA HALI OCHILMAGAN
+
+Billur kabinetida: Faol; Status TLD = “Домен делегирован для активации”.
+Oldingi “Домен вернули для заполнения” holati o'zgargan.
+Keyingi to'lov: 12-oktabr 2027; takroriy narx 27 000 so'm/yil.
+Cloudflare hisobida: pending; 6 DNS yozuvi mavjud.
+Root CNAME = 96mdt9nf.up.railway.app, DNS only; Railway talabi bilan mos.
+Railway verification TXT va Resend yozuvlari mavjud.
+www yozuvi yo'q. www va media domenlari keyingi tasdiqlanadigan sozlash ishidir.
+Reyestr RDAP: inactive; Cloudflare public resolver: NXDOMAIN;
+.uz vakolatli serveri 91.212.89.244 ham NXDOMAIN qaytardi.
+https://dodola.uz/api/health DNS sabab ochilmadi.
+Railway domain verification=false, certificate=VALIDATING_OWNERSHIP.
+Railway syncStatus=ACTIVE faqat konfiguratsiya sinxronligini bildiradi;
+bu domen internetda ishlayotgani yoki sertifikat tayyorligini isbotlamaydi.
+Nameserverlar: donald.ns.cloudflare.com va leia.ns.cloudflare.com.
+RDAP'dagi eski expiration sanasini qayta to'lash zarurati deb talqin qilmang:
+Billur kabineti keyingi to'lovni 2027-yil deb ko'rsatmoqda.
+
+Keyingi read-only tekshiruv: Billur aytgan aktivatsiya oynasidan keyin vakolatli
+.uz NS delegatsiyasi, public DNS, Cloudflare active, Railway verified/certificate
+va HTTPS'ni tekshirish. Faqat DNS keshini kutish emas: parent delegatsiya ham kerak.
+Hali delegatsiya bo'lmasa, Billur'dan aktivatsiya yakuni va sababini aniqlashtirish.
+Ushbu audit avtomatik kuzatuv yaratmagan va hech kimga xabar yubormagan.
+
+4. TCLOUD TARIFLARI VA HAQIQIY JAMI
+
+Rasmiy sahifalar: https://tcloud.uz/hosting va https://tcloud.uz/vds
+- Master: 56 000 so'm/oy, 560 000 so'm/yil, 5 GB disk, 4 sayt;
+  bosh sahifada Node.js va SSH mavjud deb yozilgan. 560 000/yil = o'rtacha
+  46 667/oy, lekin yillik to'lov oldindan va bu oylik to'lov tarifi emas.
+- Hosting sahifasi Node.js 25.1.0 deb yozgan; Dodola package.json esa 22.x talab qiladi.
+  Node 22 tanlash yoki o'rnatish mumkinligi tasdiqlanmadi.
+- Bosh sahifa VDS Start: 1 vCPU / 1 GB RAM / 30 GB SSD = 120 000/oy.
+- Jonli kalkulyator: 1 CPU / 1 GB / 10 GB SSD / 10 Mbit/s = 100 000/oy.
+  Diskni 30 GB qilib tekshirganda jami 130 000/oy. Bu 120 000 bilan mos kelmaydi.
+- 100 Mbit/s opsiyasi: +150 000/oy. 30 GB konfiguratsiya uchun hisob 280 000/oy.
+- Root access reklama qilingan. Serverni boshqarish malakasi mijoz zimmasida.
+- Sayt 24/7 SUPPORT va 99.741% uptime ko'rsatadi. Bu Node jarayoni uxlamasligi,
+  100% uptime yoki shartnomaviy SLA tasdig'i emas.
+
+Faqat shartli budjet (yakuniy oferta EMAS):
+Master 56 000 + domenning oylik ulushi 2 250 = 58 250 so'm/oy.
+VDS kalkulyator 130 000 + 2 250 = 132 250 so'm/oy.
+100 Mbit/s bilan: 282 250 so'm/oy.
+Domen allaqachon to'langan; 2 250 faqat yillik xarajatni oyga taqsimlash,
+hozir qo'shimcha to'lov yoki TCloud'dan domen sotib olish talabi emas.
+
+Haqiqiy jami = hosting + majburiy QQS/komissiya/IP/panel/backup/boshqaruv/
+trafik qo'shimchalari + Neon + R2 + Resend + domenning yillik ulushi.
+TCloud majburiy qo'shimchalar, SSL va IPv4 kirishi hamda 120/130 ming farqini
+tasdiqlamaguncha qat'iy “hammasi shu narx” deyish mumkin emas.
+Neon/R2/Resend'ning haqiqiy hisob rejalari, sarfi va kelgusi overage summalari
+bu auditda billing kabinetlaridan tekshirilmagan. Ularni avtomatik $0 deb hisoblamang.
+Neon rasmiy Free: 100 CU-soat/oy va 1 GB/proyekt; uzluksiz ishlaydigan Node
+jarayoni bilan DB'ning uyqudan uyg'onishini bir xil narsa deb qaramang.
+R2 Standard: $0.015/GB-oy, request narxlari alohida, internetga egress bepul;
+bepul limitdan foydalanish haqiqiy hisob sarfiga bog'liq.
+Railway Hobby: max($5, oylik hisoblangan Railway resurs sarfi), tashqi servislar,
+soliq va bank konvertatsiyasi bundan tashqari. $5 + butun usage emas.
+
+5. TCLOUD'DAN YOZMA TASDIQ UCHUN TAYYOR SAVOLLAR (YUBORILMAGAN)
+
+Assalomu alaykum. Node.js 22.x + Express ilovasini joylashtirmoqchimiz.
+Iltimos, Master va 1 CPU/1 GB/30 GB VDS uchun quyidagilarni aniq tasdiqlang:
+1) Node.js 22.x, npm ci --omit=dev va node server.js/npm start ishlaydimi?
+   CommonJS Express, erkin PORT, reverse proxy va env vars qo'llanadimi?
+2) Jarayon 24/7, idle sleep/time limit bo'lmasdan ishlaydimi? Crash/rebootdan
+   keyin avtomatik restartni kim sozlaydi (systemd/PM2/Passenger)?
+3) Tashqi Neon PostgreSQL'ga TCP 5432 + TLS, R2 S3 endpointiga HTTPS 443,
+   api.resend.com'ga HTTPS 443 va DNS resolution ochiqmi? IP allowlist yoki
+   xalqaro trafik cheklovi/narxi bormi? SMTP kerak emas.
+4) Master uchun kafolatlangan RAM/CPU, process/connection/file limitlari,
+   upload/request timeoutlari, xotiradan oshish siyosati qanday?
+5) O'z dodola.uz domenimiz va Cloudflare DNS'ni saqlash mumkinmi?
+   SSL, avtomatik yangilash, public IPv4, HTTP/HTTPS 80/443 kirishi kiradimi?
+6) Environment secretlar webdan yashirinmi; SSH, deploy/rollback va loglar bormi?
+7) 24/7 ilova ishlashi, uptime SLA, monitoring, backup/restore va server
+   yangilanishlari kimning zimmasida, qaysilari alohida pullik?
+8) 1 CPU/1 GB/30 GB: saytda 120 ming, kalkulyatorda 130 ming — qaysi biri amal qiladi?
+   QQS, IPv4, trafik, panel, backup, sozlash va majburiy xizmatlar bilan
+   bir oylik HAMDA keyingi oylardagi yakuniy jami qancha? 10 Mbit/s nimani qamraydi?
+
+Master mosligi hozir TASDIQLANMAGAN. Root VPS texnik jihatdan ma'qulroq nomzod,
+lekin haqiqiy ulanishlar va boshqaruv xarajati sinovdan o'tmasdan migratsiya yo'q.
+Boshlang'ich baholash: 1 vCPU/1 GB app uchun nomzod (hozirgi RAM past),
+OS/proxy, uploadlarni xotirada buferlash va real parallel yuklama uchun zaxira kerak.
+1 GB yetarli ekanini faqat mavjud staging metrikasi bilan kafolatlab bo'lmaydi.
+
+6. HOZIRGI RAILWAY'NI XAVFSIZ LAUNCHGA OLIB BORISH
+
+A) Billur/NS/Cloudflare/Railway HTTPS aktivatsiyasini read-only tekshirish.
+B) Shundan keyin alohida tasdiq bilan AUTH_BASE_URL va ALLOWED_ORIGIN'ni
+   https://dodola.uz ga moslash; sertifikat va secure session cookie'ni tekshirish.
+C) Resend domeni verified bo'lgach EMAIL_FROM = Dodola <xatlar@dodola.uz>
+   (literal tashqi qo'shtirnoqlarsiz) qilib moslash va ruxsatli test email oqimini sinash.
+   Test jo'natuvchi barcha mijozlarga xat yubora olmaydi. Resend kabineti hozir login so'radi.
+D) R2 public bucket uchun media.dodola.uz custom domain va TLS'ni alohida tasdiq
+   bilan ulash, keyin R2_PUBLIC_BASE_URL'ni moslash. Private bucket public qilinmaydi.
+   r2.dev test uchun; productionda rate limiting bor.
+E) Alohida test ma'lumotlarida login/verification/reset, admin, savat/checkout,
+   takroriy so'rov/idempotency, stock va private receipt oqimlarini sinash.
+F) Billing qarorini trial kredit yoki muddat tugashidan oldin qabul qilish.
+   Kamida 7 kun zaxira qoldirish; yuklama oshsa kredit avval tugashi mumkin.
+G) PUBLIC_WRITES_ENABLED=false saqlanadi. Ommaviy savdoni ochish — keyingi,
+   alohida aniq ruxsat; bu audit buni tasdiqlamaydi.
+
+7. KEYINGI XAVFSIZ TCLOUD MIGRATSIYASI — HOZIR BAJARILMAYDI
+
+1) Yozma texnik/narx tasdiqlari va xarid uchun foydalanuvchi ruxsatini olish.
+2) Tasdiqlangan commit/release'ni alohida yangi hostda tayyorlash. Faqat source va
+   lockfile; .env, data, uploads, backup, .git va node_modules'ni public webrootga
+   ko'chirmaslik. Hozirgi repo docs'dagi JSON/R2 import runbooklarini qayta ishlatmang.
+3) Node 22, npm ci --omit=dev, NODE_ENV=production, PORT, supervised npm start,
+   crash/reboot restart, log rotation va HTTPS reverse proxy tayyorlash.
+   Ilova hozir 0.0.0.0 da eshitadi: VPS'da app portini internetga firewall bilan
+   yopish, 80/443'ni proxy orqali berish. trust proxy=1 konfiguratsiyasini haqiqiy
+   proxy zanjiri bilan sinash; secure cookie/IP/rate limitlar mos bo'lishi kerak.
+4) Avval faqat izolatsiyalangan test DB/bucket/email stub bilan tekshirish.
+   Bularni yaratish va remote deploy ham alohida ruxsat bilan. Staging'da prod
+   credentiallar ishlatilmaydi; launch lock admin yozuvlarini bloklamasligini unutmang.
+5) Health, catalog/R2 GET, auth/private file, upload hajmi, restart, DNS/TLS,
+   tashqi 5432/443, timeout/latency va parallel yuklamani sinash.
+   DATABASE_SSL_MODE=require TLS'ni yoqadi, kodda sertifikat tekshiruvini esa
+   verify-full yoqadi; mos CA bilan verify-full'ni stagingda tekshirish lozim.
+6) Migratsiya faqat app hostingini almashtiradi: mavjud Neon va ikkala R2 bucket
+   saqlanadi. Mahsulot/buyurtma/omborni JSON'dan qayta import QILMASLIK.
+   ALLOW_POSTGRES_IMPORT=no, ALLOW_POSTGRES_ROLLBACK=no, R2_MIGRATION_APPROVED=no.
+7) Alohida ruxsat bilan restore point/backup, release va eski DNS/config holatini
+   qayd qilish. Nazoratli o'tishda ikkala app yozuvlari yopiq; public yozuvlar
+   hozirgi topshiriq doirasida doim false. Bir paytda ikki admin hostni ishlatmaslik.
+8) Faqat yozma ruxsatdan so'ng domain routing/DNS va final env cutover.
+   Cloudflare nameserverlarini va Resend yozuvlarini saqlash; domen ko'chirish shart emas.
+9) Yangi host sog'lom bo'lmasa oldingi Railway routing/release'ga qaytish.
+   Bir xil Neon/R2 ishlatilgani uchun app rollback ma'lumotlarni eski nusxaga
+   tiklash degani emas. Schema o'zgarishi bo'lsa alohida rollback strategiyasi kerak.
+10) DNS kesh muddati va kuzatuv davri o'tib, auth/email/orders barqarorligi
+    tasdiqlanmaguncha Railway'ni o'chirmaslik; qisqa overlap narxini hisoblash.
+
+8. BAJARILGAN MAHALLIY O'ZGARISH VA SINOV
+
+docs/environment.example: PUBLIC_WRITES_ENABLED true -> false; yangi hostda tasodifiy ochiq
+checkout bo'lishining oldini oladi. Bu haqiqiy .env yoki Railway variable emas.
+Faylning oldingi holati Git HEAD'da; o'zgarish oddiy teskari diff bilan qaytariladi.
+Ushbu hisobot yangi qo'shildi. Boshqa application source o'zgarmadi.
+
+Node.js 22.23.3 da 16 test o'tdi, 0 xato:
+test/public-launch-lock.test.cjs
+test/postgres-express-integration.test.cjs
+test/object-storage.test.cjs
+test/resend-email.test.cjs
+Testlar vaqtinchalik fixture, pg-mem va mock R2/Resend'dan foydalandi;
+jonli Neon/R2/email'ga test yozuvi yuborilmadi. Shu 16 test host Node 24'da ham o'tdi.
+npm audit --omit=dev: 155 prod dependency, 0 qayd etilgan zaiflik.
+Bu kod to'liq xavfsiz ekanini yoki eski Multer 1.x lifecycle masalasi yo'qligini
+anglatmaydi; dependency modernizatsiyasi alohida sinov bilan ko'rib chiqiladi.
+git diff --check o'tdi. Push, commit, deploy, DNS yoki production config o'zgarishi yo'q.
+
+MANBALAR
+https://tcloud.uz/
+https://tcloud.uz/hosting
+https://tcloud.uz/vds (brauzerdagi jonli kalkulyator)
+https://rdap.cctld.uz/domain/dodola.uz
+https://docs.railway.com/pricing/free-trial
+https://docs.railway.com/pricing/understanding-your-bill
+https://developers.cloudflare.com/r2/platform/limits/
+https://developers.cloudflare.com/r2/pricing/
+https://resend.com/docs/knowledge-base/403-error-resend-dev-domain
+https://resend.com/pricing
+https://neon.com/pricing
+Qo'shimcha dalil: foydalanuvchining Railway/Cloudflare/Billur kabinetlari va
+Railway CLI read-only natijalari. Hisobotda maxfiy kalitlar yo'q.

@@ -1,0 +1,11 @@
+/* Approved luxury design tokens. Shared by all customer pages; admin stays independent. */
+:root{
+ --d-paper:#fcfaf7;--d-surface:#fff;--d-soft:#f0e8f8;--d-ink:#26212e;--d-muted:#706777;
+ --d-accent:#7343ab;--d-accent-dark:#51297e;--d-line:#e4dce9;--d-success:#146b4c;--d-error:#a83932;
+ --d-primary:#7343ab;--d-deep:#302238;--d-mint:#e7d7f7;--d-coral:#e6bd9b;--d-sale:#a83932;
+ --d-shadow:0 6px 22px #3022380a;--d-nav-height:58px;
+ --d-radius:14px;--d-radius-sm:8px;--d-space-1:8px;--d-space-2:16px;--d-space-3:24px;--d-space-4:32px;--d-space-5:48px;
+ --d-body:Arial,Helvetica,sans-serif;--d-heading:Georgia,'Times New Roman',serif;--d-container:1184px;
+ --ink:var(--d-ink);--muted:var(--d-muted);--paper:var(--d-paper);--line:var(--d-line);--accent:var(--d-accent);--green:var(--d-success);
+ --account-accent:var(--d-accent);--account-accent-dark:var(--d-accent-dark);--account-text:var(--d-ink);--account-muted:var(--d-muted);--account-border:var(--d-line);--account-bg:var(--d-paper);
+}
