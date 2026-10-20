@@ -25,9 +25,10 @@ const {
   allocateOrderNumber,
   withIdentifierLock,
 } = require("./utils/identifierStore");
-const { sendOrderNotification } = require("./utils/telegram");
+const { createAdminNotifier } = require('./utils/adminNotifications');
 const { cacheBuyoGalleryImages } = require("./utils/cacheBuyoGalleryImages");
 const productRules = require('./js/product-rules');
+const { searchProducts } = require('./js/search-engine');
 const verifyAdminToken = require("./middleware/verifyAdminToken");
 const { initializeOrderWithExtendedSchema, confirmOrder, rejectOrder, updateOrderStatus, recordPaymentCollection, getStatusLabel, StatusTransitions, OrderStatus } = require("./js/order-schema");
 const { isInventoryManaged, validateProductStockForCheckout, integer } = require('./utils/inventoryValidator');
@@ -66,7 +67,7 @@ function validateEnv() {
     process.exit(1);
   }
 
-  if (require.main === module && (!process.env.TELEGRAM_BOT_TOKEN || !process.env.TELEGRAM_CHAT_ID)) {
+  if (require.main === module && (!process.env.TELEGRAM_BOT_TOKEN || !process.env.TELEGRAM_CHAT_ID) && !process.env.ADMIN_NOTIFICATION_EMAIL) {
     console.warn(
       "[WARN] TELEGRAM_BOT_TOKEN or TELEGRAM_CHAT_ID not set. Telegram notifications are disabled (orders still work)."
     );
@@ -80,11 +81,11 @@ if (require.main !== module && (!options.dataDir || !options.uploadsDir ||
   throw new Error('Imported app requires isolated dataDir and uploadsDir');
 }
 validateEnv();
-const notifyOrder = options.notifyOrder || (require.main === module ? sendOrderNotification : async () => {});
+const notifyOrder = options.notifyOrder || (require.main === module ? createAdminNotifier().notify : async () => {});
 const app = express();
 const JWT_SECRET = process.env.JWT_SECRET;
 const PORT = Number(process.env.PORT) || 3000;
-const HOST = '0.0.0.0';
+const HOST = process.env.INSTANCE_HOST || '0.0.0.0';
 const STORAGE_BACKEND = String(options.storageBackend || process.env.STORAGE_BACKEND || 'json').trim().toLowerCase();
 if (!['json', 'postgresql'].includes(STORAGE_BACKEND)) throw new Error('STORAGE_BACKEND faqat json yoki postgresql bo‘lishi mumkin.');
 const PUBLIC_WRITES_ENABLED = String(process.env.PUBLIC_WRITES_ENABLED ??
@@ -498,6 +499,8 @@ function publicOrder(order) {
     promoCode: order.promoCode || "",
     items: Array.isArray(order.items) ? order.items : [],
     paymentType: order.paymentType || "naqd",
+    paymentPreference: ['click','payme','uzum','card'].includes(order.paymentPreference) ? order.paymentPreference : null,
+    delivery: order.delivery || null,
     paymentScreenshot: order.paymentScreenshot || "",
     status: normalizeOrderStatusKey(order.status),
     statusLabel: normalizeOrderStatus(order.status),
@@ -521,6 +524,7 @@ function customerOrder(order) {
     address: order.address,
     total: toNumber(order.total, 0),
     paymentType: order.paymentType || "naqd",
+    paymentPreference: ['click','payme','uzum','card'].includes(order.paymentPreference) ? order.paymentPreference : null,
     status: normalizeOrderStatusKey(order.status),
     paymentStatus: order.paymentStatus || 'pending',
     paymentDeadline: order.paymentDeadline || null,
@@ -748,13 +752,7 @@ app.get("/api/products", async (req, res, next) => {
   }
   const search = req.query.search;
   if (search) {
-    const lc = String(search).toLowerCase();
-    all = all.filter(
-      (p) =>
-        String(p.name || "").toLowerCase().includes(lc) ||
-        String(p.sku || "").toLowerCase().includes(lc) ||
-        String(p.desc || p.description || "").toLowerCase().includes(lc)
-    );
+    all = searchProducts(all, search);
   }
 
   const hasPagination = req.query.page !== undefined || req.query.limit !== undefined;
@@ -1888,7 +1886,11 @@ app.post("/api/orders", orderUpload, async (req, res, next) => {
         const placed = await postgresOrders.placeOrder({ ...extendedOrder, legacyPayload: extendedOrder,
           statusReason: 'Mijoz buyurtma yaratdi' });
         const stored = await postgresOrderRead.findById(placed.orderId);
-        if (placed.created) req.commitUploadedFiles();
+        if (placed.created) {
+          req.commitUploadedFiles();
+          Promise.resolve().then(() => notifyOrder({ ...extendedOrder, id: stored.id, orderNumber: stored.orderNumber }))
+            .catch(() => console.error('[ERROR] ADMIN_ORDER_NOTIFICATION_FAILED'));
+        }
         return res.status(201).json({ success: true, order: { ...checkoutOrderPayload(stored),
           ...(guestTrackingToken && (placed.created || stored.checkoutVersion === 2) ? { trackingToken: guestTrackingToken,
             trackingUrl: `/track-order.html?orderNumber=${encodeURIComponent(stored.orderNumber)}&token=${encodeURIComponent(guestTrackingToken)}` } : {}) },

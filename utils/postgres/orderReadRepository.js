@@ -22,6 +22,7 @@ class PostgresOrderReadRepository {
       o.customer_phone AS phone,o.delivery_address AS address,o.customer_note AS note,o.subtotal,o.discount_amount AS "discountAmount",
       o.promo_code AS "promoCode",o.total,o.status,o.payment_status AS "paymentStatus",o.payment_type AS "paymentType",
       o.payment_screenshot AS "paymentScreenshot",o.payment_deadline AS "paymentDeadline",o.payment_collected_at AS "paymentCollectedAt",
+      o.legacy_payload->>'paymentPreference' AS "paymentPreference",o.legacy_payload->'delivery' AS delivery,
       o.confirmed_at AS "confirmedAt",o.rejected_at AS "rejectedAt",o.rejection_reason AS "rejectionReason",
       o.stock_committed AS "stockCommitted",o.stock_restored AS "stockRestored",o.guest_tracking_token_hash AS "guestTrackingTokenHash",
       o.legacy_payload->>'submissionFingerprint' AS "submissionFingerprint",(o.legacy_payload->>'checkoutVersion')::integer AS "checkoutVersion",o.submission_token AS "submissionToken",o.created_at AS "createdAt",o.updated_at AS "updatedAt" FROM orders o`;

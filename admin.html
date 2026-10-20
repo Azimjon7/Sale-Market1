@@ -3548,6 +3548,7 @@
                 <div class="order-field"><span>Telefon</span><strong>${escapeHtml(order.phone || "-")}</strong></div>
                 <div class="order-field"><span>Manzil</span><strong>${escapeHtml(order.address || "-")}</strong></div>
                 <div class="order-field"><span>To'lov turi</span><strong>${escapeHtml(paymentType)}</strong></div>
+                <div class="order-field"><span>Mijozning to‘lov istagi (onlayn ulanmagan)</span><strong>${escapeHtml(ORDER_LABELS.paymentPreference(order.paymentPreference))}</strong></div>
                 <div class="order-field"><span>To'lov holati</span><strong>${escapeHtml(paymentStatus)}</strong></div>
                 <div class="order-field"><span>Jami</span><strong>${formatPrice(getOrderTotal(order))}</strong></div>
               </div>
@@ -3675,6 +3676,7 @@
           <div class="odm-field"><span class="odm-label">Telefon</span><strong>${escapeHtml(order.phone || "Ko'rsatilmagan")}</strong></div>
           <div class="odm-field"><span class="odm-label">Manzil</span><strong>${escapeHtml(order.address || "Ko'rsatilmagan")}</strong></div>
           <div class="odm-field"><span class="odm-label">To'lov turi</span><strong>${escapeHtml(paymentType)}</strong></div>
+          <div class="odm-field"><span class="odm-label">Mijozning to‘lov istagi (onlayn ulanmagan)</span><strong>${escapeHtml(ORDER_LABELS.paymentPreference(order.paymentPreference))}</strong></div>
           <div class="odm-field"><span class="odm-label">Tasdiqlangan to'lov holati</span><strong>${escapeHtml(paymentStatus)}</strong></div>
           <div class="odm-field"><span class="odm-label">Yaratilgan sana</span><strong>${escapeHtml(formatDate(order.createdAt))}</strong></div>
           <div class="odm-field"><span class="odm-label">Jami</span><strong>${formatPrice(getOrderTotal(order))}</strong></div>

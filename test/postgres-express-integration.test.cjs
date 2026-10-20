@@ -19,6 +19,13 @@ const { applySchema } = require('../utils/postgres/schema');
 
 function memoryPool() {
   const db = newDb({ noAstCoverageCheck: true });
+  // pg-mem lacks these PostgreSQL built-ins. Real SQL is also tested on PG15.
+  db.public.registerFunction({ name: 'translate', args: [DataType.text,DataType.text,DataType.text], returns: DataType.text,
+    implementation: (text, from, to) => [...text].map(c => from.includes(c) ? (to[from.indexOf(c)] || '') : c).join('') });
+  db.public.registerFunction({ name: 'replace', args: [DataType.text,DataType.text,DataType.text], returns: DataType.text,
+    implementation: (text, from, to) => text.split(from).join(to) });
+  db.public.registerFunction({ name: 'regexp_replace', args: [DataType.text,DataType.text,DataType.text,DataType.text], returns: DataType.text,
+    implementation: (text, pattern, replacement, flags) => text.replace(new RegExp(pattern, flags), replacement) });
   db.public.registerOperator({ operator: '~', left: DataType.text, right: DataType.text, returns: DataType.bool, implementation: (a, b) => new RegExp(b).test(a) });
   db.public.registerFunction({ name: 'setval', args: [DataType.text, DataType.integer, DataType.bool], returns: DataType.integer, implementation: (_s, value) => value });
   db.public.registerFunction({ name: 'hashtext', args: [DataType.text], returns: DataType.integer, implementation: value => value.length });
@@ -39,7 +46,7 @@ function fixture() {
 }
 
 async function setup() {
-  const pool = memoryPool(), files = fixture(), emails = [];
+  const pool = memoryPool(), files = fixture(), emails = [], notifications = [];
   await applySchema(pool);
   await pool.query(`INSERT INTO products (id,sku,name,description,category,price,inventory_mode,accepts_mto,primary_image,image_paths,legacy_payload,created_at,updated_at)
     VALUES ('pg-product','DOD-9001','PostgreSQL mahsulot','Sinov tavsifi','Sinov',10000,'standard',false,'uploads/test.webp','["uploads/test.webp"]','{"colors":"","sizes":""}',now(),now()),
@@ -52,9 +59,22 @@ async function setup() {
   const emailService = { baseUrl: 'http://localhost:3000', status: () => ({ configured: true, provider: 'mock', testMode: true }),
     send: async message => { emails.push(message); return { accepted: true, id: `mail-${emails.length}` }; } };
   const app = createApp({ dataDir: files.dataDir, uploadsDir: files.uploadsDir, storageBackend: 'postgresql', postgresPool: pool,
-    postgresOrderOptions: { isolationLevel: null }, emailService });
-  return { pool, files, emails, app };
+    postgresOrderOptions: { isolationLevel: null }, emailService, notifyOrder: async order => notifications.push(order.id) });
+  return { pool, files, emails, notifications, app };
 }
+
+test('PostgreSQL catalog search matches Cyrillic records, aliases and literal punctuation', async () => {
+  const ctx = await setup();
+  try {
+    await ctx.pool.query("UPDATE products SET name=$1,description=$2,category=$3 WHERE id='pg-product'", ['Кресло чехоли','Ўғил бола учун','Mebel']);
+    const ids = async search => (await request(ctx.app).get('/api/products').query({search}).expect(200)).body.map(p=>p.id);
+    assert.ok((await ids('kreslo')).includes('pg-product'));
+    assert.deepEqual(await ids('кресло'), await ids('kreslo'));
+    assert.ok((await ids("o'g'il")).includes('pg-product'));
+    assert.deepEqual(await ids('%_'), []);
+    assert.deepEqual(await ids("' OR 1=1 --"), []);
+  } finally { await ctx.pool.end(); fs.rmSync(ctx.files.root,{recursive:true,force:true}); }
+});
 
 async function csrf(agent) { return (await agent.get('/api/auth/session').expect(200)).body.csrfToken; }
 function tokenFrom(message, key) {
@@ -83,10 +103,19 @@ test('PostgreSQL-backed Express routes cover auth, profile, checkout, tracking a
 
     const productList = await agent.get('/api/products?search=DOD-9001').expect(200);
     assert.equal(productList.body.length, 1);
-    const placed = await agent.post('/api/orders').send(orderBody('pg-product', 'authenticated-order-0001')).expect(201);
+    const latinSearch = await agent.get('/api/products').query({search:'mahsulot'}).expect(200);
+    const cyrillicSearch = await agent.get('/api/products').query({search:'маҳсулот'}).expect(200);
+    assert.deepEqual(cyrillicSearch.body.map(p=>p.id), latinSearch.body.map(p=>p.id));
+    assert.equal(cyrillicSearch.body.length, 1);
+    const wildcard = await agent.get('/api/products').query({search:'%_'}).expect(200);
+    assert.equal(wildcard.body.length, 0);
+    const placed = await agent.post('/api/orders').send(orderBody('pg-product', 'authenticated-order-0001', 1, {paymentPreference:'click'})).expect(201);
     assert.match(placed.body.order.orderNumber, /^DOD-ORD-/);
     const mine = await agent.get('/api/customer/orders').expect(200);
     assert.equal(mine.body.orders.length, 1);
+    assert.equal(mine.body.orders[0].paymentPreference, 'click');
+    await agent.post('/api/orders').send(orderBody('pg-product', 'authenticated-order-0001', 1, {paymentPreference:'click'})).expect(201);
+    assert.equal(ctx.notifications.filter(id=>id===placed.body.order.id).length, 1);
 
     await agent.post('/api/auth/forgot-password').set('X-CSRF-Token', csrfToken).send({ email: 'ali@example.invalid' }).expect(200);
     const resetToken = tokenFrom(ctx.emails.at(-1), 'token'); assert.ok(resetToken);
@@ -108,6 +137,7 @@ test('PostgreSQL-backed Express routes cover auth, profile, checkout, tracking a
     const auth = { Authorization: `Bearer ${adminLogin.body.token}` };
     const listed = await request(ctx.app).get('/api/orders?search=DOD-ORD&filter=all&sort=newest&page=1&limit=10').set(auth).expect(200);
     assert.equal(listed.body.meta.total, 2);
+    assert.equal(listed.body.orders.find(o=>o.id===placed.body.order.id).paymentPreference, 'click');
     await request(ctx.app).patch('/api/products/pg-product/stock').set(auth).send({ change: -1, reason: 'Route sinovi' }).expect(200);
     await request(ctx.app).patch('/api/products/pg-product/stock').set(auth).send({ change: 1, reason: 'Route sinovi qaytarildi' }).expect(200);
     const history = await request(ctx.app).get('/api/products/pg-product/stock-history?page=1&limit=10').set(auth).expect(200);

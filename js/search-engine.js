@@ -30,7 +30,8 @@
   }
   // Search aliases are independent of the selected interface language. Original
   // product records remain untouched; Cyrillic/Latin equivalents share an index.
-  function latin(value){var map={'а':'a','б':'b','в':'v','г':'g','д':'d','е':'e','ё':'yo','ж':'j','з':'z','и':'i','й':'y','к':'k','л':'l','м':'m','н':'n','о':'o','п':'p','р':'r','с':'s','т':'t','у':'u','ф':'f','х':'x','ц':'ts','ч':'ch','ш':'sh','щ':'sh','ъ':'','ы':'i','ь':'','э':'e','ю':'yu','я':'ya','ў':"o'",'қ':'q','ғ':"g'",'ҳ':'h'};return normalizeText(value).replace(/[а-яёўқғҳ]/g,c=>map[c]||c);}
+  var cyrillicMap={'а':'a','б':'b','в':'v','г':'g','д':'d','е':'e','ё':'yo','ж':'j','з':'z','и':'i','й':'y','к':'k','л':'l','м':'m','н':'n','о':'o','п':'p','р':'r','с':'s','т':'t','у':'u','ф':'f','х':'x','ц':'ts','ч':'ch','ш':'sh','щ':'sh','ъ':'','ы':'i','ь':'','э':'e','ю':'yu','я':'ya','ў':"o'",'қ':'q','ғ':"g'",'ҳ':'h'};
+  function latin(value){return normalizeText(value).replace(/[а-яёўқғҳ]/g,c=>Object.prototype.hasOwnProperty.call(cyrillicMap,c)?cyrillicMap[c]:c);}
   var bilingualAliases={
    'oyoq kiyimlar':['обувь','кроссовки','тапочки','туфли','ботинки','сандалии'],
    'ustki kiyimlar':['одежда','верхняя одежда','свитер','кофта','платье','куртка','термобельё','боди','футболка'],
@@ -387,7 +388,8 @@
      7. EXPOSE
      ───────────────────────────────────────────────────────── */
 
-  global.MBSearch = {
+  var engine = {
+    cyrillicMap     : Object.freeze(cyrillicMap),
     normalizeText    : normalizeText,
     searchAliases    : searchAliases,
     getSearchTerms   : getSearchTerms,
@@ -395,5 +397,7 @@
     searchProducts   : searchProducts,
     autoTagProduct   : autoTagProduct,
   };
+  if (typeof module === 'object' && module.exports) module.exports = engine;
+  else global.MBSearch = engine;
 
-})(window);
+})(typeof window === 'undefined' ? {} : window);

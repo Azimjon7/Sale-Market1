@@ -33,7 +33,7 @@ function createResendEmailService(options = {}) {
   let client = options.client || null;
 
   const status = () => ({ configured, provider: 'resend', missing: [...missing], testMode: usingTestSender });
-  const send = async ({ to, subject, text, html }) => {
+  const send = async ({ to, subject, text, html, idempotencyKey }) => {
     if (!configured) throw new EmailConfigurationError('Email xizmati to‘liq sozlanmagan.');
     const recipient = String(to || '').trim();
     if (usingTestSender && recipient.toLowerCase() !== testRecipient) {
@@ -42,12 +42,15 @@ function createResendEmailService(options = {}) {
     if (!client) client = new Resend(apiKey);
     let response;
     try {
-      response = await client.emails.send({ from, to: [recipient], subject, text, html });
+      response = await client.emails.send({ from, to: [recipient], subject, text, html }, idempotencyKey ? { idempotencyKey } : undefined);
     } catch {
       throw new EmailDeliveryError('Email provayderiga ulanishda xatolik yuz berdi.');
     }
     if (!response || response.error || !response.data || !response.data.id) {
-      throw new EmailDeliveryError('Resend xatni yuborish uchun qabul qilmadi.');
+      const failure = new EmailDeliveryError('Resend xatni yuborish uchun qabul qilmadi.');
+      failure.providerCode = /^[a-z_]+$/.test(response?.error?.name || '') ? response.error.name : 'unknown';
+      failure.providerStatus = Number(response?.error?.statusCode) || null;
+      throw failure;
     }
     return { accepted: true, provider: 'resend', id: response.data.id };
   };

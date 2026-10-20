@@ -1,6 +1,26 @@
 'use strict';
 const crypto = require('crypto');
 const { withTransaction } = require('./pool');
+const { cyrillicMap, getSearchTerms } = require('../../js/search-engine');
+const sqlLiteral = value => `'${String(value).replace(/'/g, "''")}'`;
+// Constants come from the browser's search engine; user input is always bound.
+// Filtering in PostgreSQL avoids transferring the full catalog for each search.
+function searchExpression() {
+  const fields = ['name','sku','description','category'].map(key => `COALESCE(p.${key},'')`);
+  for (const key of ['title','subcategory','brand','shortDescription','color','colors','sizes','tags','keywords','size','tag']) {
+    fields.push(`COALESCE(p.legacy_payload->>${sqlLiteral(key)},'')`);
+  }
+  let expression = `lower(${fields.join(" || ' ' || ")})`;
+  const singles = Object.entries(cyrillicMap).filter(([, value]) => value.length === 1);
+  const from = singles.map(([key]) => key).join('') + 'ʻʼ‘’`´';
+  const to = singles.map(([, value]) => value).join('') + "''''''";
+  expression = `translate(${expression},${sqlLiteral(from)},${sqlLiteral(to)})`;
+  for (const [key, value] of Object.entries(cyrillicMap).filter(([, value]) => value.length !== 1)) {
+    expression = `replace(${expression},${sqlLiteral(key)},${sqlLiteral(value)})`;
+  }
+  return `regexp_replace(${expression},'\\s+',' ','g')`;
+}
+const SEARCH_EXPRESSION = searchExpression();
 const json = value => JSON.stringify(value == null ? null : value);
 const variants = value => Array.isArray(value) ? value.map(String).map(v => v.trim()).filter(Boolean)
   : String(value || '').split(',').map(v => v.trim()).filter(Boolean);
@@ -37,9 +57,10 @@ class PostgresCatalogRepository {
   async listProducts(search = '') {
     const term = String(search || '').trim();
     const select = PostgresCatalogRepository.productSelect();
+    const terms = getSearchTerms(term).map(value => `%${value.replace(/[\\%_]/g, '\\$&')}%`);
     const result = term ? await this.pool.query(`SELECT ${select}
       FROM products p LEFT JOIN inventory_levels i ON i.product_id=p.id
-      WHERE p.deleted_at IS NULL AND (p.name ILIKE $1 OR p.sku ILIKE $1 OR p.description ILIKE $1) ORDER BY p.name,p.id`, [`%${term}%`])
+      WHERE p.deleted_at IS NULL AND (${terms.map((_, index) => `${SEARCH_EXPRESSION} LIKE $${index + 1}`).join(' OR ') || 'false'}) ORDER BY p.name,p.id`, terms)
       : await this.pool.query(`SELECT ${select} FROM products p LEFT JOIN inventory_levels i ON i.product_id=p.id
         WHERE p.deleted_at IS NULL ORDER BY p.name,p.id`);
     return result.rows.map(PostgresCatalogRepository.mapProduct);

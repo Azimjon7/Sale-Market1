@@ -75,5 +75,8 @@
     return 'Amalni bajarib bo\'lmadi. Qayta urinib ko\'ring.';
   }
 
-  return { statusLabels, paymentLabels, status, payment, paymentMethod, actor, reason, actionError };
+  function paymentPreference(value) {
+    return ({click:'Click',payme:'Payme',uzum:'Uzum',card:'Bank kartasi'})[value] || 'Belgilanmagan';
+  }
+  return { statusLabels, paymentLabels, status, payment, paymentMethod, paymentPreference, actor, reason, actionError };
 });

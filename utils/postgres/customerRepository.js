@@ -128,7 +128,7 @@ class PostgresCustomerRepository {
   }
 
   async listOrders(customerId) {
-    const orders = await this.pool.query(`SELECT id,public_order_number AS "orderNumber",delivery_address AS address,total,status,confirmed_at AS "confirmedAt",payment_type AS "paymentType",payment_status AS "paymentStatus",created_at AS "createdAt"
+    const orders = await this.pool.query(`SELECT id,public_order_number AS "orderNumber",delivery_address AS address,total,status,confirmed_at AS "confirmedAt",payment_type AS "paymentType",payment_status AS "paymentStatus",legacy_payload->>'paymentPreference' AS "paymentPreference",created_at AS "createdAt"
       FROM orders WHERE customer_id=$1 ORDER BY created_at DESC`, [customerId]);
     for (const order of orders.rows) {
       order.items = (await this.pool.query(`SELECT oi.legacy_payload,coalesce(oi.source_product_id,oi.product_id) AS product_id,oi.sku,oi.product_name,oi.color,oi.size,oi.quantity,oi.unit_price,p.primary_image AS image
