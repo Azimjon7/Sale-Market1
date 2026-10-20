@@ -20,14 +20,14 @@
     }
     const inventoryMode = product._inventoryMode || 'standard';
     // Made-to-order products: no stock validation
-    if (inventoryMode === 'made-to-order') {
+    if (inventoryMode === 'made-to-order' && product.inventoryManaged !== true) {
       if (qty > 100) {
         return { valid: true, warning: 'High quantity for made-to-order item' };
       }
       return { valid: true };
     }
     // Standard inventory mode: strict stock validation
-    if (inventoryMode === 'standard' || !inventoryMode) {
+    if (product.inventoryManaged === true || inventoryMode === 'standard' || !inventoryMode) {
       const stock = product.stock === undefined || product.stock === null || product.stock === ''
         ? 999
         : Math.max(0, Math.floor(Number(product.stock) || 0));
