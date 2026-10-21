@@ -18,7 +18,7 @@
   <link rel="stylesheet" href="css/shop-toolbar.css" type="text/css">
 <title>Dodola | Katalog</title>  <link rel="stylesheet" href="css/live-upgrade-fixes.css" type="text/css">
   <link rel="stylesheet" href="css/customer-navigation.css" type="text/css">
-<link rel="stylesheet" href="css/dodola-tokens.css"><link rel="stylesheet" href="css/dodola-customer.css"><link rel="stylesheet" href="css/dodola-marketplace.css"></head>
+<link rel="stylesheet" href="css/dodola-tokens.css"><link rel="stylesheet" href="css/dodola-customer.css"><link rel="stylesheet" href="css/dodola-marketplace.css"><link rel="stylesheet" href="css/catalog-compact.css"></head>
 <body class="market-body shop-page dodola">
   <a class="dodola-skip" href="#dodola-content">Asosiy mazmunga o‘tish</a><header class="dodola-header"><div class="dodola-header__inner"><a class="dodola-logo" href="index.html" aria-label="Dodola — bosh sahifa">Dodola<span>·</span></a><form class="dodola-search" action="shop.html" method="get" role="search"><input type="search" name="search" placeholder="Nima izlayapsiz?" aria-label="Mahsulotlarni qidirish"><button aria-label="Qidirish" type="submit">⌕</button></form><nav aria-label="Do‘kon bo‘limlari"><a data-nav-page="shop" href="shop.html">Katalog</a><a data-nav-page="shop-cart" href="shop-cart.html"><span class="nav-label">Savat</span> <span class="js-cart-count">0</span></a><a data-nav-page="account" href="account.html">Profilim</a></nav></div></header>
 
@@ -97,7 +97,14 @@
     <div class="mcf-wrap" id="mcf-wrap" style="display:none"></div>
 
     <!-- Product grid -->
-    <div class="row" id="shop-grid"></div>
+    <div class="row" id="shop-grid" aria-live="polite" aria-busy="true">
+      <div class="catalog-skeleton" aria-hidden="true"><span class="catalog-skeleton__image"></span><span class="catalog-skeleton__line catalog-skeleton__line--short"></span><span class="catalog-skeleton__line"></span><span class="catalog-skeleton__line catalog-skeleton__line--price"></span></div>
+      <div class="catalog-skeleton" aria-hidden="true"><span class="catalog-skeleton__image"></span><span class="catalog-skeleton__line catalog-skeleton__line--short"></span><span class="catalog-skeleton__line"></span><span class="catalog-skeleton__line catalog-skeleton__line--price"></span></div>
+      <div class="catalog-skeleton" aria-hidden="true"><span class="catalog-skeleton__image"></span><span class="catalog-skeleton__line catalog-skeleton__line--short"></span><span class="catalog-skeleton__line"></span><span class="catalog-skeleton__line catalog-skeleton__line--price"></span></div>
+      <div class="catalog-skeleton" aria-hidden="true"><span class="catalog-skeleton__image"></span><span class="catalog-skeleton__line catalog-skeleton__line--short"></span><span class="catalog-skeleton__line"></span><span class="catalog-skeleton__line catalog-skeleton__line--price"></span></div>
+      <div class="catalog-skeleton" aria-hidden="true"><span class="catalog-skeleton__image"></span><span class="catalog-skeleton__line catalog-skeleton__line--short"></span><span class="catalog-skeleton__line"></span><span class="catalog-skeleton__line catalog-skeleton__line--price"></span></div>
+      <div class="catalog-skeleton" aria-hidden="true"><span class="catalog-skeleton__image"></span><span class="catalog-skeleton__line catalog-skeleton__line--short"></span><span class="catalog-skeleton__line"></span><span class="catalog-skeleton__line catalog-skeleton__line--price"></span></div>
+    </div>
 
   </div></section>
 

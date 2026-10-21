@@ -1,0 +1,651 @@
+{
+  "baseUrl": "http://127.0.0.1:61983",
+  "label": "after-local",
+  "capturedAt": "2026-10-21T05:05:38.063Z",
+  "results": [
+    {
+      "viewport": {
+        "width": 1366,
+        "height": 768
+      },
+      "domContentLoadedMs": 752,
+      "firstProductMs": 958,
+      "firstImageMs": 1030,
+      "repeatedRoundTripFirstProductMs": 564,
+      "backRoundTripFirstProductMs": 172,
+      "browserMetrics": {
+        "responseStartMs": 8,
+        "domContentLoadedMs": 736,
+        "loadMs": 1005,
+        "transferBytes": 17020,
+        "cards": 24,
+        "images": 24,
+        "domNodes": 1009,
+        "horizontalOverflow": false,
+        "cls": 0
+      },
+      "requests": [
+        {
+          "url": "http://127.0.0.1:61983/api/products?page=1&limit=24&sort=newest",
+          "status": 200,
+          "type": "fetch",
+          "durationMs": null,
+          "ttfbMs": 20,
+          "bytes": 26269,
+          "cacheControl": "private, max-age=10, stale-while-revalidate=20"
+        },
+        {
+          "url": "http://127.0.0.1:61983/uploads/buyo/buyo_markers-icons-1.webp",
+          "status": 200,
+          "type": "image",
+          "durationMs": null,
+          "ttfbMs": 200,
+          "bytes": 55916,
+          "cacheControl": "public, max-age=0"
+        },
+        {
+          "url": "http://127.0.0.1:61983/uploads/buyo/buyo_sivorotka-hair-1.webp",
+          "status": 200,
+          "type": "image",
+          "durationMs": null,
+          "ttfbMs": 199,
+          "bytes": 74394,
+          "cacheControl": "public, max-age=0"
+        },
+        {
+          "url": "http://127.0.0.1:61983/uploads/buyo/buyo_lora-1.webp",
+          "status": 200,
+          "type": "image",
+          "durationMs": null,
+          "ttfbMs": 201,
+          "bytes": 36116,
+          "cacheControl": "public, max-age=0"
+        },
+        {
+          "url": "http://127.0.0.1:61983/uploads/buyo/buyo_sandwich-1.webp",
+          "status": 200,
+          "type": "image",
+          "durationMs": null,
+          "ttfbMs": 201,
+          "bytes": 66482,
+          "cacheControl": "public, max-age=0"
+        },
+        {
+          "url": "http://127.0.0.1:61983/uploads/buyo/buyo_pearl-necklace-1.webp",
+          "status": 200,
+          "type": "image",
+          "durationMs": null,
+          "ttfbMs": 200,
+          "bytes": 16596,
+          "cacheControl": "public, max-age=0"
+        },
+        {
+          "url": "http://127.0.0.1:61983/uploads/buyo/buyo_bizibord-1.webp",
+          "status": 200,
+          "type": "image",
+          "durationMs": null,
+          "ttfbMs": 202,
+          "bytes": 44624,
+          "cacheControl": "public, max-age=0"
+        },
+        {
+          "url": "http://127.0.0.1:61983/uploads/buyo/buyo_fishhunter-1.webp",
+          "status": 200,
+          "type": "image",
+          "durationMs": null,
+          "ttfbMs": 201,
+          "bytes": 87836,
+          "cacheControl": "public, max-age=0"
+        },
+        {
+          "url": "http://127.0.0.1:61983/uploads/buyo/buyo_flomaster-1.webp",
+          "status": 200,
+          "type": "image",
+          "durationMs": null,
+          "ttfbMs": 198,
+          "bytes": 48264,
+          "cacheControl": "public, max-age=0"
+        },
+        {
+          "url": "http://127.0.0.1:61983/uploads/buyo/buyo_food-dryer-1.webp",
+          "status": 200,
+          "type": "image",
+          "durationMs": null,
+          "ttfbMs": 198,
+          "bytes": 66712,
+          "cacheControl": "public, max-age=0"
+        },
+        {
+          "url": "http://127.0.0.1:61983/uploads/buyo/buyo_soap-butterfly-1.webp",
+          "status": 200,
+          "type": "image",
+          "durationMs": null,
+          "ttfbMs": 199,
+          "bytes": 57498,
+          "cacheControl": "public, max-age=0"
+        },
+        {
+          "url": "http://127.0.0.1:61983/uploads/buyo/buyo_tulipchain-1.webp",
+          "status": 200,
+          "type": "image",
+          "durationMs": null,
+          "ttfbMs": 199,
+          "bytes": 34184,
+          "cacheControl": "public, max-age=0"
+        },
+        {
+          "url": "http://127.0.0.1:61983/uploads/buyo/buyo_axium-1.webp",
+          "status": 200,
+          "type": "image",
+          "durationMs": null,
+          "ttfbMs": 199,
+          "bytes": 263722,
+          "cacheControl": "public, max-age=0"
+        },
+        {
+          "url": "http://127.0.0.1:61983/uploads/buyo/buyo_naklejki-ot-komarov-1.webp",
+          "status": 200,
+          "type": "image",
+          "durationMs": null,
+          "ttfbMs": 139,
+          "bytes": 118994,
+          "cacheControl": "public, max-age=0"
+        },
+        {
+          "url": "http://127.0.0.1:61983/uploads/buyo/buyo_fat-burning-patches-1.webp",
+          "status": 200,
+          "type": "image",
+          "durationMs": null,
+          "ttfbMs": 144,
+          "bytes": 55658,
+          "cacheControl": "public, max-age=0"
+        },
+        {
+          "url": "http://127.0.0.1:61983/uploads/buyo/buyo_scorpion-venom-muscle-ointment-1.webp",
+          "status": 200,
+          "type": "image",
+          "durationMs": null,
+          "ttfbMs": 140,
+          "bytes": 109796,
+          "cacheControl": "public, max-age=0"
+        },
+        {
+          "url": "http://127.0.0.1:61983/uploads/buyo/buyo_chinese-miracle-ointment-1.webp",
+          "status": 200,
+          "type": "image",
+          "durationMs": null,
+          "ttfbMs": 143,
+          "bytes": 125002,
+          "cacheControl": "public, max-age=0"
+        },
+        {
+          "url": "http://127.0.0.1:61983/api/products?page=1&limit=24&sort=newest",
+          "status": 200,
+          "type": "fetch",
+          "durationMs": null,
+          "ttfbMs": 0,
+          "bytes": 26269,
+          "cacheControl": "private, max-age=10, stale-while-revalidate=20"
+        },
+        {
+          "url": "http://127.0.0.1:61983/uploads/buyo/buyo_markers-icons-1.webp",
+          "status": 304,
+          "type": "image",
+          "durationMs": null,
+          "ttfbMs": 212,
+          "bytes": null,
+          "cacheControl": "public, max-age=0"
+        },
+        {
+          "url": "http://127.0.0.1:61983/uploads/buyo/buyo_lora-1.webp",
+          "status": 304,
+          "type": "image",
+          "durationMs": null,
+          "ttfbMs": 212,
+          "bytes": null,
+          "cacheControl": "public, max-age=0"
+        },
+        {
+          "url": "http://127.0.0.1:61983/uploads/buyo/buyo_sivorotka-hair-1.webp",
+          "status": 304,
+          "type": "image",
+          "durationMs": null,
+          "ttfbMs": 211,
+          "bytes": null,
+          "cacheControl": "public, max-age=0"
+        },
+        {
+          "url": "http://127.0.0.1:61983/uploads/buyo/buyo_sandwich-1.webp",
+          "status": 304,
+          "type": "image",
+          "durationMs": null,
+          "ttfbMs": 211,
+          "bytes": null,
+          "cacheControl": "public, max-age=0"
+        },
+        {
+          "url": "http://127.0.0.1:61983/uploads/buyo/buyo_bizibord-1.webp",
+          "status": 304,
+          "type": "image",
+          "durationMs": null,
+          "ttfbMs": 211,
+          "bytes": null,
+          "cacheControl": "public, max-age=0"
+        },
+        {
+          "url": "http://127.0.0.1:61983/uploads/buyo/buyo_pearl-necklace-1.webp",
+          "status": 304,
+          "type": "image",
+          "durationMs": null,
+          "ttfbMs": 210,
+          "bytes": null,
+          "cacheControl": "public, max-age=0"
+        },
+        {
+          "url": "http://127.0.0.1:61983/uploads/buyo/buyo_markers-icons-1.webp",
+          "status": 200,
+          "type": "image",
+          "durationMs": null,
+          "ttfbMs": null,
+          "bytes": 55916,
+          "cacheControl": "public, max-age=0"
+        },
+        {
+          "url": "http://127.0.0.1:61983/uploads/buyo/buyo_lora-1.webp",
+          "status": 200,
+          "type": "image",
+          "durationMs": null,
+          "ttfbMs": null,
+          "bytes": 36116,
+          "cacheControl": "public, max-age=0"
+        },
+        {
+          "url": "http://127.0.0.1:61983/uploads/buyo/buyo_sivorotka-hair-1.webp",
+          "status": 200,
+          "type": "image",
+          "durationMs": null,
+          "ttfbMs": null,
+          "bytes": 74394,
+          "cacheControl": "public, max-age=0"
+        },
+        {
+          "url": "http://127.0.0.1:61983/uploads/buyo/buyo_sandwich-1.webp",
+          "status": 200,
+          "type": "image",
+          "durationMs": null,
+          "ttfbMs": null,
+          "bytes": 66482,
+          "cacheControl": "public, max-age=0"
+        },
+        {
+          "url": "http://127.0.0.1:61983/uploads/buyo/buyo_bizibord-1.webp",
+          "status": 200,
+          "type": "image",
+          "durationMs": null,
+          "ttfbMs": null,
+          "bytes": 44624,
+          "cacheControl": "public, max-age=0"
+        },
+        {
+          "url": "http://127.0.0.1:61983/uploads/buyo/buyo_pearl-necklace-1.webp",
+          "status": 200,
+          "type": "image",
+          "durationMs": null,
+          "ttfbMs": null,
+          "bytes": 16596,
+          "cacheControl": "public, max-age=0"
+        },
+        {
+          "url": "http://127.0.0.1:61983/uploads/buyo/buyo_fishhunter-1.webp",
+          "status": 200,
+          "type": "image",
+          "durationMs": null,
+          "ttfbMs": null,
+          "bytes": 87836,
+          "cacheControl": "public, max-age=0"
+        },
+        {
+          "url": "http://127.0.0.1:61983/uploads/buyo/buyo_flomaster-1.webp",
+          "status": 200,
+          "type": "image",
+          "durationMs": null,
+          "ttfbMs": null,
+          "bytes": 48264,
+          "cacheControl": "public, max-age=0"
+        },
+        {
+          "url": "http://127.0.0.1:61983/uploads/buyo/buyo_food-dryer-1.webp",
+          "status": 200,
+          "type": "image",
+          "durationMs": null,
+          "ttfbMs": null,
+          "bytes": 66712,
+          "cacheControl": "public, max-age=0"
+        },
+        {
+          "url": "http://127.0.0.1:61983/uploads/buyo/buyo_soap-butterfly-1.webp",
+          "status": 200,
+          "type": "image",
+          "durationMs": null,
+          "ttfbMs": null,
+          "bytes": 57498,
+          "cacheControl": "public, max-age=0"
+        },
+        {
+          "url": "http://127.0.0.1:61983/uploads/buyo/buyo_tulipchain-1.webp",
+          "status": 200,
+          "type": "image",
+          "durationMs": null,
+          "ttfbMs": null,
+          "bytes": 34184,
+          "cacheControl": "public, max-age=0"
+        },
+        {
+          "url": "http://127.0.0.1:61983/api/products?page=1&limit=24&sort=newest",
+          "status": 200,
+          "type": "fetch",
+          "durationMs": null,
+          "ttfbMs": 0,
+          "bytes": 26269,
+          "cacheControl": "private, max-age=10, stale-while-revalidate=20"
+        }
+      ],
+      "screenshot": "C:\\Users\\azimj\\Downloads\\Sale-Market-Catalog-Gallery-Upgrade\\artifacts\\catalog-performance\\after-local-1366.png"
+    },
+    {
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "domContentLoadedMs": 762,
+      "firstProductMs": 1048,
+      "firstImageMs": 1104,
+      "repeatedRoundTripFirstProductMs": 498,
+      "backRoundTripFirstProductMs": 226,
+      "browserMetrics": {
+        "responseStartMs": 4,
+        "domContentLoadedMs": 753,
+        "loadMs": 1204,
+        "transferBytes": 17020,
+        "cards": 24,
+        "images": 24,
+        "domNodes": 1030,
+        "horizontalOverflow": false,
+        "cls": 0
+      },
+      "requests": [
+        {
+          "url": "http://127.0.0.1:61983/api/products?page=1&limit=24&sort=newest",
+          "status": 200,
+          "type": "fetch",
+          "durationMs": null,
+          "ttfbMs": 22,
+          "bytes": 26269,
+          "cacheControl": "private, max-age=10, stale-while-revalidate=20"
+        },
+        {
+          "url": "http://127.0.0.1:61983/uploads/buyo/buyo_markers-icons-1.webp",
+          "status": 200,
+          "type": "image",
+          "durationMs": null,
+          "ttfbMs": 238,
+          "bytes": 55916,
+          "cacheControl": "public, max-age=0"
+        },
+        {
+          "url": "http://127.0.0.1:61983/uploads/buyo/buyo_lora-1.webp",
+          "status": 200,
+          "type": "image",
+          "durationMs": null,
+          "ttfbMs": 240,
+          "bytes": 36116,
+          "cacheControl": "public, max-age=0"
+        },
+        {
+          "url": "http://127.0.0.1:61983/uploads/buyo/buyo_sivorotka-hair-1.webp",
+          "status": 200,
+          "type": "image",
+          "durationMs": null,
+          "ttfbMs": 240,
+          "bytes": 74394,
+          "cacheControl": "public, max-age=0"
+        },
+        {
+          "url": "http://127.0.0.1:61983/uploads/buyo/buyo_pearl-necklace-1.webp",
+          "status": 200,
+          "type": "image",
+          "durationMs": null,
+          "ttfbMs": 196,
+          "bytes": 16596,
+          "cacheControl": "public, max-age=0"
+        },
+        {
+          "url": "http://127.0.0.1:61983/uploads/buyo/buyo_bizibord-1.webp",
+          "status": 200,
+          "type": "image",
+          "durationMs": null,
+          "ttfbMs": 198,
+          "bytes": 44624,
+          "cacheControl": "public, max-age=0"
+        },
+        {
+          "url": "http://127.0.0.1:61983/uploads/buyo/buyo_sandwich-1.webp",
+          "status": 200,
+          "type": "image",
+          "durationMs": null,
+          "ttfbMs": 285,
+          "bytes": 66482,
+          "cacheControl": "public, max-age=0"
+        },
+        {
+          "url": "http://127.0.0.1:61983/uploads/buyo/buyo_fishhunter-1.webp",
+          "status": 200,
+          "type": "image",
+          "durationMs": null,
+          "ttfbMs": 211,
+          "bytes": 87836,
+          "cacheControl": "public, max-age=0"
+        },
+        {
+          "url": "http://127.0.0.1:61983/uploads/buyo/buyo_flomaster-1.webp",
+          "status": 200,
+          "type": "image",
+          "durationMs": null,
+          "ttfbMs": 208,
+          "bytes": 48264,
+          "cacheControl": "public, max-age=0"
+        },
+        {
+          "url": "http://127.0.0.1:61983/uploads/buyo/buyo_food-dryer-1.webp",
+          "status": 200,
+          "type": "image",
+          "durationMs": null,
+          "ttfbMs": 208,
+          "bytes": 66712,
+          "cacheControl": "public, max-age=0"
+        },
+        {
+          "url": "http://127.0.0.1:61983/uploads/buyo/buyo_soap-butterfly-1.webp",
+          "status": 200,
+          "type": "image",
+          "durationMs": null,
+          "ttfbMs": 163,
+          "bytes": 57498,
+          "cacheControl": "public, max-age=0"
+        },
+        {
+          "url": "http://127.0.0.1:61983/uploads/buyo/buyo_tulipchain-1.webp",
+          "status": 200,
+          "type": "image",
+          "durationMs": null,
+          "ttfbMs": 164,
+          "bytes": 34184,
+          "cacheControl": "public, max-age=0"
+        },
+        {
+          "url": "http://127.0.0.1:61983/uploads/buyo/buyo_axium-1.webp",
+          "status": 200,
+          "type": "image",
+          "durationMs": null,
+          "ttfbMs": 93,
+          "bytes": 263722,
+          "cacheControl": "public, max-age=0"
+        },
+        {
+          "url": "http://127.0.0.1:61983/api/products?page=1&limit=24&sort=newest",
+          "status": 200,
+          "type": "fetch",
+          "durationMs": null,
+          "ttfbMs": 0,
+          "bytes": 26269,
+          "cacheControl": "private, max-age=10, stale-while-revalidate=20"
+        },
+        {
+          "url": "http://127.0.0.1:61983/uploads/buyo/buyo_markers-icons-1.webp",
+          "status": 304,
+          "type": "image",
+          "durationMs": null,
+          "ttfbMs": 180,
+          "bytes": null,
+          "cacheControl": "public, max-age=0"
+        },
+        {
+          "url": "http://127.0.0.1:61983/uploads/buyo/buyo_lora-1.webp",
+          "status": 304,
+          "type": "image",
+          "durationMs": null,
+          "ttfbMs": 180,
+          "bytes": null,
+          "cacheControl": "public, max-age=0"
+        },
+        {
+          "url": "http://127.0.0.1:61983/uploads/buyo/buyo_sivorotka-hair-1.webp",
+          "status": 304,
+          "type": "image",
+          "durationMs": null,
+          "ttfbMs": 179,
+          "bytes": null,
+          "cacheControl": "public, max-age=0"
+        },
+        {
+          "url": "http://127.0.0.1:61983/uploads/buyo/buyo_sandwich-1.webp",
+          "status": 304,
+          "type": "image",
+          "durationMs": null,
+          "ttfbMs": 179,
+          "bytes": null,
+          "cacheControl": "public, max-age=0"
+        },
+        {
+          "url": "http://127.0.0.1:61983/uploads/buyo/buyo_bizibord-1.webp",
+          "status": 304,
+          "type": "image",
+          "durationMs": null,
+          "ttfbMs": 180,
+          "bytes": null,
+          "cacheControl": "public, max-age=0"
+        },
+        {
+          "url": "http://127.0.0.1:61983/uploads/buyo/buyo_pearl-necklace-1.webp",
+          "status": 304,
+          "type": "image",
+          "durationMs": null,
+          "ttfbMs": 178,
+          "bytes": null,
+          "cacheControl": "public, max-age=0"
+        },
+        {
+          "url": "http://127.0.0.1:61983/uploads/buyo/buyo_markers-icons-1.webp",
+          "status": 200,
+          "type": "image",
+          "durationMs": null,
+          "ttfbMs": null,
+          "bytes": 55916,
+          "cacheControl": "public, max-age=0"
+        },
+        {
+          "url": "http://127.0.0.1:61983/uploads/buyo/buyo_lora-1.webp",
+          "status": 200,
+          "type": "image",
+          "durationMs": null,
+          "ttfbMs": null,
+          "bytes": 36116,
+          "cacheControl": "public, max-age=0"
+        },
+        {
+          "url": "http://127.0.0.1:61983/uploads/buyo/buyo_sivorotka-hair-1.webp",
+          "status": 200,
+          "type": "image",
+          "durationMs": null,
+          "ttfbMs": null,
+          "bytes": 74394,
+          "cacheControl": "public, max-age=0"
+        },
+        {
+          "url": "http://127.0.0.1:61983/uploads/buyo/buyo_sandwich-1.webp",
+          "status": 200,
+          "type": "image",
+          "durationMs": null,
+          "ttfbMs": null,
+          "bytes": 66482,
+          "cacheControl": "public, max-age=0"
+        },
+        {
+          "url": "http://127.0.0.1:61983/uploads/buyo/buyo_bizibord-1.webp",
+          "status": 200,
+          "type": "image",
+          "durationMs": null,
+          "ttfbMs": null,
+          "bytes": 44624,
+          "cacheControl": "public, max-age=0"
+        },
+        {
+          "url": "http://127.0.0.1:61983/uploads/buyo/buyo_pearl-necklace-1.webp",
+          "status": 200,
+          "type": "image",
+          "durationMs": null,
+          "ttfbMs": null,
+          "bytes": 16596,
+          "cacheControl": "public, max-age=0"
+        },
+        {
+          "url": "http://127.0.0.1:61983/uploads/buyo/buyo_fishhunter-1.webp",
+          "status": 200,
+          "type": "image",
+          "durationMs": null,
+          "ttfbMs": null,
+          "bytes": 87836,
+          "cacheControl": "public, max-age=0"
+        },
+        {
+          "url": "http://127.0.0.1:61983/uploads/buyo/buyo_flomaster-1.webp",
+          "status": 200,
+          "type": "image",
+          "durationMs": null,
+          "ttfbMs": null,
+          "bytes": 48264,
+          "cacheControl": "public, max-age=0"
+        },
+        {
+          "url": "http://127.0.0.1:61983/uploads/buyo/buyo_food-dryer-1.webp",
+          "status": 200,
+          "type": "image",
+          "durationMs": null,
+          "ttfbMs": null,
+          "bytes": 66712,
+          "cacheControl": "public, max-age=0"
+        },
+        {
+          "url": "http://127.0.0.1:61983/api/products?page=1&limit=24&sort=newest",
+          "status": 200,
+          "type": "fetch",
+          "durationMs": null,
+          "ttfbMs": 0,
+          "bytes": 26269,
+          "cacheControl": "private, max-age=10, stale-while-revalidate=20"
+        }
+      ],
+      "screenshot": "C:\\Users\\azimj\\Downloads\\Sale-Market-Catalog-Gallery-Upgrade\\artifacts\\catalog-performance\\after-local-390.png"
+    }
+  ]
+}

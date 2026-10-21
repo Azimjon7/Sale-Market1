@@ -1,0 +1,112 @@
+[
+  {
+    "width": 360,
+    "height": 844,
+    "cards": 24,
+    "columns": 2,
+    "horizontalOverflow": false,
+    "titleSize": "22px",
+    "heroHeight": 86,
+    "toolbarHeight": 50,
+    "eagerImages": 4,
+    "lazyImages": 20,
+    "duplicateIds": 0,
+    "errors": []
+  },
+  {
+    "width": 390,
+    "height": 844,
+    "cards": 24,
+    "columns": 2,
+    "horizontalOverflow": false,
+    "titleSize": "23.4px",
+    "heroHeight": 122,
+    "toolbarHeight": 50,
+    "eagerImages": 4,
+    "lazyImages": 20,
+    "duplicateIds": 0,
+    "errors": []
+  },
+  {
+    "width": 430,
+    "height": 844,
+    "cards": 24,
+    "columns": 2,
+    "horizontalOverflow": false,
+    "titleSize": "25.8px",
+    "heroHeight": 107,
+    "toolbarHeight": 50,
+    "eagerImages": 4,
+    "lazyImages": 20,
+    "duplicateIds": 0,
+    "errors": []
+  },
+  {
+    "width": 768,
+    "height": 1024,
+    "cards": 24,
+    "columns": 2,
+    "horizontalOverflow": false,
+    "titleSize": "26px",
+    "heroHeight": 110,
+    "toolbarHeight": 52,
+    "eagerImages": 4,
+    "lazyImages": 20,
+    "duplicateIds": 0,
+    "errors": []
+  },
+  {
+    "width": 1366,
+    "height": 768,
+    "cards": 24,
+    "columns": 4,
+    "horizontalOverflow": false,
+    "titleSize": "35.516px",
+    "heroHeight": 144,
+    "toolbarHeight": 54,
+    "eagerImages": 6,
+    "lazyImages": 18,
+    "duplicateIds": 0,
+    "errors": []
+  },
+  {
+    "width": 1440,
+    "height": 900,
+    "cards": 24,
+    "columns": 5,
+    "horizontalOverflow": false,
+    "titleSize": "37.44px",
+    "heroHeight": 146,
+    "toolbarHeight": 54,
+    "eagerImages": 6,
+    "lazyImages": 18,
+    "duplicateIds": 0,
+    "errors": []
+  },
+  {
+    "width": 1920,
+    "height": 900,
+    "cards": 24,
+    "columns": 5,
+    "horizontalOverflow": false,
+    "titleSize": "38px",
+    "heroHeight": 147,
+    "toolbarHeight": 54,
+    "eagerImages": 6,
+    "lazyImages": 18,
+    "duplicateIds": 0,
+    "errors": []
+  },
+  {
+    "interactions": {
+      "pagination": 48,
+      "uniqueProducts": 48,
+      "latinSearch": 3,
+      "cyrillicSearch": 3,
+      "category": "Uy jihozlari",
+      "productLink": 200,
+      "addToCart": true,
+      "russianInterface": true
+    }
+  }
+]

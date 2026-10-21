@@ -86,6 +86,59 @@ window.MBHelpers = {
     if (!res.ok) throw new Error(`Request failed: ${url} (${res.status})`);
     return res.json();
   },
+  catalogCacheKey(params = {}) {
+    const query = new URLSearchParams();
+    Object.keys(params).sort().forEach(key => {
+      const value = params[key];
+      if (value !== undefined && value !== null && value !== '') query.set(key, String(value));
+    });
+    return `dodola:catalog:v2:${query.toString()}`;
+  },
+  readCatalogCache(params = {}, maxAge = 120000) {
+    try {
+      const raw = sessionStorage.getItem(this.catalogCacheKey(params));
+      const entry = raw ? JSON.parse(raw) : null;
+      if (!entry || !entry.data || Date.now() - Number(entry.savedAt || 0) > maxAge) return null;
+      return entry.data;
+    } catch (_) { return null; }
+  },
+  writeCatalogCache(params = {}, data) {
+    try {
+      const prefix = 'dodola:catalog:v2:';
+      const keys = Object.keys(sessionStorage).filter(key => key.startsWith(prefix));
+      if (keys.length > 24) keys.slice(0, keys.length - 24).forEach(key => sessionStorage.removeItem(key));
+      sessionStorage.setItem(this.catalogCacheKey(params), JSON.stringify({ savedAt: Date.now(), data }));
+    } catch (_) {}
+  },
+  async fetchCatalogPage(params = {}, options = {}) {
+    const query = new URLSearchParams();
+    Object.entries(params).forEach(([key, value]) => {
+      if (value !== undefined && value !== null && value !== '') query.set(key, String(value));
+    });
+    const response = await fetch(this.apiUrl(`/api/products?${query}`), {
+      cache: options.cache || 'default',
+      signal: options.signal,
+      headers: { Accept: 'application/json' },
+    });
+    if (!response.ok) throw new Error(`Catalog request failed (${response.status})`);
+    const data = await response.json();
+    if (!data || !Array.isArray(data.products) || !data.meta) throw new Error('Catalog response is invalid');
+    data.products = data.products.map(product => this.normalizeProduct(product));
+    this.writeCatalogCache(params, data);
+    return data;
+  },
+  async fetchCatalogMeta(options = {}) {
+    const cacheKey = 'dodola:catalog:meta:v2';
+    try {
+      const cached = JSON.parse(sessionStorage.getItem(cacheKey) || 'null');
+      if (!options.force && cached && Date.now() - Number(cached.savedAt || 0) < 300000) return cached.data;
+    } catch (_) {}
+    const response = await fetch(this.apiUrl('/api/catalog/meta'), { cache: 'default', signal: options.signal, headers: { Accept: 'application/json' } });
+    if (!response.ok) throw new Error(`Catalog metadata failed (${response.status})`);
+    const data = await response.json();
+    try { sessionStorage.setItem(cacheKey, JSON.stringify({ savedAt: Date.now(), data })); } catch (_) {}
+    return data;
+  },
   resolveImagePath(value) {
     const path = String(value || "").trim();
     if (!path || /^\/?img\/placeholders\/product\.svg$/.test(path)) return "img/placeholders/dodola-product.svg";
@@ -182,11 +235,14 @@ window.MBHelpers = {
     const descriptionHtml = showDescription ? `<p>${this.escapeHtml(normalized.description)}</p>` : "";
     const action = inStock ? `<a class="link-btn js-add-card" href="#" data-id="${this.escapeHtml(normalized.id)}">Savatga</a>` : `<span>Stokda yo'q</span>`;
 
+    const priority = Boolean(options.priority);
+    const loading = priority ? 'eager' : 'lazy';
+    const fetchPriority = priority ? 'high' : 'auto';
     return `
       <div class="col-6 col-sm-6 col-md-4 col-lg-3">
         <div class="product__item ${inStock ? "" : "product__item--soldout"}">
           <a href="product-details.html?id=${encodeURIComponent(normalized.id)}" class="product__item__pic">
-            <img class="d-catalog-image" src="${this.escapeHtml(image)}" alt="${this.escapeHtml(normalized.name || 'Mahsulot')}" loading="lazy" decoding="async" width="400" height="400">
+            <img class="d-catalog-image" src="${this.escapeHtml(image)}" alt="${this.escapeHtml(normalized.name || 'Mahsulot')}" loading="${loading}" fetchpriority="${fetchPriority}" decoding="async" sizes="(max-width: 768px) 46vw, (max-width: 1399px) 23vw, 18vw" width="400" height="400">
             ${labelHtml}
           </a>
           <button type="button" class="dodola-favorite" data-favorite="${this.escapeHtml(normalized.id)}" aria-label="Saralanganlar" aria-pressed="false">♡</button>
@@ -206,4 +262,26 @@ window.MBHelpers = {
     return `<div class="col-12"><div class="empty-state"><img src="img/placeholders/dodola-product.svg" alt="placeholder"><h5>Hozircha mahsulot yo'q</h5><p>${message}</p></div></div>`;
   },
 };
+
+(function installCatalogPrefetch() {
+  if (typeof document === 'undefined' || typeof document.addEventListener !== 'function') return;
+  let started = false;
+  const prefetch = () => {
+    if (started || document.getElementById('shop-grid')) return;
+    started = true;
+    const params = { page: 1, limit: 24, sort: 'newest' };
+    if (!window.MBHelpers.readCatalogCache(params)) {
+      window.MBHelpers.fetchCatalogPage(params).catch(() => { started = false; });
+    }
+    window.MBHelpers.fetchCatalogMeta().catch(() => {});
+  };
+  document.addEventListener('pointerover', event => {
+    const link = event.target.closest && event.target.closest('a[href*="shop.html"]');
+    if (link) prefetch();
+  }, { passive: true, once: false });
+  document.addEventListener('touchstart', event => {
+    const link = event.target.closest && event.target.closest('a[href*="shop.html"]');
+    if (link) prefetch();
+  }, { passive: true, once: false });
+})();
 

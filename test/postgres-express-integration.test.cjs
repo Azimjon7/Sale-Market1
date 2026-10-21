@@ -109,6 +109,16 @@ test('PostgreSQL-backed Express routes cover auth, profile, checkout, tracking a
     assert.equal(cyrillicSearch.body.length, 1);
     const wildcard = await agent.get('/api/products').query({search:'%_'}).expect(200);
     assert.equal(wildcard.body.length, 0);
+    const firstPage = await agent.get('/api/products').query({ page: 1, limit: 1, sort: 'price_desc', category: 'Sinov' });
+    assert.equal(firstPage.status, 200, JSON.stringify(firstPage.body));
+    assert.equal(firstPage.body.products.length, 1);
+    assert.equal(firstPage.body.products[0].id, 'pg-mto');
+    assert.deepEqual(firstPage.body.meta, { total: 2, page: 1, limit: 1, pages: 2 });
+    assert.match(firstPage.headers['cache-control'], /max-age=10/);
+    const catalogMeta = await agent.get('/api/catalog/meta');
+    assert.equal(catalogMeta.status, 200, JSON.stringify(catalogMeta.body));
+    assert.equal(catalogMeta.body.total, 2);
+    assert.deepEqual(catalogMeta.body.categories, [{ name: 'Sinov', count: 2 }]);
     const placed = await agent.post('/api/orders').send(orderBody('pg-product', 'authenticated-order-0001', 1, {paymentPreference:'click'})).expect(201);
     assert.match(placed.body.order.orderNumber, /^DOD-ORD-/);
     const mine = await agent.get('/api/customer/orders').expect(200);

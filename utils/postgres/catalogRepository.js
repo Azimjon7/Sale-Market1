@@ -66,6 +66,64 @@ class PostgresCatalogRepository {
     return result.rows.map(PostgresCatalogRepository.mapProduct);
   }
 
+  async listProductsPage(options = {}) {
+    const page = Math.max(1, Number(options.page) || 1);
+    const limit = Math.min(100, Math.max(1, Number(options.limit) || 24));
+    const params = [];
+    const clauses = ['p.deleted_at IS NULL'];
+    const push = value => { params.push(value); return `$${params.length}`; };
+    const term = String(options.search || '').trim();
+    const terms = getSearchTerms(term).map(value => `%${value.replace(/[\\%_]/g, '\\$&')}%`);
+    if (terms.length) {
+      clauses.push(`(${terms.map(value => `${SEARCH_EXPRESSION} LIKE ${push(value)}`).join(' OR ')})`);
+    }
+    if (options.category) clauses.push(`lower(p.category)=lower(${push(String(options.category).trim())})`);
+    if (Number.isFinite(Number(options.minPrice))) clauses.push(`p.price>=${push(Number(options.minPrice))}`);
+    if (Number.isFinite(Number(options.maxPrice))) clauses.push(`p.price<=${push(Number(options.maxPrice))}`);
+    if (options.sale) clauses.push('p.old_price>p.price AND p.price>0');
+
+    const sortMap = {
+      'price-low': 'p.price ASC,p.id ASC', price_asc: 'p.price ASC,p.id ASC',
+      'price-high': 'p.price DESC,p.id ASC', price_desc: 'p.price DESC,p.id ASC',
+      oldest: 'p.created_at ASC NULLS LAST,p.id ASC',
+      'most-reviewed': 'review_count DESC,p.created_at DESC NULLS LAST,p.id ASC',
+      most_reviewed: 'review_count DESC,p.created_at DESC NULLS LAST,p.id ASC',
+      newest: 'p.created_at DESC NULLS LAST,p.id ASC',
+    };
+    const sort = String(options.sort || 'newest');
+    const orderBy = sortMap[sort] || sortMap.newest;
+    const reviewsNeeded = sort === 'most-reviewed' || sort === 'most_reviewed';
+    const reviewSelect = reviewsNeeded ? 'COALESCE(rv.review_count,0)::integer' : '0::integer';
+    const reviewJoin = reviewsNeeded
+      ? 'LEFT JOIN (SELECT product_id,count(*)::integer AS review_count FROM reviews GROUP BY product_id) rv ON rv.product_id=p.id'
+      : '';
+    const where = clauses.join(' AND ');
+    const queryParams = [...params, limit, (page - 1) * limit];
+    const select = PostgresCatalogRepository.productSelect();
+    const [countResult, result] = await Promise.all([
+      this.pool.query(`SELECT count(*) AS value FROM products p WHERE ${where}`, params),
+      this.pool.query(`SELECT ${select},${reviewSelect} AS review_count
+        FROM products p LEFT JOIN inventory_levels i ON i.product_id=p.id ${reviewJoin}
+        WHERE ${where} ORDER BY ${orderBy} LIMIT $${params.length + 1} OFFSET $${params.length + 2}`, queryParams),
+    ]);
+    const count = Number(countResult.rows[0].value);
+    const pages = Math.max(1, Math.ceil(count / limit));
+    return { products: result.rows.map(PostgresCatalogRepository.mapProduct), meta: { total: count, page, limit, pages } };
+  }
+
+  async catalogFacets() {
+    const [totalResult, categoryResult] = await Promise.all([
+      this.pool.query('SELECT count(*) AS value FROM products WHERE deleted_at IS NULL'),
+      this.pool.query(`SELECT category AS name,count(*)::integer AS count FROM products
+        WHERE deleted_at IS NULL AND category IS NOT NULL AND category<>''
+        GROUP BY category ORDER BY count DESC,name ASC`),
+    ]);
+    return {
+      total: Number(totalResult.rows[0].value),
+      categories: categoryResult.rows.map(row => ({ name: row.name, count: Number(row.count) })),
+    };
+  }
+
   async getProduct(id, options = {}) {
     const select = PostgresCatalogRepository.productSelect();
     const deleted = options.includeDeleted ? '' : 'AND p.deleted_at IS NULL';

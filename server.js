@@ -419,6 +419,18 @@ function productWithDefaults(product) {
   };
 }
 
+function productWithPublicAssets(product) {
+  const output = productWithDefaults(product);
+  const publicImage = value => {
+    const raw = String(value || '').trim();
+    if (!raw || /^(?:https?:)?\/\//i.test(raw) || raw.startsWith('data:')) return raw;
+    const delivery = objectStorage.publicDelivery(raw);
+    return delivery && delivery.redirect ? delivery.redirect : raw;
+  };
+  const images = Array.isArray(output.images) ? output.images.map(publicImage) : [];
+  return { ...output, image: publicImage(output.image), images };
+}
+
 function inventorySystemActive() {
   const state = readJSON(INVENTORY_STATE_FILE, {});
   return state && state.applied === true && Number(state.inventoryVersion) === 1;
@@ -719,10 +731,13 @@ async function sortProducts(products, sort) {
   const cmp = (a, b) => String(a.id).localeCompare(String(b.id));
   switch (sort) {
     case "price-low":
+    case "price_asc":
       return [...products].sort((a, b) => (a.price - b.price) || cmp(a, b));
     case "price-high":
+    case "price_desc":
       return [...products].sort((a, b) => (b.price - a.price) || cmp(a, b));
-    case "most-reviewed": {
+    case "most-reviewed":
+    case "most_reviewed": {
       const counts = postgresReviews ? await postgresReviews.countsByProduct() : {};
       if (!postgresReviews) (Array.isArray(readJson(REVIEWS_FILE, [])) ? readJson(REVIEWS_FILE, []) : []).forEach((r) => {
         counts[r.productId] = (counts[r.productId] || 0) + 1;
@@ -731,6 +746,10 @@ async function sortProducts(products, sort) {
         (a, b) => (counts[b.id] || 0) - (counts[a.id] || 0) || cmp(a, b)
       );
     }
+    case "oldest":
+      return [...products].sort(
+        (a, b) => (new Date(a.createdAt || 0) - new Date(b.createdAt || 0)) || cmp(a, b)
+      );
     case "newest":
     default:
       return [...products].sort(
@@ -741,7 +760,41 @@ async function sortProducts(products, sort) {
 
 app.get("/api/products", async (req, res, next) => {
   try {
-  let all = postgresCatalog ? (await postgresCatalog.listProducts(req.query.search || '')).map(productWithDefaults) : loadProductsCached();
+  const hasPagination = req.query.page !== undefined || req.query.limit !== undefined;
+  const hasSort = req.query.sort !== undefined;
+
+  let page = parseInt(req.query.page, 10);
+  let limit = parseInt(req.query.limit, 10);
+  if (req.query.page !== undefined && (!Number.isInteger(page) || page < 1)) {
+    return res.status(400).json({ error: "Validation failed", details: { page: "page must be a positive integer" } });
+  }
+  if (req.query.limit !== undefined && (!Number.isInteger(limit) || limit < 1 || limit > 100)) {
+    return res.status(400).json({ error: "Validation failed", details: { limit: "limit must be an integer between 1 and 100" } });
+  }
+  page = page || 1;
+  limit = limit || 20;
+
+  if (postgresCatalog && hasPagination) {
+    const minPrice = req.query.minPrice === undefined || req.query.minPrice === '' ? undefined : Number(req.query.minPrice);
+    const maxPrice = req.query.maxPrice === undefined || req.query.maxPrice === '' ? undefined : Number(req.query.maxPrice);
+    if ((minPrice !== undefined && (!Number.isFinite(minPrice) || minPrice < 0)) ||
+        (maxPrice !== undefined && (!Number.isFinite(maxPrice) || maxPrice < 0))) {
+      return res.status(400).json({ error: 'Validation failed', details: { price: 'price must be a non-negative number' } });
+    }
+    const queryStarted = process.hrtime.bigint();
+    const result = await postgresCatalog.listProductsPage({
+      page, limit, search: req.query.search, category: req.query.category,
+      minPrice, maxPrice, sale: String(req.query.sale || '') === '1', sort: req.query.sort || 'newest',
+    });
+    const queryDurationMs = Number(process.hrtime.bigint() - queryStarted) / 1e6;
+    res.setHeader('Server-Timing', `db;dur=${queryDurationMs.toFixed(1)}`);
+    res.setHeader('Cache-Control', 'private, max-age=10, stale-while-revalidate=20');
+    res.removeHeader('Pragma');
+    res.removeHeader('Expires');
+    return res.json({ ...result, products: result.products.map(productWithPublicAssets) });
+  }
+
+  let all = postgresCatalog ? (await postgresCatalog.listProducts(req.query.search || '')).map(productWithPublicAssets) : loadProductsCached().map(productWithPublicAssets);
 
   // Filtering (applies whether or not pagination is requested)
   const category = req.query.category;
@@ -755,9 +808,6 @@ app.get("/api/products", async (req, res, next) => {
     all = searchProducts(all, search);
   }
 
-  const hasPagination = req.query.page !== undefined || req.query.limit !== undefined;
-  const hasSort = req.query.sort !== undefined;
-
   if (hasSort) {
     all = await sortProducts(all, String(req.query.sort));
   }
@@ -767,18 +817,6 @@ app.get("/api/products", async (req, res, next) => {
     return res.json(all);
   }
 
-  // Paginated response with validation
-  let page = parseInt(req.query.page, 10);
-  let limit = parseInt(req.query.limit, 10);
-  if (req.query.page !== undefined && (!Number.isInteger(page) || page < 1)) {
-    return res.status(400).json({ error: "Validation failed", details: { page: "page must be a positive integer" } });
-  }
-  if (req.query.limit !== undefined && (!Number.isInteger(limit) || limit < 1 || limit > 100)) {
-    return res.status(400).json({ error: "Validation failed", details: { limit: "limit must be an integer between 1 and 100" } });
-  }
-  page = page || 1;
-  limit = limit || 20;
-
   if (!hasSort) all = await sortProducts(all, "newest");
 
   const total = all.length;
@@ -786,7 +824,31 @@ app.get("/api/products", async (req, res, next) => {
   const start = (page - 1) * limit;
   const products = all.slice(start, start + limit);
 
+  res.setHeader('Cache-Control', 'private, max-age=10, stale-while-revalidate=20');
+  res.removeHeader('Pragma');
+  res.removeHeader('Expires');
   res.json({ products, meta: { total, page, limit, pages } });
+  } catch (error) { next(error); }
+});
+
+app.get('/api/catalog/meta', async (req, res, next) => {
+  try {
+    let data;
+    if (postgresCatalog) data = await postgresCatalog.catalogFacets();
+    else {
+      const products = loadProductsCached();
+      const counts = new Map();
+      products.forEach(product => {
+        const name = String(product.category || '').trim();
+        if (name) counts.set(name, (counts.get(name) || 0) + 1);
+      });
+      data = { total: products.length, categories: [...counts].map(([name, count]) => ({ name, count }))
+        .sort((a, b) => b.count - a.count || a.name.localeCompare(b.name, 'uz')) };
+    }
+    res.setHeader('Cache-Control', 'private, max-age=60, stale-while-revalidate=120');
+    res.removeHeader('Pragma');
+    res.removeHeader('Expires');
+    res.json(data);
   } catch (error) { next(error); }
 });
 
@@ -888,7 +950,7 @@ app.get("/api/products/:id", async (req, res, next) => {
     return res.status(404).json({ message: "Mahsulot topilmadi" });
   }
 
-  res.json(productWithDefaults(product));
+  res.json(productWithPublicAssets(product));
   } catch (error) { next(error); }
 });
 

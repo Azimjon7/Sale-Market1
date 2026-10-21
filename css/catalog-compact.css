@@ -1,0 +1,217 @@
+/* Catalog-only final layer: compact layout and immediate loading feedback. */
+body.dodola.shop-page .sm-catalog-section {
+  padding: clamp(18px, 2.4vw, 32px) 0 42px !important;
+}
+
+body.dodola.shop-page .sm-catalog-intro {
+  min-height: 0 !important;
+  margin-bottom: 12px !important;
+  padding: clamp(18px, 2vw, 24px) clamp(20px, 2.6vw, 34px) !important;
+  border-radius: 20px !important;
+}
+
+body.dodola.shop-page .sm-catalog-intro h1 {
+  margin: 4px 0 5px !important;
+  font-size: clamp(26px, 2.6vw, 38px) !important;
+  line-height: 1.05 !important;
+}
+
+body.dodola.shop-page .sm-catalog-intro p {
+  margin: 0 !important;
+  font-size: 13px !important;
+  line-height: 1.45 !important;
+}
+
+body.dodola.shop-page .sct-bar {
+  min-height: 50px !important;
+  margin-bottom: 18px !important;
+  padding: 6px 8px 6px 12px !important;
+  border-radius: 15px !important;
+}
+
+body.dodola.shop-page .sct-btn {
+  min-height: 38px !important;
+  padding: 7px 12px !important;
+  font-size: 12px !important;
+}
+
+body.dodola.shop-page #shop-grid {
+  display: grid !important;
+  grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+  gap: 22px 16px !important;
+  min-height: 540px;
+  margin: 0 !important;
+}
+
+body.dodola.shop-page #shop-grid > * {
+  min-width: 0;
+}
+
+body.dodola.shop-page #shop-grid > .col-6 {
+  width: 100% !important;
+  max-width: none !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+body.dodola.shop-page .product__item {
+  height: 100%;
+  border-radius: 17px !important;
+}
+
+body.dodola.shop-page .product__item__pic {
+  aspect-ratio: 1 / .92 !important;
+  min-height: 0 !important;
+  border-radius: 16px !important;
+  overflow: hidden;
+}
+
+body.dodola.shop-page .product__item__pic .d-catalog-image {
+  width: 100%;
+  height: 100%;
+  object-fit: contain !important;
+  padding: 5px;
+  background: #f8f4fa;
+}
+
+body.dodola.shop-page .product__item__text {
+  padding: 10px 4px 4px !important;
+  gap: 5px !important;
+}
+
+body.dodola.shop-page .product__item__text h6 {
+  min-height: 2.7em;
+  margin: 0 !important;
+}
+
+body.dodola.shop-page .product__item__text h6 a {
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  font-size: 13px !important;
+  line-height: 1.35 !important;
+}
+
+body.dodola.shop-page .product__price {
+  font-size: 15px !important;
+  line-height: 1.25 !important;
+}
+
+body.dodola.shop-page .product__links .link-btn {
+  min-height: 40px;
+  padding: 8px 11px !important;
+  border-radius: 20px !important;
+  font-size: 12px !important;
+}
+
+.catalog-skeleton {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  min-width: 0;
+  animation-delay: var(--skeleton-delay, 0ms);
+}
+
+.catalog-skeleton__image,
+.catalog-skeleton__line {
+  display: block;
+  overflow: hidden;
+  position: relative;
+  border-radius: 10px;
+  background: #eee7f3;
+}
+
+.catalog-skeleton__image::after,
+.catalog-skeleton__line::after {
+  position: absolute;
+  inset: 0;
+  content: '';
+  transform: translateX(-100%);
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,.72), transparent);
+  animation: catalog-shimmer 1.25s ease-in-out infinite;
+}
+
+.catalog-skeleton__image { aspect-ratio: 1 / .92; border-radius: 16px; }
+.catalog-skeleton__line { width: 86%; height: 12px; }
+.catalog-skeleton__line--short { width: 38%; height: 9px; }
+.catalog-skeleton__line--price { width: 58%; height: 16px; }
+
+.catalog-load-more {
+  display: flex;
+  justify-content: center;
+  padding: 26px 0 8px;
+}
+
+.catalog-load-more[hidden] { display: none !important; }
+
+.catalog-load-more__button {
+  min-width: 220px;
+  min-height: 46px;
+  padding: 10px 18px;
+  border: 1px solid var(--d-line, #dfd0e8);
+  border-radius: 24px;
+  color: var(--d-deep, #33223c);
+  background: #fff;
+  font-weight: 700;
+  transition: background .18s ease, transform .18s ease;
+}
+
+.catalog-load-more__button span { margin-left: 6px; color: var(--d-muted, #776a7d); font-weight: 500; }
+.catalog-load-more__button:hover { background: var(--d-soft, #f3eafb); transform: translateY(-1px); }
+.catalog-load-more__button[aria-busy='true'] { opacity: .58; cursor: progress; }
+
+body.dodola.shop-page .shop-empty {
+  grid-column: 1 / -1;
+  min-height: 360px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+}
+
+@keyframes catalog-shimmer { to { transform: translateX(100%); } }
+
+@media (min-width: 1400px) {
+  body.dodola.shop-page #shop-grid { grid-template-columns: repeat(5, minmax(0, 1fr)) !important; }
+}
+
+@media (min-width: 1800px) {
+  body.dodola.shop-page .market-section > .container-fluid { max-width: 1640px !important; }
+}
+
+@media (max-width: 1024px) {
+  body.dodola.shop-page #shop-grid { grid-template-columns: repeat(3, minmax(0, 1fr)) !important; gap: 18px 13px !important; }
+}
+
+@media (max-width: 768px) {
+  body.dodola.shop-page .sm-catalog-section { padding: 12px 0 28px !important; }
+  body.dodola.shop-page .sm-catalog-intro { padding: 14px 16px !important; margin-bottom: 9px !important; border-radius: 15px !important; }
+  body.dodola.shop-page .sm-catalog-intro h1 { font-size: clamp(22px, 6vw, 26px) !important; margin: 3px 0 !important; }
+  body.dodola.shop-page .sm-catalog-intro p { font-size: 12px !important; }
+  body.dodola.shop-page .sm-catalog-kicker { font-size: 8px !important; }
+  body.dodola.shop-page .sct-bar { min-height: 46px !important; margin-bottom: 12px !important; padding: 4px !important; }
+  body.dodola.shop-page .sct-btn { min-height: 40px !important; padding: 6px 5px !important; }
+  body.dodola.shop-page #shop-grid { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; gap: 14px 9px !important; min-height: 520px; }
+  body.dodola.shop-page .product__item__pic { aspect-ratio: 1 !important; border-radius: 13px !important; }
+  body.dodola.shop-page .product__item__text { padding: 8px 2px 2px !important; }
+  body.dodola.shop-page .product__item__text h6 a { font-size: 12px !important; }
+  body.dodola.shop-page .product__price { font-size: 13px !important; }
+  body.dodola.shop-page .product__links .link-btn { min-height: 38px; width: 100%; text-align: center; }
+  .catalog-skeleton__image { aspect-ratio: 1; border-radius: 13px; }
+  .catalog-load-more { padding-top: 20px; }
+  .catalog-load-more__button { width: 100%; min-height: 44px; }
+}
+
+@media (max-width: 359px) {
+  body.dodola.shop-page #shop-grid { gap: 12px 7px !important; }
+  body.dodola.shop-page .product__item__text h6 a { font-size: 11px !important; }
+  body.dodola.shop-page .product__price { font-size: 12px !important; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .catalog-skeleton__image::after,
+  .catalog-skeleton__line::after { animation: none; }
+  .catalog-load-more__button { transition: none; }
+}

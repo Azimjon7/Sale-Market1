@@ -1,0 +1,1128 @@
+{
+  "baseUrl": "https://dodola.uz",
+  "label": "before-live",
+  "capturedAt": "2026-10-21T04:32:14.005Z",
+  "results": [
+    {
+      "viewport": {
+        "width": 1366,
+        "height": 768
+      },
+      "domContentLoadedMs": 1969,
+      "firstProductMs": 18714,
+      "firstImageMs": 19018,
+      "repeatedRoundTripFirstProductMs": 19779,
+      "backRoundTripFirstProductMs": 15114,
+      "browserMetrics": {
+        "responseStartMs": 158,
+        "domContentLoadedMs": 1852,
+        "loadMs": 2293,
+        "transferBytes": 3637,
+        "cards": 1164,
+        "images": 1164,
+        "domNodes": 19194,
+        "horizontalOverflow": false,
+        "cls": 0
+      },
+      "requests": [
+        {
+          "url": "https://dodola.uz/api/products",
+          "status": 200,
+          "type": "fetch",
+          "durationMs": null,
+          "ttfbMs": 200,
+          "bytes": null,
+          "cacheControl": "no-store, no-cache, must-revalidate, proxy-revalidate"
+        },
+        {
+          "url": "https://dodola.uz/api/reviews",
+          "status": 200,
+          "type": "fetch",
+          "durationMs": null,
+          "ttfbMs": 47,
+          "bytes": 2,
+          "cacheControl": "no-store, no-cache, must-revalidate, proxy-revalidate"
+        },
+        {
+          "url": "https://dodola.uz/uploads/buyo/buyo_markers-icons-1.webp",
+          "status": 302,
+          "type": "image",
+          "durationMs": null,
+          "ttfbMs": 52,
+          "bytes": 112,
+          "cacheControl": ""
+        },
+        {
+          "url": "https://dodola.uz/uploads/buyo/buyo_lora-1.webp",
+          "status": 302,
+          "type": "image",
+          "durationMs": null,
+          "ttfbMs": 80,
+          "bytes": 103,
+          "cacheControl": ""
+        },
+        {
+          "url": "https://dodola.uz/uploads/buyo/buyo_sivorotka-hair-1.webp",
+          "status": 302,
+          "type": "image",
+          "durationMs": null,
+          "ttfbMs": 121,
+          "bytes": 113,
+          "cacheControl": ""
+        },
+        {
+          "url": "https://dodola.uz/uploads/buyo/buyo_sandwich-1.webp",
+          "status": 302,
+          "type": "image",
+          "durationMs": null,
+          "ttfbMs": 157,
+          "bytes": 107,
+          "cacheControl": ""
+        },
+        {
+          "url": "https://dodola.uz/uploads/buyo/buyo_bizibord-1.webp",
+          "status": 302,
+          "type": "image",
+          "durationMs": null,
+          "ttfbMs": 196,
+          "bytes": 107,
+          "cacheControl": ""
+        },
+        {
+          "url": "https://dodola.uz/uploads/buyo/buyo_pearl-necklace-1.webp",
+          "status": 302,
+          "type": "image",
+          "durationMs": null,
+          "ttfbMs": 238,
+          "bytes": 113,
+          "cacheControl": ""
+        },
+        {
+          "url": "https://dodola.uz/uploads/buyo/buyo_fishhunter-1.webp",
+          "status": 302,
+          "type": "image",
+          "durationMs": null,
+          "ttfbMs": 267,
+          "bytes": 109,
+          "cacheControl": ""
+        },
+        {
+          "url": "https://dodola.uz/uploads/buyo/buyo_flomaster-1.webp",
+          "status": 302,
+          "type": "image",
+          "durationMs": null,
+          "ttfbMs": 361,
+          "bytes": 108,
+          "cacheControl": ""
+        },
+        {
+          "url": "https://pub-ebead06c048c4c2bbcc3774f95db8136.r2.dev/uploads/buyo/buyo_markers-icons-1.webp",
+          "status": 200,
+          "type": "image",
+          "durationMs": null,
+          "ttfbMs": 440,
+          "bytes": 55916,
+          "cacheControl": "public, max-age=31536000, immutable"
+        },
+        {
+          "url": "https://pub-ebead06c048c4c2bbcc3774f95db8136.r2.dev/uploads/buyo/buyo_lora-1.webp",
+          "status": 200,
+          "type": "image",
+          "durationMs": null,
+          "ttfbMs": 479,
+          "bytes": 36116,
+          "cacheControl": "public, max-age=31536000, immutable"
+        },
+        {
+          "url": "https://pub-ebead06c048c4c2bbcc3774f95db8136.r2.dev/uploads/buyo/buyo_sivorotka-hair-1.webp",
+          "status": 200,
+          "type": "image",
+          "durationMs": null,
+          "ttfbMs": 507,
+          "bytes": 74394,
+          "cacheControl": "public, max-age=31536000, immutable"
+        },
+        {
+          "url": "https://pub-ebead06c048c4c2bbcc3774f95db8136.r2.dev/uploads/buyo/buyo_bizibord-1.webp",
+          "status": 200,
+          "type": "image",
+          "durationMs": null,
+          "ttfbMs": 402,
+          "bytes": 44624,
+          "cacheControl": "public, max-age=31536000, immutable"
+        },
+        {
+          "url": "https://pub-ebead06c048c4c2bbcc3774f95db8136.r2.dev/uploads/buyo/buyo_sandwich-1.webp",
+          "status": 200,
+          "type": "image",
+          "durationMs": null,
+          "ttfbMs": 523,
+          "bytes": 66482,
+          "cacheControl": "public, max-age=31536000, immutable"
+        },
+        {
+          "url": "https://pub-ebead06c048c4c2bbcc3774f95db8136.r2.dev/uploads/buyo/buyo_fishhunter-1.webp",
+          "status": 200,
+          "type": "image",
+          "durationMs": null,
+          "ttfbMs": 440,
+          "bytes": 87836,
+          "cacheControl": "public, max-age=31536000, immutable"
+        },
+        {
+          "url": "https://pub-ebead06c048c4c2bbcc3774f95db8136.r2.dev/uploads/buyo/buyo_pearl-necklace-1.webp",
+          "status": 200,
+          "type": "image",
+          "durationMs": null,
+          "ttfbMs": 471,
+          "bytes": 16596,
+          "cacheControl": "public, max-age=31536000, immutable"
+        },
+        {
+          "url": "https://dodola.uz/uploads/buyo/buyo_food-dryer-1.webp",
+          "status": 302,
+          "type": "image",
+          "durationMs": null,
+          "ttfbMs": 43,
+          "bytes": 109,
+          "cacheControl": ""
+        },
+        {
+          "url": "https://dodola.uz/uploads/buyo/buyo_soap-butterfly-1.webp",
+          "status": 302,
+          "type": "image",
+          "durationMs": null,
+          "ttfbMs": 78,
+          "bytes": 113,
+          "cacheControl": ""
+        },
+        {
+          "url": "https://pub-ebead06c048c4c2bbcc3774f95db8136.r2.dev/uploads/buyo/buyo_flomaster-1.webp",
+          "status": 200,
+          "type": "image",
+          "durationMs": null,
+          "ttfbMs": 476,
+          "bytes": 48264,
+          "cacheControl": "public, max-age=31536000, immutable"
+        },
+        {
+          "url": "https://dodola.uz/uploads/buyo/buyo_tulipchain-1.webp",
+          "status": 302,
+          "type": "image",
+          "durationMs": null,
+          "ttfbMs": 136,
+          "bytes": 109,
+          "cacheControl": ""
+        },
+        {
+          "url": "https://dodola.uz/uploads/buyo/buyo_axium-1.webp",
+          "status": 302,
+          "type": "image",
+          "durationMs": null,
+          "ttfbMs": 171,
+          "bytes": 104,
+          "cacheControl": ""
+        },
+        {
+          "url": "https://dodola.uz/uploads/buyo/buyo_fat-burning-patches-1.webp",
+          "status": 302,
+          "type": "image",
+          "durationMs": null,
+          "ttfbMs": 253,
+          "bytes": 118,
+          "cacheControl": ""
+        },
+        {
+          "url": "https://pub-ebead06c048c4c2bbcc3774f95db8136.r2.dev/uploads/buyo/buyo_food-dryer-1.webp",
+          "status": 200,
+          "type": "image",
+          "durationMs": null,
+          "ttfbMs": 195,
+          "bytes": 66712,
+          "cacheControl": "public, max-age=31536000, immutable"
+        },
+        {
+          "url": "https://dodola.uz/uploads/buyo/buyo_chinese-miracle-ointment-1.webp",
+          "status": 302,
+          "type": "image",
+          "durationMs": null,
+          "ttfbMs": 299,
+          "bytes": 123,
+          "cacheControl": ""
+        },
+        {
+          "url": "https://pub-ebead06c048c4c2bbcc3774f95db8136.r2.dev/uploads/buyo/buyo_soap-butterfly-1.webp",
+          "status": 200,
+          "type": "image",
+          "durationMs": null,
+          "ttfbMs": 220,
+          "bytes": 57498,
+          "cacheControl": "public, max-age=31536000, immutable"
+        },
+        {
+          "url": "https://dodola.uz/uploads/buyo/buyo_naklejki-ot-komarov-1.webp",
+          "status": 302,
+          "type": "image",
+          "durationMs": null,
+          "ttfbMs": 313,
+          "bytes": 118,
+          "cacheControl": ""
+        },
+        {
+          "url": "https://dodola.uz/uploads/buyo/buyo_scorpion-venom-muscle-ointment-1.webp",
+          "status": 302,
+          "type": "image",
+          "durationMs": null,
+          "ttfbMs": 246,
+          "bytes": 129,
+          "cacheControl": ""
+        },
+        {
+          "url": "https://dodola.uz/uploads/buyo/buyo_psoriasis-relief-spray-1.webp",
+          "status": 302,
+          "type": "image",
+          "durationMs": null,
+          "ttfbMs": 84,
+          "bytes": 121,
+          "cacheControl": ""
+        },
+        {
+          "url": "https://pub-ebead06c048c4c2bbcc3774f95db8136.r2.dev/uploads/buyo/buyo_tulipchain-1.webp",
+          "status": 200,
+          "type": "image",
+          "durationMs": null,
+          "ttfbMs": 245,
+          "bytes": 34184,
+          "cacheControl": "public, max-age=31536000, immutable"
+        },
+        {
+          "url": "https://pub-ebead06c048c4c2bbcc3774f95db8136.r2.dev/uploads/buyo/buyo_axium-1.webp",
+          "status": 200,
+          "type": "image",
+          "durationMs": null,
+          "ttfbMs": 214,
+          "bytes": 263722,
+          "cacheControl": "public, max-age=31536000, immutable"
+        },
+        {
+          "url": "https://pub-ebead06c048c4c2bbcc3774f95db8136.r2.dev/uploads/buyo/buyo_fat-burning-patches-1.webp",
+          "status": 200,
+          "type": "image",
+          "durationMs": null,
+          "ttfbMs": 128,
+          "bytes": 55658,
+          "cacheControl": "public, max-age=31536000, immutable"
+        },
+        {
+          "url": "https://pub-ebead06c048c4c2bbcc3774f95db8136.r2.dev/uploads/buyo/buyo_chinese-miracle-ointment-1.webp",
+          "status": 200,
+          "type": "image",
+          "durationMs": null,
+          "ttfbMs": 146,
+          "bytes": 125002,
+          "cacheControl": "public, max-age=31536000, immutable"
+        },
+        {
+          "url": "https://dodola.uz/uploads/buyo/buyo_plastir5yadov-1.webp",
+          "status": 302,
+          "type": "image",
+          "durationMs": null,
+          "ttfbMs": 130,
+          "bytes": 112,
+          "cacheControl": ""
+        },
+        {
+          "url": "https://pub-ebead06c048c4c2bbcc3774f95db8136.r2.dev/uploads/buyo/buyo_naklejki-ot-komarov-1.webp",
+          "status": 200,
+          "type": "image",
+          "durationMs": null,
+          "ttfbMs": 232,
+          "bytes": 118994,
+          "cacheControl": "public, max-age=31536000, immutable"
+        },
+        {
+          "url": "https://dodola.uz/uploads/buyo/buyo_detox-patch-1.webp",
+          "status": 302,
+          "type": "image",
+          "durationMs": null,
+          "ttfbMs": 219,
+          "bytes": 110,
+          "cacheControl": ""
+        },
+        {
+          "url": "https://dodola.uz/uploads/buyo/buyo_furzero-wrinkle-smoothing-cream-1.webp",
+          "status": 302,
+          "type": "image",
+          "durationMs": null,
+          "ttfbMs": 207,
+          "bytes": 130,
+          "cacheControl": ""
+        },
+        {
+          "url": "https://pub-ebead06c048c4c2bbcc3774f95db8136.r2.dev/uploads/buyo/buyo_psoriasis-relief-spray-1.webp",
+          "status": 200,
+          "type": "image",
+          "durationMs": null,
+          "ttfbMs": 272,
+          "bytes": 148810,
+          "cacheControl": "public, max-age=31536000, immutable"
+        },
+        {
+          "url": "https://pub-ebead06c048c4c2bbcc3774f95db8136.r2.dev/uploads/buyo/buyo_scorpion-venom-muscle-ointment-1.webp",
+          "status": 200,
+          "type": "image",
+          "durationMs": null,
+          "ttfbMs": 287,
+          "bytes": 109796,
+          "cacheControl": "public, max-age=31536000, immutable"
+        },
+        {
+          "url": "https://pub-ebead06c048c4c2bbcc3774f95db8136.r2.dev/uploads/buyo/buyo_plastir5yadov-1.webp",
+          "status": 200,
+          "type": "image",
+          "durationMs": null,
+          "ttfbMs": 180,
+          "bytes": 211694,
+          "cacheControl": "public, max-age=31536000, immutable"
+        },
+        {
+          "url": "https://pub-ebead06c048c4c2bbcc3774f95db8136.r2.dev/uploads/buyo/buyo_detox-patch-1.webp",
+          "status": 200,
+          "type": "image",
+          "durationMs": null,
+          "ttfbMs": 296,
+          "bytes": 183232,
+          "cacheControl": "public, max-age=31536000, immutable"
+        },
+        {
+          "url": "https://pub-ebead06c048c4c2bbcc3774f95db8136.r2.dev/uploads/buyo/buyo_furzero-wrinkle-smoothing-cream-1.webp",
+          "status": 200,
+          "type": "image",
+          "durationMs": null,
+          "ttfbMs": 333,
+          "bytes": 46372,
+          "cacheControl": "public, max-age=31536000, immutable"
+        },
+        {
+          "url": "https://dodola.uz/api/products",
+          "status": 200,
+          "type": "fetch",
+          "durationMs": null,
+          "ttfbMs": 219,
+          "bytes": null,
+          "cacheControl": "no-store, no-cache, must-revalidate, proxy-revalidate"
+        },
+        {
+          "url": "https://dodola.uz/api/products",
+          "status": 200,
+          "type": "fetch",
+          "durationMs": null,
+          "ttfbMs": 203,
+          "bytes": null,
+          "cacheControl": "no-store, no-cache, must-revalidate, proxy-revalidate"
+        },
+        {
+          "url": "https://dodola.uz/api/reviews",
+          "status": 200,
+          "type": "fetch",
+          "durationMs": null,
+          "ttfbMs": 30,
+          "bytes": 2,
+          "cacheControl": "no-store, no-cache, must-revalidate, proxy-revalidate"
+        },
+        {
+          "url": "https://dodola.uz/uploads/buyo/buyo_markers-icons-1.webp",
+          "status": 302,
+          "type": "image",
+          "durationMs": null,
+          "ttfbMs": 40,
+          "bytes": 112,
+          "cacheControl": ""
+        },
+        {
+          "url": "https://dodola.uz/uploads/buyo/buyo_lora-1.webp",
+          "status": 302,
+          "type": "image",
+          "durationMs": null,
+          "ttfbMs": 68,
+          "bytes": 103,
+          "cacheControl": ""
+        },
+        {
+          "url": "https://pub-ebead06c048c4c2bbcc3774f95db8136.r2.dev/uploads/buyo/buyo_markers-icons-1.webp",
+          "status": 200,
+          "type": "image",
+          "durationMs": null,
+          "ttfbMs": 0,
+          "bytes": 55916,
+          "cacheControl": "public, max-age=31536000, immutable"
+        },
+        {
+          "url": "https://pub-ebead06c048c4c2bbcc3774f95db8136.r2.dev/uploads/buyo/buyo_lora-1.webp",
+          "status": 200,
+          "type": "image",
+          "durationMs": null,
+          "ttfbMs": 0,
+          "bytes": 36116,
+          "cacheControl": "public, max-age=31536000, immutable"
+        },
+        {
+          "url": "https://dodola.uz/uploads/buyo/buyo_sivorotka-hair-1.webp",
+          "status": 302,
+          "type": "image",
+          "durationMs": null,
+          "ttfbMs": 108,
+          "bytes": 113,
+          "cacheControl": ""
+        },
+        {
+          "url": "https://pub-ebead06c048c4c2bbcc3774f95db8136.r2.dev/uploads/buyo/buyo_sivorotka-hair-1.webp",
+          "status": 200,
+          "type": "image",
+          "durationMs": null,
+          "ttfbMs": 0,
+          "bytes": 74394,
+          "cacheControl": "public, max-age=31536000, immutable"
+        },
+        {
+          "url": "https://dodola.uz/uploads/buyo/buyo_sandwich-1.webp",
+          "status": 302,
+          "type": "image",
+          "durationMs": null,
+          "ttfbMs": 148,
+          "bytes": 107,
+          "cacheControl": ""
+        },
+        {
+          "url": "https://pub-ebead06c048c4c2bbcc3774f95db8136.r2.dev/uploads/buyo/buyo_sandwich-1.webp",
+          "status": 200,
+          "type": "image",
+          "durationMs": null,
+          "ttfbMs": 0,
+          "bytes": 66482,
+          "cacheControl": "public, max-age=31536000, immutable"
+        },
+        {
+          "url": "https://dodola.uz/uploads/buyo/buyo_bizibord-1.webp",
+          "status": 302,
+          "type": "image",
+          "durationMs": null,
+          "ttfbMs": 183,
+          "bytes": 107,
+          "cacheControl": ""
+        },
+        {
+          "url": "https://pub-ebead06c048c4c2bbcc3774f95db8136.r2.dev/uploads/buyo/buyo_bizibord-1.webp",
+          "status": 200,
+          "type": "image",
+          "durationMs": null,
+          "ttfbMs": 0,
+          "bytes": 44624,
+          "cacheControl": "public, max-age=31536000, immutable"
+        },
+        {
+          "url": "https://dodola.uz/uploads/buyo/buyo_pearl-necklace-1.webp",
+          "status": 302,
+          "type": "image",
+          "durationMs": null,
+          "ttfbMs": 222,
+          "bytes": 113,
+          "cacheControl": ""
+        },
+        {
+          "url": "https://pub-ebead06c048c4c2bbcc3774f95db8136.r2.dev/uploads/buyo/buyo_pearl-necklace-1.webp",
+          "status": 200,
+          "type": "image",
+          "durationMs": null,
+          "ttfbMs": 1,
+          "bytes": 16596,
+          "cacheControl": "public, max-age=31536000, immutable"
+        },
+        {
+          "url": "https://dodola.uz/uploads/buyo/buyo_fishhunter-1.webp",
+          "status": 302,
+          "type": "image",
+          "durationMs": null,
+          "ttfbMs": 269,
+          "bytes": 109,
+          "cacheControl": ""
+        },
+        {
+          "url": "https://pub-ebead06c048c4c2bbcc3774f95db8136.r2.dev/uploads/buyo/buyo_fishhunter-1.webp",
+          "status": 200,
+          "type": "image",
+          "durationMs": null,
+          "ttfbMs": 0,
+          "bytes": 87836,
+          "cacheControl": "public, max-age=31536000, immutable"
+        },
+        {
+          "url": "https://dodola.uz/uploads/buyo/buyo_flomaster-1.webp",
+          "status": 302,
+          "type": "image",
+          "durationMs": null,
+          "ttfbMs": 300,
+          "bytes": 108,
+          "cacheControl": ""
+        },
+        {
+          "url": "https://pub-ebead06c048c4c2bbcc3774f95db8136.r2.dev/uploads/buyo/buyo_flomaster-1.webp",
+          "status": 200,
+          "type": "image",
+          "durationMs": null,
+          "ttfbMs": 0,
+          "bytes": 48264,
+          "cacheControl": "public, max-age=31536000, immutable"
+        },
+        {
+          "url": "https://dodola.uz/uploads/buyo/buyo_food-dryer-1.webp",
+          "status": 302,
+          "type": "image",
+          "durationMs": null,
+          "ttfbMs": 350,
+          "bytes": 109,
+          "cacheControl": ""
+        },
+        {
+          "url": "https://pub-ebead06c048c4c2bbcc3774f95db8136.r2.dev/uploads/buyo/buyo_food-dryer-1.webp",
+          "status": 200,
+          "type": "image",
+          "durationMs": null,
+          "ttfbMs": 0,
+          "bytes": 66712,
+          "cacheControl": "public, max-age=31536000, immutable"
+        },
+        {
+          "url": "https://dodola.uz/uploads/buyo/buyo_soap-butterfly-1.webp",
+          "status": 302,
+          "type": "image",
+          "durationMs": null,
+          "ttfbMs": 376,
+          "bytes": 113,
+          "cacheControl": ""
+        },
+        {
+          "url": "https://pub-ebead06c048c4c2bbcc3774f95db8136.r2.dev/uploads/buyo/buyo_soap-butterfly-1.webp",
+          "status": 200,
+          "type": "image",
+          "durationMs": null,
+          "ttfbMs": 0,
+          "bytes": 57498,
+          "cacheControl": "public, max-age=31536000, immutable"
+        },
+        {
+          "url": "https://dodola.uz/uploads/buyo/buyo_tulipchain-1.webp",
+          "status": 302,
+          "type": "image",
+          "durationMs": null,
+          "ttfbMs": 417,
+          "bytes": 109,
+          "cacheControl": ""
+        },
+        {
+          "url": "https://pub-ebead06c048c4c2bbcc3774f95db8136.r2.dev/uploads/buyo/buyo_tulipchain-1.webp",
+          "status": 200,
+          "type": "image",
+          "durationMs": null,
+          "ttfbMs": 0,
+          "bytes": 34184,
+          "cacheControl": "public, max-age=31536000, immutable"
+        },
+        {
+          "url": "https://dodola.uz/uploads/buyo/buyo_axium-1.webp",
+          "status": 302,
+          "type": "image",
+          "durationMs": null,
+          "ttfbMs": 463,
+          "bytes": 104,
+          "cacheControl": ""
+        },
+        {
+          "url": "https://pub-ebead06c048c4c2bbcc3774f95db8136.r2.dev/uploads/buyo/buyo_axium-1.webp",
+          "status": 200,
+          "type": "image",
+          "durationMs": null,
+          "ttfbMs": 0,
+          "bytes": 263722,
+          "cacheControl": "public, max-age=31536000, immutable"
+        },
+        {
+          "url": "https://dodola.uz/api/products/buyo_markers-icons",
+          "status": 200,
+          "type": "fetch",
+          "durationMs": null,
+          "ttfbMs": 120,
+          "bytes": null,
+          "cacheControl": "no-store, no-cache, must-revalidate, proxy-revalidate"
+        },
+        {
+          "url": "https://dodola.uz/api/products",
+          "status": 200,
+          "type": "fetch",
+          "durationMs": null,
+          "ttfbMs": 241,
+          "bytes": null,
+          "cacheControl": "no-store, no-cache, must-revalidate, proxy-revalidate"
+        },
+        {
+          "url": "https://dodola.uz/api/reviews",
+          "status": 200,
+          "type": "fetch",
+          "durationMs": null,
+          "ttfbMs": 50,
+          "bytes": 2,
+          "cacheControl": "no-store, no-cache, must-revalidate, proxy-revalidate"
+        }
+      ],
+      "screenshot": "C:\\Users\\azimj\\Downloads\\Sale-Market-Catalog-Gallery-Upgrade\\artifacts\\catalog-performance\\before-live-1366.png"
+    },
+    {
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "domContentLoadedMs": 2392,
+      "firstProductMs": 13371,
+      "firstImageMs": 13914,
+      "repeatedRoundTripFirstProductMs": 14329,
+      "backRoundTripFirstProductMs": 10224,
+      "browserMetrics": {
+        "responseStartMs": 962,
+        "domContentLoadedMs": 2374,
+        "loadMs": 2663,
+        "transferBytes": 3637,
+        "cards": 1164,
+        "images": 1164,
+        "domNodes": 19215,
+        "horizontalOverflow": false,
+        "cls": 0
+      },
+      "requests": [
+        {
+          "url": "https://dodola.uz/api/products",
+          "status": 200,
+          "type": "fetch",
+          "durationMs": null,
+          "ttfbMs": 277,
+          "bytes": null,
+          "cacheControl": "no-store, no-cache, must-revalidate, proxy-revalidate"
+        },
+        {
+          "url": "https://dodola.uz/api/reviews",
+          "status": 200,
+          "type": "fetch",
+          "durationMs": null,
+          "ttfbMs": 47,
+          "bytes": 2,
+          "cacheControl": "no-store, no-cache, must-revalidate, proxy-revalidate"
+        },
+        {
+          "url": "https://dodola.uz/uploads/buyo/buyo_markers-icons-1.webp",
+          "status": 302,
+          "type": "image",
+          "durationMs": null,
+          "ttfbMs": 51,
+          "bytes": 112,
+          "cacheControl": ""
+        },
+        {
+          "url": "https://dodola.uz/uploads/buyo/buyo_lora-1.webp",
+          "status": 302,
+          "type": "image",
+          "durationMs": null,
+          "ttfbMs": 74,
+          "bytes": 103,
+          "cacheControl": ""
+        },
+        {
+          "url": "https://dodola.uz/uploads/buyo/buyo_sivorotka-hair-1.webp",
+          "status": 302,
+          "type": "image",
+          "durationMs": null,
+          "ttfbMs": 114,
+          "bytes": 113,
+          "cacheControl": ""
+        },
+        {
+          "url": "https://dodola.uz/uploads/buyo/buyo_sandwich-1.webp",
+          "status": 302,
+          "type": "image",
+          "durationMs": null,
+          "ttfbMs": 151,
+          "bytes": 107,
+          "cacheControl": ""
+        },
+        {
+          "url": "https://dodola.uz/uploads/buyo/buyo_bizibord-1.webp",
+          "status": 302,
+          "type": "image",
+          "durationMs": null,
+          "ttfbMs": 193,
+          "bytes": 107,
+          "cacheControl": ""
+        },
+        {
+          "url": "https://dodola.uz/uploads/buyo/buyo_pearl-necklace-1.webp",
+          "status": 302,
+          "type": "image",
+          "durationMs": null,
+          "ttfbMs": 229,
+          "bytes": 113,
+          "cacheControl": ""
+        },
+        {
+          "url": "https://dodola.uz/uploads/buyo/buyo_fishhunter-1.webp",
+          "status": 302,
+          "type": "image",
+          "durationMs": null,
+          "ttfbMs": 275,
+          "bytes": 109,
+          "cacheControl": ""
+        },
+        {
+          "url": "https://dodola.uz/uploads/buyo/buyo_flomaster-1.webp",
+          "status": 302,
+          "type": "image",
+          "durationMs": null,
+          "ttfbMs": 314,
+          "bytes": 108,
+          "cacheControl": ""
+        },
+        {
+          "url": "https://dodola.uz/uploads/buyo/buyo_food-dryer-1.webp",
+          "status": 302,
+          "type": "image",
+          "durationMs": null,
+          "ttfbMs": 353,
+          "bytes": 109,
+          "cacheControl": ""
+        },
+        {
+          "url": "https://dodola.uz/uploads/buyo/buyo_soap-butterfly-1.webp",
+          "status": 302,
+          "type": "image",
+          "durationMs": null,
+          "ttfbMs": 388,
+          "bytes": 113,
+          "cacheControl": ""
+        },
+        {
+          "url": "https://pub-ebead06c048c4c2bbcc3774f95db8136.r2.dev/uploads/buyo/buyo_markers-icons-1.webp",
+          "status": 200,
+          "type": "image",
+          "durationMs": null,
+          "ttfbMs": 459,
+          "bytes": 55916,
+          "cacheControl": "public, max-age=31536000, immutable"
+        },
+        {
+          "url": "https://pub-ebead06c048c4c2bbcc3774f95db8136.r2.dev/uploads/buyo/buyo_sandwich-1.webp",
+          "status": 200,
+          "type": "image",
+          "durationMs": null,
+          "ttfbMs": 433,
+          "bytes": 66482,
+          "cacheControl": "public, max-age=31536000, immutable"
+        },
+        {
+          "url": "https://pub-ebead06c048c4c2bbcc3774f95db8136.r2.dev/uploads/buyo/buyo_lora-1.webp",
+          "status": 200,
+          "type": "image",
+          "durationMs": null,
+          "ttfbMs": 492,
+          "bytes": 36116,
+          "cacheControl": "public, max-age=31536000, immutable"
+        },
+        {
+          "url": "https://pub-ebead06c048c4c2bbcc3774f95db8136.r2.dev/uploads/buyo/buyo_sivorotka-hair-1.webp",
+          "status": 200,
+          "type": "image",
+          "durationMs": null,
+          "ttfbMs": 477,
+          "bytes": 74394,
+          "cacheControl": "public, max-age=31536000, immutable"
+        },
+        {
+          "url": "https://pub-ebead06c048c4c2bbcc3774f95db8136.r2.dev/uploads/buyo/buyo_bizibord-1.webp",
+          "status": 200,
+          "type": "image",
+          "durationMs": null,
+          "ttfbMs": 492,
+          "bytes": 44624,
+          "cacheControl": "public, max-age=31536000, immutable"
+        },
+        {
+          "url": "https://pub-ebead06c048c4c2bbcc3774f95db8136.r2.dev/uploads/buyo/buyo_pearl-necklace-1.webp",
+          "status": 200,
+          "type": "image",
+          "durationMs": null,
+          "ttfbMs": 525,
+          "bytes": 16596,
+          "cacheControl": "public, max-age=31536000, immutable"
+        },
+        {
+          "url": "https://pub-ebead06c048c4c2bbcc3774f95db8136.r2.dev/uploads/buyo/buyo_flomaster-1.webp",
+          "status": 200,
+          "type": "image",
+          "durationMs": null,
+          "ttfbMs": 470,
+          "bytes": 48264,
+          "cacheControl": "public, max-age=31536000, immutable"
+        },
+        {
+          "url": "https://pub-ebead06c048c4c2bbcc3774f95db8136.r2.dev/uploads/buyo/buyo_soap-butterfly-1.webp",
+          "status": 200,
+          "type": "image",
+          "durationMs": null,
+          "ttfbMs": 433,
+          "bytes": 57498,
+          "cacheControl": "public, max-age=31536000, immutable"
+        },
+        {
+          "url": "https://pub-ebead06c048c4c2bbcc3774f95db8136.r2.dev/uploads/buyo/buyo_fishhunter-1.webp",
+          "status": 200,
+          "type": "image",
+          "durationMs": null,
+          "ttfbMs": 551,
+          "bytes": 87836,
+          "cacheControl": "public, max-age=31536000, immutable"
+        },
+        {
+          "url": "https://pub-ebead06c048c4c2bbcc3774f95db8136.r2.dev/uploads/buyo/buyo_food-dryer-1.webp",
+          "status": 200,
+          "type": "image",
+          "durationMs": null,
+          "ttfbMs": 513,
+          "bytes": 66712,
+          "cacheControl": "public, max-age=31536000, immutable"
+        },
+        {
+          "url": "https://dodola.uz/api/products",
+          "status": 200,
+          "type": "fetch",
+          "durationMs": null,
+          "ttfbMs": 208,
+          "bytes": null,
+          "cacheControl": "no-store, no-cache, must-revalidate, proxy-revalidate"
+        },
+        {
+          "url": "https://dodola.uz/api/products",
+          "status": 200,
+          "type": "fetch",
+          "durationMs": null,
+          "ttfbMs": 279,
+          "bytes": null,
+          "cacheControl": "no-store, no-cache, must-revalidate, proxy-revalidate"
+        },
+        {
+          "url": "https://dodola.uz/api/reviews",
+          "status": 200,
+          "type": "fetch",
+          "durationMs": null,
+          "ttfbMs": 26,
+          "bytes": 2,
+          "cacheControl": "no-store, no-cache, must-revalidate, proxy-revalidate"
+        },
+        {
+          "url": "https://dodola.uz/uploads/buyo/buyo_markers-icons-1.webp",
+          "status": 302,
+          "type": "image",
+          "durationMs": null,
+          "ttfbMs": 464,
+          "bytes": 112,
+          "cacheControl": ""
+        },
+        {
+          "url": "https://pub-ebead06c048c4c2bbcc3774f95db8136.r2.dev/uploads/buyo/buyo_markers-icons-1.webp",
+          "status": 200,
+          "type": "image",
+          "durationMs": null,
+          "ttfbMs": 0,
+          "bytes": 55916,
+          "cacheControl": "public, max-age=31536000, immutable"
+        },
+        {
+          "url": "https://dodola.uz/uploads/buyo/buyo_lora-1.webp",
+          "status": 302,
+          "type": "image",
+          "durationMs": null,
+          "ttfbMs": 466,
+          "bytes": 103,
+          "cacheControl": ""
+        },
+        {
+          "url": "https://dodola.uz/uploads/buyo/buyo_sivorotka-hair-1.webp",
+          "status": 302,
+          "type": "image",
+          "durationMs": null,
+          "ttfbMs": 466,
+          "bytes": 113,
+          "cacheControl": ""
+        },
+        {
+          "url": "https://pub-ebead06c048c4c2bbcc3774f95db8136.r2.dev/uploads/buyo/buyo_lora-1.webp",
+          "status": 200,
+          "type": "image",
+          "durationMs": null,
+          "ttfbMs": 0,
+          "bytes": 36116,
+          "cacheControl": "public, max-age=31536000, immutable"
+        },
+        {
+          "url": "https://pub-ebead06c048c4c2bbcc3774f95db8136.r2.dev/uploads/buyo/buyo_sivorotka-hair-1.webp",
+          "status": 200,
+          "type": "image",
+          "durationMs": null,
+          "ttfbMs": 0,
+          "bytes": 74394,
+          "cacheControl": "public, max-age=31536000, immutable"
+        },
+        {
+          "url": "https://dodola.uz/uploads/buyo/buyo_sandwich-1.webp",
+          "status": 302,
+          "type": "image",
+          "durationMs": null,
+          "ttfbMs": 553,
+          "bytes": 107,
+          "cacheControl": ""
+        },
+        {
+          "url": "https://pub-ebead06c048c4c2bbcc3774f95db8136.r2.dev/uploads/buyo/buyo_sandwich-1.webp",
+          "status": 200,
+          "type": "image",
+          "durationMs": null,
+          "ttfbMs": 0,
+          "bytes": 66482,
+          "cacheControl": "public, max-age=31536000, immutable"
+        },
+        {
+          "url": "https://dodola.uz/uploads/buyo/buyo_bizibord-1.webp",
+          "status": 302,
+          "type": "image",
+          "durationMs": null,
+          "ttfbMs": 556,
+          "bytes": 107,
+          "cacheControl": ""
+        },
+        {
+          "url": "https://dodola.uz/uploads/buyo/buyo_pearl-necklace-1.webp",
+          "status": 302,
+          "type": "image",
+          "durationMs": null,
+          "ttfbMs": 560,
+          "bytes": 113,
+          "cacheControl": ""
+        },
+        {
+          "url": "https://pub-ebead06c048c4c2bbcc3774f95db8136.r2.dev/uploads/buyo/buyo_bizibord-1.webp",
+          "status": 200,
+          "type": "image",
+          "durationMs": null,
+          "ttfbMs": 0,
+          "bytes": 44624,
+          "cacheControl": "public, max-age=31536000, immutable"
+        },
+        {
+          "url": "https://pub-ebead06c048c4c2bbcc3774f95db8136.r2.dev/uploads/buyo/buyo_pearl-necklace-1.webp",
+          "status": 200,
+          "type": "image",
+          "durationMs": null,
+          "ttfbMs": 0,
+          "bytes": 16596,
+          "cacheControl": "public, max-age=31536000, immutable"
+        },
+        {
+          "url": "https://dodola.uz/uploads/buyo/buyo_fishhunter-1.webp",
+          "status": 302,
+          "type": "image",
+          "durationMs": null,
+          "ttfbMs": 615,
+          "bytes": 109,
+          "cacheControl": ""
+        },
+        {
+          "url": "https://pub-ebead06c048c4c2bbcc3774f95db8136.r2.dev/uploads/buyo/buyo_fishhunter-1.webp",
+          "status": 200,
+          "type": "image",
+          "durationMs": null,
+          "ttfbMs": 0,
+          "bytes": 87836,
+          "cacheControl": "public, max-age=31536000, immutable"
+        },
+        {
+          "url": "https://dodola.uz/uploads/buyo/buyo_flomaster-1.webp",
+          "status": 302,
+          "type": "image",
+          "durationMs": null,
+          "ttfbMs": 667,
+          "bytes": 108,
+          "cacheControl": ""
+        },
+        {
+          "url": "https://pub-ebead06c048c4c2bbcc3774f95db8136.r2.dev/uploads/buyo/buyo_flomaster-1.webp",
+          "status": 200,
+          "type": "image",
+          "durationMs": null,
+          "ttfbMs": 0,
+          "bytes": 48264,
+          "cacheControl": "public, max-age=31536000, immutable"
+        },
+        {
+          "url": "https://dodola.uz/uploads/buyo/buyo_food-dryer-1.webp",
+          "status": 302,
+          "type": "image",
+          "durationMs": null,
+          "ttfbMs": 720,
+          "bytes": 109,
+          "cacheControl": ""
+        },
+        {
+          "url": "https://pub-ebead06c048c4c2bbcc3774f95db8136.r2.dev/uploads/buyo/buyo_food-dryer-1.webp",
+          "status": 200,
+          "type": "image",
+          "durationMs": null,
+          "ttfbMs": 0,
+          "bytes": 66712,
+          "cacheControl": "public, max-age=31536000, immutable"
+        },
+        {
+          "url": "https://dodola.uz/uploads/buyo/buyo_soap-butterfly-1.webp",
+          "status": 302,
+          "type": "image",
+          "durationMs": null,
+          "ttfbMs": 725,
+          "bytes": 113,
+          "cacheControl": ""
+        },
+        {
+          "url": "https://pub-ebead06c048c4c2bbcc3774f95db8136.r2.dev/uploads/buyo/buyo_soap-butterfly-1.webp",
+          "status": 200,
+          "type": "image",
+          "durationMs": null,
+          "ttfbMs": 0,
+          "bytes": 57498,
+          "cacheControl": "public, max-age=31536000, immutable"
+        },
+        {
+          "url": "https://dodola.uz/api/products",
+          "status": 200,
+          "type": "fetch",
+          "durationMs": null,
+          "ttfbMs": 756,
+          "bytes": null,
+          "cacheControl": "no-store, no-cache, must-revalidate, proxy-revalidate"
+        },
+        {
+          "url": "https://dodola.uz/api/reviews",
+          "status": 200,
+          "type": "fetch",
+          "durationMs": null,
+          "ttfbMs": 76,
+          "bytes": 2,
+          "cacheControl": "no-store, no-cache, must-revalidate, proxy-revalidate"
+        }
+      ],
+      "screenshot": "C:\\Users\\azimj\\Downloads\\Sale-Market-Catalog-Gallery-Upgrade\\artifacts\\catalog-performance\\before-live-390.png"
+    }
+  ]
+}
