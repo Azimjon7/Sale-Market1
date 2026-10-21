@@ -2,8 +2,7 @@
  * stay in their original language. The DOM adapter supports retained templates. */
 (function(){'use strict';
  const normalize=s=>String(s).replace(/[‘’ʻʼ`]/g,"'").replace(/\s+/g,' ').trim();
- const phrases=`Beta: buyurtmalar sinov rejimida. Mavjudlik va yetkazishni operator tasdiqlaydi. Onlayn to‘lov olinmaydi.|Бета: заказы в тестовом режиме. Наличие и доставку подтверждает оператор. Онлайн-оплата не принимается.
-Bosh sahifa|Главная
+ const phrases=`Bosh sahifa|Главная
 Katalog|Каталог
 Savat|Корзина
 Profil|Профиль

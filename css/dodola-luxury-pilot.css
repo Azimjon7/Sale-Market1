@@ -95,8 +95,6 @@ body.luxury-pilot #new-products .sm-product-sku{color:#8b7f91!important;letter-s
  }
  .luxury-pilot .dodola-logo { font-size:clamp(30px,2.6vw,36px); }
  .luxury-pilot .dodola-search { max-width:350px; }
- .luxury-pilot .dodola-beta { padding:4px 16px; gap:4px 10px; font-size:11px; }
- .luxury-pilot .dodola-beta a { min-height:36px; }
  .luxury-pilot main { padding-inline:clamp(20px,2.2vw,32px); }
  .luxury-pilot .lx-topline { padding:10px 0; font-size:11px; }
  .luxury-pilot .lx-hero {

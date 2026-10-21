@@ -1,10 +1,6 @@
 (function(){'use strict';
  // Shared customer-only shell, including pages without the legacy marketplace script.
  if(document.body.classList.contains('dodola')){
-  const beta=document.createElement('aside');beta.className='dodola-beta';beta.setAttribute('aria-label','Beta');
-  const betaText=document.createElement('span');betaText.textContent='Beta: buyurtmalar sinov rejimida. Mavjudlik va yetkazishni operator tasdiqlaydi. Onlayn to‘lov olinmaydi.';
-  const support=document.createElement('a');support.href='tel:+998990020015';support.textContent='+998 99 002 00 15';
-  beta.append(betaText,support);const header=document.querySelector('.dodola-header');if(header)header.after(beta);else document.body.prepend(beta);
   const localeScript=document.createElement('script');localeScript.src='/js/dodola-i18n.js';document.head.append(localeScript);
   const paths=['M3 11 12 3l9 8v10h-6v-6H9v6H3z','M3 3h7v7H3z M14 3h7v7h-7z M3 14h7v7H3z M14 14h7v7h-7z','M5 7h14l1 14H4L5 7z M8 7V5a4 4 0 0 1 8 0v2','M12 13a5 5 0 1 0 0-10 5 5 0 0 0 0 10z M3 22v-2a9 9 0 0 1 18 0v2'];
   function ensureNav(){if(innerWidth>768||document.getElementById('mb-bottom-nav'))return;const nav=document.createElement('nav');nav.id='mb-bottom-nav';nav.setAttribute('aria-label','Asosiy navigatsiya');const page=location.pathname;nav.innerHTML=[['index.html','Bosh sahifa'],['shop.html','Katalog'],['shop-cart.html','Savat'],['account.html','Profil']].map(([href,label],i)=>{const active=page.endsWith(href)||(i===2&&/checkout|success/.test(page))||(i===3&&/profile-settings|favorites|payment|track-order|auth/.test(page));return '<a href="'+href+'" class="mb-nav-item'+(active?' mb-nav-item--active':'')+'"'+(active?' aria-current="page"':'')+'><span class="mb-nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="'+paths[i]+'"/></svg></span><span class="mb-nav-label">'+label+'</span></a>';}).join('');document.body.append(nav);}
