@@ -21,8 +21,8 @@
     return;
   }
   const images = p.images.length ? p.images : ["img/placeholders/dodola-product.svg"];
-  const sizesList = p.sizes.length ? p.sizes : ["Standart"];
-  const colorsList = p.colors.length ? p.colors : ["Standart"];
+  const sizesList = p.sizes;
+  const colorsList = p.colors;
 
   const sizes = sizesList
     .map(
@@ -48,9 +48,9 @@
         <div class="product-detail-card">
           <h3>${p.name}</h3>
           <p>${p.description || ""}</p>
-          <div class="price-wrap"><strong>${Number(p.price).toLocaleString("uz-UZ")} so'm</strong>${Number(p.oldPrice) > 0 ? `<span class="product__oldprice">${Number(p.oldPrice).toLocaleString("uz-UZ")} so'm</span>` : ""}</div>
-          <div class="option-group"><h6>O'lcham / variant</h6><div class="option-list" id="size-options">${sizes}</div></div>
-          <div class="option-group"><h6>Rang</h6><div class="option-list" id="color-options">${colors}</div></div>
+          <div class="price-wrap"><strong>${Number(p.price).toLocaleString("uz-UZ")} so'm</strong>${MBProductRules.discount(p).visible ? `<span class="product__oldprice">${Number(MBProductRules.discount(p).oldPrice).toLocaleString("uz-UZ")} so'm</span>` : ""}</div>
+          ${sizesList.length ? `<div class="option-group"><h6>O'lcham / variant</h6><div class="option-list" id="size-options">${sizes}</div></div>` : ''}
+          ${colorsList.length ? `<div class="option-group"><h6>Rang</h6><div class="option-list" id="color-options">${colors}</div></div>` : ''}
           <div class="qty-wrap"><span>Soni</span><input type="number" id="detail-qty" min="1" value="1"></div>
           <div class="option-group"><h6>Yetkazib berish</h6><p>Toshkent shahri bo‘ylab bepul</p></div>
           <div class="product__links">

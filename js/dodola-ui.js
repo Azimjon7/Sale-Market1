@@ -1,4 +1,8 @@
 (function(){'use strict';
+ window.DodolaConfig=Object.freeze({support:Object.freeze({telegram:'https://t.me/DodolaSupportBot',phone:'+998990020015'})});
+ document.querySelectorAll('a[href*="t.me/salemarket_uz"],a[href*="t.me/DodolaSupportBot"]').forEach(link=>{
+  link.href=window.DodolaConfig.support.telegram;link.target='_blank';link.rel='noopener noreferrer';
+ });
  // Shared customer-only shell, including pages without the legacy marketplace script.
  if(document.body.classList.contains('dodola')){
   const localeScript=document.createElement('script');localeScript.src='/js/dodola-i18n.js';document.head.append(localeScript);

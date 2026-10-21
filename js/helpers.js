@@ -2,6 +2,7 @@ window.MBHelpers = {
   escapeHtml(value) { return String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); },
   _productsCache: null,
   _productsPromise: null,
+  _catalogPromises: new Map(),
   normalizeCategory(value) {
     const raw = String(value || "")
       .toLowerCase()
@@ -111,6 +112,9 @@ window.MBHelpers = {
     } catch (_) {}
   },
   async fetchCatalogPage(params = {}, options = {}) {
+    const requestKey = this.catalogCacheKey(params);
+    if (!options.signal && this._catalogPromises.has(requestKey)) return this._catalogPromises.get(requestKey);
+    const request = (async () => {
     const query = new URLSearchParams();
     Object.entries(params).forEach(([key, value]) => {
       if (value !== undefined && value !== null && value !== '') query.set(key, String(value));
@@ -126,6 +130,11 @@ window.MBHelpers = {
     data.products = data.products.map(product => this.normalizeProduct(product));
     this.writeCatalogCache(params, data);
     return data;
+    })();
+    if (options.signal) return request;
+    this._catalogPromises.set(requestKey, request);
+    try { return await request; }
+    finally { this._catalogPromises.delete(requestKey); }
   },
   async fetchCatalogMeta(options = {}) {
     const cacheKey = 'dodola:catalog:meta:v2';
@@ -198,7 +207,7 @@ window.MBHelpers = {
       category: this.normalizeCategory(product.category),
       image: uniqueImages[0] || "img/placeholders/dodola-product.svg",
       images: uniqueImages.length ? uniqueImages : ["img/placeholders/dodola-product.svg"],
-      description: product.description || product.desc || "",
+      description: window.MBProductRules.cleanDescription(product.description || product.desc || ""),
       sizes: window.MBProductRules.options(product.sizes, 'size'),
       colors: window.MBProductRules.options(product.colors, 'color'),
       stock: Math.max(0, Number(product.stock ?? 999) || 0),
@@ -213,25 +222,20 @@ window.MBHelpers = {
     const normalized = this.normalizeProduct(product);
     const showDescription = options.showDescription !== false;
     const image = normalized.images[0];
-    const stock = normalized.stock;
-    const inStock = normalized._inventoryMode === 'made-to-order' || stock > 0;
-    const oldValue = Number(normalized.oldPrice || 0);
-    const priceValue = Number(normalized.price || 0);
-    const discount = oldValue > priceValue && priceValue > 0
-      ? Math.round((1 - priceValue / oldValue) * 100)
-      : 0;
+    const availability = window.MBProductRules.availability(normalized);
+    const inStock = availability.purchasable;
+    const discountInfo = window.MBProductRules.discount(normalized);
     const rawLabel = String(normalized.label || "").trim();
     const badges = [];
     if (rawLabel) {
       const newLike = /(^|\s)(yangi|new)(\s|$)/i.test(rawLabel);
       badges.push(`<span class="sm-card-badge ${newLike ? "sm-card-badge--new" : "sm-card-badge--info"}">${this.escapeHtml(rawLabel)}</span>`);
     }
-    if (discount > 0) {
-      badges.push(`<span class="sm-card-badge sm-card-badge--discount">-${discount}%</span>`);
+    if (discountInfo.visible) {
+      badges.push(`<span class="sm-card-badge sm-card-badge--discount">-${discountInfo.percent}%</span>`);
     }
     const labelHtml = badges.length ? `<div class="sm-card-badges">${badges.join("")}</div>` : "";
-    const oldPrice =
-      oldValue > priceValue && priceValue > 0 ? `<span class="product__oldprice">${this.currency(oldValue)}</span>` : "";
+    const oldPrice = discountInfo.visible ? `<span class="product__oldprice">${this.currency(discountInfo.oldPrice)}</span>` : "";
     const descriptionHtml = showDescription ? `<p>${this.escapeHtml(normalized.description)}</p>` : "";
     const action = inStock ? `<a class="link-btn js-add-card" href="#" data-id="${this.escapeHtml(normalized.id)}">Savatga</a>` : `<span>Stokda yo'q</span>`;
 

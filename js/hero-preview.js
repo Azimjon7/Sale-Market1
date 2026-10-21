@@ -38,7 +38,8 @@
     var href   = 'product-details.html?id=' + encodeURIComponent(String(product.id));
     var name   = String(product.name || 'Mahsulot');
     var price  = fmt(product.price);
-    var hasOld = product.oldPrice && Number(product.oldPrice) > Number(product.price);
+    var discountInfo = window.MBProductRules ? window.MBProductRules.discount(product) : { visible: false };
+    var hasOld = discountInfo.visible;
     var cat    = product.category ? '<span class="hsc__badge">' + esc(product.category) + '</span>' : '';
 
     cardEl.innerHTML =
@@ -52,7 +53,7 @@
           '<div class="hsc__name">' + esc(name) + '</div>' +
           '<div class="hsc__price-row">' +
             '<span class="hsc__price">' + price + '</span>' +
-            (hasOld ? '<span class="hsc__old">' + fmt(product.oldPrice) + '</span>' : '') +
+            (hasOld ? '<span class="hsc__old">' + fmt(discountInfo.oldPrice) + '</span>' : '') +
           '</div>' +
           '<span class="hsc__cta">Ko\'rish <i class="fa fa-arrow-right"></i></span>' +
         '</div>' +

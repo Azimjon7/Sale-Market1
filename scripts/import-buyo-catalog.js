@@ -259,7 +259,9 @@ async function scrapeProduct(page, entry) {
     const allText = clean(main.innerText || document.body.innerText);
     const h1Index = name ? allText.indexOf(name) : 0;
     const head = allText.slice(Math.max(0, h1Index), Math.max(0, h1Index) + 1700);
-    const moneyRegex = /(\d[\d\s\u00a0\u202f\u2009.,]*?)\s*(?:so[\u02bb\u2019']?m|\u0441\u0443\u043c)(?!\w)/gi;
+    // One amount only. The previous broad expression could start at a size/date
+    // and concatenate every digit before "so'm", creating impossible old prices.
+    const moneyRegex = /(?<!\d)(\d{1,3}(?:[\s\u00a0\u202f\u2009.,]\d{3})+|\d{4,9})\s*(?:so[\u02bb\u2019']?m|\u0441\u0443\u043c)(?!\w)/gi;
     const prices = [...head.matchAll(moneyRegex)].map(m => Number(m[1].replace(/\D/g, ''))).filter(n => n >= 1000 && n < 1e10);
     const uniquePrices = [...new Set(prices)];
     const ldOffer = Array.isArray(ldProduct?.offers) ? ldProduct.offers[0] : ldProduct?.offers;

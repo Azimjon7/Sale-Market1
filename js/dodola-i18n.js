@@ -86,6 +86,9 @@ Savatga|В корзину
 Stokda bor|В наличии
 Stokda yo‘q|Нет в наличии
 Buyurtma asosida|Под заказ
+Tasdiqdan so‘ng aniqlanadi|Уточняется после подтверждения
+Toshkent shahri bo‘ylab bepul|Бесплатно по городу Ташкенту
+Dodola hozircha onlayn do‘kon sifatida ishlaydi. Ommaviy ofis yoki savdo manzili e’lon qilinmagan.|Dodola пока работает как интернет-магазин. Публичный офис или адрес магазина не объявлен.
 Mavjud|В наличии
 Mavjudlik tasdig‘i|Подтверждение наличия
 Avval mavjudlik tasdig‘i|Сначала подтвердим наличие

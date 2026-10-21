@@ -7,7 +7,7 @@ const { chromium } = require('playwright');
 
 const baseUrl = String(process.env.CATALOG_QA_BASE_URL || 'http://127.0.0.1:3000').replace(/\/$/, '');
 const outputDir = path.resolve(process.env.CATALOG_QA_OUTPUT || path.join(__dirname, '..', 'artifacts', 'catalog-responsive'));
-const widths = process.env.CATALOG_QA_INTERACTIONS_ONLY === '1' ? [] : [360, 390, 430, 768, 1366, 1440, 1920];
+const widths = process.env.CATALOG_QA_INTERACTIONS_ONLY === '1' ? [] : [320, 360, 390, 430, 768, 1024, 1366, 1440, 1920];
 
 (async () => {
   fs.mkdirSync(outputDir, { recursive: true });

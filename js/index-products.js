@@ -244,7 +244,14 @@
     if (!window.MBHelpers) await ensureScript('js/helpers.js');
 
     try {
-      allProducts = await MBHelpers.loadProducts({ forceRefresh: true });
+      const firstPage = await MBHelpers.fetchCatalogPage({ page: 1, limit: 24, sort: 'newest' });
+      const editorialIds=['prd_1784614920759','prd_1784614625228','prd_1783676009196','prd_1784613960253','prd_1784614834803','prd_1784614069126','prd_1784614150176','prd_1784615041900'];
+      const present = new Set(firstPage.products.map(product => String(product.id)));
+      const editorial = await Promise.all(editorialIds.filter(id => !present.has(id)).map(id => MBHelpers.loadProductById(id).catch(() => null)));
+      const seen = new Set();
+      allProducts = [...editorial.filter(Boolean), ...firstPage.products].filter(product => {
+        const id = String(product.id); if (seen.has(id)) return false; seen.add(id); return true;
+      });
     } catch (e) {
       allProducts = [];
     }
@@ -265,7 +272,7 @@
     if (isPilot) renderEditorial(allProducts);
     const featured=allProducts.find(p=>p.featured)||allProducts[0],slot=document.getElementById('hero-single-card');
     if(featured&&slot){const e=MBHelpers.escapeHtml;slot.innerHTML='<a class="d-featured" href="product-details.html?id='+encodeURIComponent(featured.id)+'"><img src="'+e(featured.image)+'" alt="'+e(featured.name)+'" width="240" height="240" fetchpriority="high"><div><small>KATALOGDAN TANLOV</small><strong>'+e(featured.name)+'</strong><b>'+MBHelpers.currency(featured.price)+'</b><em>Mahsulotni ko‘rish →</em></div></a>';}
-    const hasSale=allProducts.some(p=>Number(p.oldPrice)>Number(p.price)&&Number(p.price)>0);document.getElementById('flash-sale').hidden=!hasSale;
+    const hasSale=allProducts.some(p=>MBProductRules.discount(p).visible);document.getElementById('flash-sale').hidden=!hasSale;
 
     // Check if there's a search query in the URL (user came from another page via search)
     const urlParams = new URLSearchParams(window.location.search);
@@ -291,41 +298,10 @@
         const input = form.querySelector('input');
         const q = (input && input.value || '').trim();
 
-        if (!q) {
-          setFilteredAndRender(allProducts, '');
-          return;
-        }
-
-        const results = MBSearch.searchProducts(allProducts, q);
-        setFilteredAndRender(results, q);
-
-        // Scroll to product section
-        const catalogSection = document.getElementById('catalog-section');
-        if (catalogSection) {
-          setTimeout(() => {
-            const top = catalogSection.getBoundingClientRect().top + window.pageYOffset - 16;
-            window.scrollTo({ top: Math.max(0, top), behavior: 'smooth' });
-          }, 100);
-        }
+        if (!q) return;
+        window.location.href = 'shop.html?search=' + encodeURIComponent(q);
       });
 
-      // Also wire live input on the homepage header search
-      const input = form.querySelector('input');
-      if (input) {
-        let debounceTimer;
-        input.addEventListener('input', () => {
-          clearTimeout(debounceTimer);
-          debounceTimer = setTimeout(() => {
-            const q = input.value.trim();
-            if (!q) {
-              setFilteredAndRender(allProducts, '');
-              return;
-            }
-            const results = MBSearch.searchProducts(allProducts, q);
-            setFilteredAndRender(results, q);
-          }, 350);
-        });
-      }
     });
   }
 

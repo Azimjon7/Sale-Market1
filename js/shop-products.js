@@ -7,7 +7,7 @@
   const PAGE_SIZE = 24;
   const state = {
     products: [], meta: { total: 0, page: 1, limit: PAGE_SIZE, pages: 1 },
-    categories: [], loading: false, controller: null,
+    categories: [], loading: false, controller: null, loadObserver: null,
   };
   const debounce = (fn, ms) => {
     let timer;
@@ -81,6 +81,22 @@
       : '';
     const button = wrap.querySelector('button');
     if (button) button.addEventListener('click', () => loadPage(state.meta.page + 1, { append: true }));
+    if (state.loadObserver) state.loadObserver.disconnect();
+    if (hasMore && 'IntersectionObserver' in window) {
+      state.loadObserver = new IntersectionObserver(entries => {
+        if (entries.some(entry => entry.isIntersecting) && !state.loading) {
+          loadPage(state.meta.page + 1, { append: true });
+        }
+      }, { rootMargin: '900px 0px' });
+      state.loadObserver.observe(wrap);
+    }
+    if (hasMore) {
+      const nextParams = requestParams(state.meta.page + 1);
+      if (!MBHelpers.readCatalogCache(nextParams)) {
+        const connection = navigator.connection || {};
+        if (!connection.saveData) MBHelpers.fetchCatalogPage(nextParams).catch(() => {});
+      }
+    }
   }
 
   function updateHeading() {
@@ -142,7 +158,13 @@
 
   async function loadPage(page = 1, options = {}) {
     const append = Boolean(options.append);
+    if (append && state.loading) return;
     const params = requestParams(page);
+    const prefetched = append ? MBHelpers.readCatalogCache(params) : null;
+    if (prefetched) {
+      applyResponse(prefetched, true);
+      return;
+    }
     if (!append && !options.skipCache) {
       const cached = MBHelpers.readCatalogCache(params);
       if (cached) applyResponse(cached, false);

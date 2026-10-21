@@ -38,3 +38,10 @@ playwright-report/
 test-results/
 blob-report/
 Source/
+
+# Generated QA evidence stays local and is not part of deployment.
+artifacts/catalog-quality/
+artifacts/catalog-responsive-release/
+artifacts/production-fix/
+artifacts/catalog-performance/*production-fix*
+artifacts/catalog-performance/*release-local*
