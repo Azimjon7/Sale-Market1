@@ -108,7 +108,10 @@
   window.closeMobileSidebar = function closeMobileSidebar() {
     var sidebar = document.querySelector(".sidebar");
     var overlay = document.getElementById("adminSidebarOverlay");
-    if (sidebar) sidebar.classList.remove("sidebar--open");
+    if (sidebar) {
+      sidebar.classList.remove("sidebar--open");
+      sidebar.scrollTop = 0;
+    }
     if (overlay) overlay.classList.add("hidden");
     document.body.style.overflow = "";
   };
@@ -154,6 +157,16 @@
           window.renderOrders();
         }
       }
+    });
+  }
+
+  function initKeyboardCards() {
+    document.querySelectorAll('[role="button"][tabindex="0"]').forEach(function (card) {
+      card.addEventListener("keydown", function (event) {
+        if (event.key !== "Enter" && event.key !== " ") return;
+        event.preventDefault();
+        card.click();
+      });
     });
   }
 
@@ -238,27 +251,27 @@
       },
     },
     revenue: {
-      title: "Umumiy tushum",
-      icon: "S",
-      iconBg: "linear-gradient(135deg, #dcfce7, #86efac)",
+      title: "Yakunlangan tushum",
+      icon: "₸",
+      iconBg: "#eee4f6",
       getVal: function () { return document.getElementById("statRevenue")?.textContent || "0"; },
-      lbl: "Bekor qilinganlarsiz",
+      lbl: "Yetkazilgan buyurtmalar",
       section: "orders",
       sectionLabel: "Buyurtmalarga o'tish →",
       buildRows: function (products, orders) {
         if (!orders || !orders.length) return null;
         var active = orders.filter(function (o) {
           var s = typeof normalizeStatus === "function" ? normalizeStatus(o.status) : (o.status || "");
-          return s !== "Bekor qilindi";
+          return s === "delivered" || s === "Yetkazildi";
         });
         var total = active.reduce(function (sum, o) {
           return sum + (typeof getOrderTotal === "function" ? getOrderTotal(o) : Number(o.total || 0));
         }, 0);
         // Show last 5 active orders
         return '<div class="stat-detail-hero" style="margin:0 0 12px">'
-          + '<div class="stat-detail-icon" style="background:linear-gradient(135deg,#dcfce7,#86efac)">S</div>'
+          + '<div class="stat-detail-icon" style="background:#eee4f6">₸</div>'
           + '<div><div class="stat-detail-val">' + fmt(total) + '</div>'
-          + '<div class="stat-detail-lbl">Aktiv buyurtmalar summasi</div></div>'
+          + '<div class="stat-detail-lbl">Yetkazilgan buyurtmalar summasi</div></div>'
           + '</div>'
           + active.slice(0, 5).map(function (o) {
             return '<div class="stat-detail-row">'
@@ -373,6 +386,7 @@
     bindGlobalSearch();
     enhanceSectionSwitching();
     initMobileSidebar();
+    initKeyboardCards();
     window.loadAdminSettings();
   });
 })();

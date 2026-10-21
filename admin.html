@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Dodola Boshqaruv</title>
+  <link rel="icon" href="/img/logo.png" type="image/png" />
   <style>
     * {
       box-sizing: border-box;
@@ -1356,8 +1357,10 @@
       }
     }
   </style>
+  <link rel="stylesheet" href="css/dodola-tokens.css" type="text/css" />
   <link rel="stylesheet" href="css/admin-upgrade.css" type="text/css" />
   <link rel="stylesheet" href="css/admin-mobile.css" type="text/css" />
+  <link rel="stylesheet" href="css/admin-luxury.css" type="text/css" />
   <style id="phase3-admin-polish">
     /* ── Phase 3: Admin login card aligned with Phase 2 design system ── */
     .admin-login-logo {
@@ -1621,7 +1624,7 @@
   <div id="adminApp" class="admin-shell hidden">
     <aside class="sidebar">
       <div class="brand" id="adminMobileBrand">
-        <div class="brand-mark brand-mark--circle">SM</div>
+        <div class="brand-mark brand-mark--circle">D</div>
         <div>
           <h2>Dodola</h2>
           <p>Sotuvchi kabineti</p>
@@ -1669,53 +1672,73 @@
         </div>
       </div>
 
-      <section id="sectionDashboard" class="panel">
-        <h3>Boshqaruv paneli</h3>
+      <section id="sectionDashboard" class="panel dashboard-panel">
         <div class="stats-grid">
           <div class="stat-card" role="button" tabindex="0" data-stat="products" onclick="openStatDetail('products')">
-            <div class="stat-icon">□</div>
+            <div class="stat-icon" aria-hidden="true">▦</div>
             <span>Jami mahsulotlar</span>
             <strong id="statProducts">0</strong>
             <small>Faol katalog</small>
           </div>
           <div class="stat-card" role="button" tabindex="0" data-stat="orders" onclick="openStatDetail('orders')">
-            <div class="stat-icon">☰</div>
+            <div class="stat-icon" aria-hidden="true">≡</div>
             <span>Jami buyurtmalar</span>
             <strong id="statOrders">0</strong>
             <small>Barcha buyurtmalar</small>
           </div>
           <div class="stat-card" role="button" tabindex="0" data-stat="today" onclick="openStatDetail('today')">
-            <div class="stat-icon">◷</div>
+            <div class="stat-icon" aria-hidden="true">◷</div>
             <span>Bugungi buyurtmalar</span>
             <strong id="statTodayOrders">0</strong>
             <small>Bugungi faollik</small>
           </div>
           <div class="stat-card" role="button" tabindex="0" data-stat="revenue" onclick="openStatDetail('revenue')">
-            <div class="stat-icon">S</div>
-            <span>Umumiy tushum</span>
+            <div class="stat-icon" aria-hidden="true">₸</div>
+            <span>Yakunlangan tushum</span>
             <strong id="statRevenue">0 so'm</strong>
-            <small>Bekor qilinganlarsiz</small>
+            <small>Yetkazilgan buyurtmalar</small>
           </div>
           <div class="stat-card" role="button" tabindex="0" data-stat="delivered" onclick="openStatDetail('delivered')">
-            <div class="stat-icon">✓</div>
+            <div class="stat-icon" aria-hidden="true">✓</div>
             <span>Yetkazilgan buyurtmalar</span>
             <strong id="statDeliveredOrders">0</strong>
             <small>Muvaffaqiyatli yakunlangan</small>
           </div>
           <div class="stat-card" role="button" tabindex="0" data-stat="cancelled" onclick="openStatDetail('cancelled')">
-            <div class="stat-icon">!</div>
+            <div class="stat-icon" aria-hidden="true">!</div>
             <span>Bekor qilingan buyurtmalar</span>
             <strong id="statCancelledOrders">0</strong>
             <small>Nazorat uchun</small>
           </div>
         </div>
 
+        <div class="operations-grid" aria-label="Tezkor nazorat">
+          <article class="operation-card operation-card--attention" role="button" tabindex="0" onclick="showSection('orders')">
+            <div class="operation-card__icon" aria-hidden="true">◷</div>
+            <div>
+              <span>Tasdiq kutilmoqda</span>
+              <strong id="pendingConfirmationCount">0 ta</strong>
+              <small>Yangi buyurtmalarni tekshiring</small>
+            </div>
+            <b aria-hidden="true">→</b>
+          </article>
+          <article class="operation-card" role="button" tabindex="0" onclick="showSection('products')">
+            <div class="operation-card__icon" aria-hidden="true">◇</div>
+            <div>
+              <span>Kam qolgan mahsulotlar</span>
+              <strong id="lowStockCount">0 ta</strong>
+              <small id="lowStockSummary">Ombor holati yaxshi</small>
+            </div>
+            <b aria-hidden="true">→</b>
+          </article>
+        </div>
+
         <div class="analytics-grid">
           <article class="analytics-card analytics-card--wide">
             <div class="section-heading-row">
               <div>
-                <h4>Haftalik savdo</h4>
-                <p class="small">Oxirgi 7 kun bo'yicha tushum dinamikasi</p>
+                <h4>Yakunlangan savdo — 7 kun</h4>
+                <p class="small">Faqat yetkazilgan buyurtmalar tushumi</p>
               </div>
               <span class="analytics-total" id="weeklySalesTotal">0 so'm</span>
             </div>
@@ -1728,13 +1751,19 @@
           </article>
 
           <article class="analytics-card">
-            <h4>Top kategoriyalar</h4>
+            <h4>Katalog taqsimoti</h4>
             <div id="topCategoriesList" class="insight-list"></div>
           </article>
         </div>
 
         <div class="dashboard-recent">
-          <h4>So'nggi buyurtmalar</h4>
+          <div class="section-heading-row">
+            <div>
+              <h4>So'nggi buyurtmalar</h4>
+              <p class="small">Eng yangi murojaatlar va ularning joriy holati</p>
+            </div>
+            <button class="btn btn-secondary" type="button" onclick="showSection('orders')">Barchasini ko‘rish</button>
+          </div>
           <div id="dashboardRecent" class="recent-list"></div>
         </div>
       </section>
@@ -2330,6 +2359,10 @@
       }, 0);
     }
 
+    function isRecognizedRevenue(order) {
+      return normalizeStatus(order && order.status) === "delivered";
+    }
+
     async function loadDashboard() {
       const recent = document.getElementById("dashboardRecent");
       recent.innerHTML = '<div class="empty">Ma\'lumotlar yuklanmoqda...</div>';
@@ -2374,7 +2407,7 @@
       });
 
       orders.forEach((order) => {
-        if (normalizeStatus(order.status) === "cancelled") return;
+        if (!isRecognizedRevenue(order)) return;
         const created = new Date(order.createdAt || order.date || Date.now());
         if (Number.isNaN(created.getTime())) return;
         created.setHours(0, 0, 0, 0);
@@ -2382,14 +2415,24 @@
         if (target) target.total += getOrderTotal(order);
       });
 
-      const max = Math.max(1, ...days.map((day) => day.total));
       const weeklyTotal = days.reduce((sum, day) => sum + day.total, 0);
       totalEl.textContent = formatPrice(weeklyTotal);
+      if (weeklyTotal <= 0) {
+        chart.innerHTML = `
+          <div class="weekly-zero">
+            <span aria-hidden="true">◇</span>
+            <strong>Yakunlangan savdo hali yo‘q</strong>
+            <small>Yetkazilgan buyurtmalar paydo bo‘lganda 7 kunlik dinamika shu yerda ko‘rinadi.</small>
+          </div>`;
+        return;
+      }
+
+      const max = Math.max(...days.map((day) => day.total));
       chart.innerHTML = days.map((day, index) => {
-        const height = Math.max(12, Math.round((day.total / max) * 118));
+        const height = day.total > 0 ? Math.max(4, Math.round((day.total / max) * 118)) : 0;
         return `
           <div class="weekly-bar">
-            <span style="height:${height}px"></span>
+            <span class="${day.total > 0 ? "has-value" : "is-zero"}" style="height:${height}px" title="${escapeAttr(formatPrice(day.total))}"></span>
             <small>${labels[day.date.getDay() === 0 ? 6 : day.date.getDay() - 1] || labels[index]}</small>
           </div>
         `;
@@ -2403,7 +2446,7 @@
 
       const productStats = new Map();
       orders.forEach((order) => {
-        if (normalizeStatus(order.status) === "cancelled") return;
+        if (!isRecognizedRevenue(order)) return;
         getOrderItems(order).forEach((item) => {
           const key = String(item.id || item.productId || item.name || "Mahsulot");
           const current = productStats.get(key) || { name: item.name || "Mahsulot", qty: 0 };
@@ -2438,11 +2481,11 @@
     }
 
     function renderDashboard(products = cachedProducts, orders = cachedOrders) {
-      const activeRevenueOrders = orders.filter((order) => normalizeStatus(order.status) !== "cancelled");
+      const activeRevenueOrders = orders.filter(isRecognizedRevenue);
       const todayOrders = orders.filter((order) => isToday(order.createdAt));
       const totalRevenue = activeRevenueOrders.reduce((sum, order) => sum + getOrderTotal(order), 0);
       const todayRevenue = todayOrders
-        .filter((order) => normalizeStatus(order.status) !== "cancelled")
+        .filter(isRecognizedRevenue)
         .reduce((sum, order) => sum + getOrderTotal(order), 0);
 
       document.getElementById("statProducts").innerText = products.length;
@@ -2453,6 +2496,24 @@
       document.getElementById("statCancelledOrders").innerText = orders.filter((order) => normalizeStatus(order.status) === "cancelled").length;
       const sidebarSales = document.getElementById("sidebarTodaySales");
       if (sidebarSales) sidebarSales.innerText = formatPrice(todayRevenue);
+
+      const pendingOrders = orders.filter((order) => normalizeStatus(order.status) === "pending_confirmation");
+      const lowStockProducts = products.filter((product) => {
+        if (!product || !product.inventoryManaged) return false;
+        const available = Number(product.available ?? 0);
+        const threshold = Number(product.lowStockThreshold ?? 5);
+        return available <= threshold;
+      });
+      const pendingCount = document.getElementById("pendingConfirmationCount");
+      const lowStockCount = document.getElementById("lowStockCount");
+      const lowStockSummary = document.getElementById("lowStockSummary");
+      if (pendingCount) pendingCount.textContent = pendingOrders.length + " ta";
+      if (lowStockCount) lowStockCount.textContent = lowStockProducts.length + " ta";
+      if (lowStockSummary) {
+        lowStockSummary.textContent = lowStockProducts.length
+          ? lowStockProducts.slice(0, 2).map((product) => product.name || product.sku || "Mahsulot").join(" · ")
+          : "Ombor holati yaxshi";
+      }
       renderWeeklySales(orders);
       renderInsights(products, orders);
 
@@ -2475,7 +2536,7 @@
               <span class="status-badge ${statusClass(status)}">${escapeHtml(status)}</span>
               <div class="small" style="margin-top:6px; text-align:right;">${formatPrice(getOrderTotal(order))}</div>
             </div>
-            <button class="btn btn-danger btn-sm js-recent-delete" data-id="${escapeAttr(order.id)}" title="O'chirish">🗑 O'chirish</button>
+            <span class="recent-row__arrow" aria-hidden="true">→</span>
           </div>
         `;
       }).join("");
@@ -2483,20 +2544,12 @@
       // Attach click events for recent order rows
       recent.querySelectorAll(".recent-row").forEach((row) => {
         row.addEventListener("click", (e) => {
-          if (e.target.closest(".js-recent-delete")) return;
           const orderId = row.dataset.orderId;
           const order = cachedOrders.find((o) => String(o.id) === String(orderId));
           if (order) openOrderDetailModal(order);
         });
       });
 
-      // Attach delete button events
-      recent.querySelectorAll(".js-recent-delete").forEach((btn) => {
-        btn.addEventListener("click", (e) => {
-          e.stopPropagation();
-          deleteOrder(btn.dataset.id);
-        });
-      });
     }
 
     function mergeCategoryLists(...lists) {

@@ -84,4 +84,60 @@ body.luxury-pilot #new-products .sm-product-sku{color:#8b7f91!important;letter-s
  .luxury-pilot .lx-sale h2 { font-size:25px; }
  .luxury-pilot .lx-sale>div+div { margin-top:14px; }
 }
+
+/* Compact desktop composition: keep the approved editorial identity while
+   revealing the next section within common laptop viewports. */
+@media(min-width:769px){
+ .luxury-pilot .dodola-header__inner {
+  height:clamp(68px,5.2vw,76px);
+  padding-inline:clamp(20px,2.2vw,32px);
+  gap:clamp(22px,2.4vw,34px);
+ }
+ .luxury-pilot .dodola-logo { font-size:clamp(30px,2.6vw,36px); }
+ .luxury-pilot .dodola-search { max-width:350px; }
+ .luxury-pilot .dodola-beta { padding:4px 16px; gap:4px 10px; font-size:11px; }
+ .luxury-pilot .dodola-beta a { min-height:36px; }
+ .luxury-pilot main { padding-inline:clamp(20px,2.2vw,32px); }
+ .luxury-pilot .lx-topline { padding:10px 0; font-size:11px; }
+ .luxury-pilot .lx-hero {
+  grid-template-columns:minmax(0,3.2fr) minmax(240px,1fr);
+  gap:clamp(14px,1.3vw,18px);
+ }
+ .luxury-pilot .lx-main {
+  min-height:clamp(390px,29vw,430px);
+  padding:clamp(24px,2.3vw,32px) clamp(22px,2vw,28px) clamp(22px,2vw,28px) clamp(30px,3vw,40px);
+  border-radius:24px;
+ }
+ .luxury-pilot .lx-copy { padding-bottom:8px; }
+ .luxury-pilot .lx-eyebrow { margin-bottom:14px; font-size:9px; }
+ .luxury-pilot .lx-copy h1 {
+  font-size:clamp(38px,3.6vw,52px);
+  line-height:1;
+  margin-bottom:16px;
+ }
+ .luxury-pilot .lx-intro { font-size:13px; line-height:1.55; margin-bottom:16px; }
+ .luxury-pilot .lx-button { min-height:44px; padding:9px 13px 9px 17px; gap:16px; font-size:12px; }
+ .luxury-pilot .lx-button span { width:25px; height:25px; font-size:19px; }
+ .luxury-pilot .lx-caption { margin-top:14px; font-size:9px; }
+ .luxury-pilot .lx-photo { margin-top:6px; max-height:378px; }
+ .luxury-pilot .lx-photo-link { border-radius:145px 145px 14px 14px; }
+ .luxury-pilot .lx-product-caption { inset:auto 10px 10px; padding:10px 12px; }
+ .luxury-pilot .lx-product-caption small { font-size:7px; margin-bottom:3px; }
+ .luxury-pilot .lx-product-caption strong { font-size:11px; }
+ .luxury-pilot .lx-product-caption>span { margin-top:4px; font-size:11px; }
+ .luxury-pilot .lx-product-caption b { font-size:17px; }
+ .luxury-pilot .lx-star { top:28px; font-size:52px; }
+ .luxury-pilot .lx-edition { left:40px; bottom:11px; font-size:9px; }
+ .luxury-pilot .lx-side { grid-template-rows:1.45fr 1fr; gap:14px; }
+ .luxury-pilot .lx-side-photo,
+ .luxury-pilot .lx-discover { border-radius:20px; }
+ .luxury-pilot .lx-discover { padding:18px; }
+ .luxury-pilot .lx-discover h2 { font-size:clamp(21px,1.8vw,25px); margin:9px 0; }
+ .luxury-pilot .lx-service-line { padding:14px 6px; font-size:11px; }
+ .luxury-pilot .lx-section { padding-top:30px; }
+ .luxury-pilot .lx-section-heading { margin-bottom:18px; }
+ .luxury-pilot .lx-section h2 { font-size:clamp(27px,2.4vw,34px); }
+ body.luxury-pilot #category-grid img { height:145px!important; }
+ body.luxury-pilot #category-grid h5 { padding:12px 14px!important; }
+}
 @media(prefers-reduced-motion:reduce){.luxury-pilot *{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
