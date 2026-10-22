@@ -19,67 +19,30 @@ function formatPrice(value) {
  * @returns {string}
  */
 function buildMessage(order) {
-  // ── Items list ─────────────────────────────────────────────────────────────
   const items = (Array.isArray(order.items) ? order.items : [])
-    .filter((item) => item && (item.productId || item.name))
-    .map((item) => {
-      const name = item.name || "Mahsulot";
-      const qty = Math.max(1, Number(item.qty || 1));
-      const price = formatPrice(item.price || 0);
-      return `  • ${name} × ${qty} — ${price}`;
-    })
-    .join("\n");
+    .filter(Boolean);
+  const quantity = items.reduce((sum, item) =>
+    sum + Math.max(1, Number(item.qty || item.quantity || 1)), 0);
+  const paymentLabels = {
+    click: "Click", payme: "Payme", uzum: "Uzum",
+    card: "Bank kartasi", karta: "Bank kartasi",
+  };
+  const paymentKey = String(order.paymentPreference || order.paymentType || "").toLowerCase();
+  const orderNumber = order.orderNumber || order.id || "—";
+  const adminBaseUrl = String(process.env.AUTH_BASE_URL || "https://dodola.uz").replace(/\/$/, "");
 
-  // ── Header ─────────────────────────────────────────────────────────────────
-  const lines = [
-    "🛒 New Order — Dodola",
+  return [
+    "🛒 Dodola — yangi buyurtma",
     "",
-    `📦 Order ID: #${order.id || "—"}`,
-    `👤 Customer: ${order.name || "—"}`,
-    `📞 Phone: ${order.phone || "—"}`,
-    `📍 Address: ${order.address || "—"}`,
-  ];
-
-  // Optional comment / note
-  const comment = order.note || order.comment;
-  if (comment && comment.trim()) {
-    lines.push(`💬 Comment: ${comment.trim()}`);
-  }
-
-  // ── Items ──────────────────────────────────────────────────────────────────
-  lines.push("");
-  lines.push("🧾 Items:");
-  lines.push(items || "  (no items)");
-
-  // ── Financial summary ──────────────────────────────────────────────────────
-  lines.push("");
-
-  const subtotal = Number(order.subtotal || order.total || 0);
-  const discount = Number(order.discountAmount || order.discount || 0);
-  const total = Number(order.total || 0);
-
-  if (order.promoCode) {
-    const discountPct =
-      subtotal > 0 ? Math.round((discount / subtotal) * 100) : 0;
-    lines.push(
-      `🏷️ Promocode: ${order.promoCode}${discountPct > 0 ? ` (-${discountPct}%)` : ""}`
-    );
-  }
-
-  lines.push(`💰 Subtotal: ${formatPrice(subtotal)}`);
-
-  if (discount > 0) {
-    lines.push(`🎁 Discount: -${formatPrice(discount)}`);
-  }
-
-  lines.push(`✅ Total: ${formatPrice(total)}`);
-
-  // ── Payment type ───────────────────────────────────────────────────────────
-  const paymentLabel =
-    order.paymentType === "karta" ? "Card" : "Cash (on delivery)";
-  lines.push(`💳 Payment: ${paymentLabel}`);
-
-  return lines.join("\n");
+    `📦 Buyurtma: ${orderNumber}`,
+    "⏳ Holat: mavjudlik tasdig‘i kutilmoqda",
+    `🧾 Mahsulotlar: ${items.length} tur, ${quantity} dona`,
+    `💰 Jami: ${formatPrice(order.total || 0)}`,
+    `💳 To‘lov istagi: ${paymentLabels[paymentKey] || "Belgilanmagan"}`,
+    "🔒 Onlayn to‘lov olinmagan.",
+    "",
+    `${adminBaseUrl}/admin.html`,
+  ].join("\n");
 }
 
 /**
@@ -134,10 +97,7 @@ async function sendOrderNotification(order) {
     });
 
     if (!res.ok) {
-      const detail = await res.text().catch(() => "");
-      console.error(
-        `[telegram] API error ${res.status}: ${detail.slice(0, 200)}`
-      );
+      console.error(`[telegram] API error ${res.status}`);
     }
   } catch (err) {
     if (err.name === "AbortError") {

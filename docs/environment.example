@@ -14,6 +14,8 @@ NODE_ENV=development
 PUBLIC_WRITES_ENABLED=false
 # Telegram order notifications (leave blank to disable — orders still work)
 TELEGRAM_BOT_TOKEN=
+# Owner: send /myid to @DodolaSupportBot, then save the returned numeric ID here.
+# Never paste the bot token or private chat ID into source code or GitHub.
 TELEGRAM_CHAT_ID=
 # Random secret sent by Telegram in the webhook header. Never expose it in a URL.
 TELEGRAM_WEBHOOK_SECRET=
