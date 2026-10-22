@@ -31,6 +31,52 @@
     });
   }
 
+  const suggestionBoxes = new Map();
+  function suggestionInputs() {
+    return ['sct-search', 'mcf-search'].map(id => document.getElementById(id)).filter(Boolean);
+  }
+  function suggestionBox(input) {
+    if (suggestionBoxes.has(input)) return suggestionBoxes.get(input);
+    const host = input.parentElement;
+    host.classList.add('catalog-suggest-host');
+    input.setAttribute('aria-autocomplete', 'list');
+    input.setAttribute('aria-expanded', 'false');
+    const box = document.createElement('div');
+    box.className = 'catalog-suggestions';
+    box.id = `${input.id}-suggestions`;
+    box.setAttribute('role', 'listbox');
+    box.hidden = true;
+    input.setAttribute('aria-controls', box.id);
+    host.append(box);
+    suggestionBoxes.set(input, box);
+    return box;
+  }
+  function hideSuggestions(except) {
+    suggestionBoxes.forEach((box, input) => {
+      if (input === except) return;
+      box.hidden = true;
+      input.setAttribute('aria-expanded', 'false');
+    });
+  }
+  function renderSuggestions(products) {
+    suggestionInputs().forEach(input => {
+      const box = suggestionBox(input);
+      const query = input.value.trim();
+      if (!query) {
+        box.hidden = true;
+        input.setAttribute('aria-expanded', 'false');
+        return;
+      }
+      const rows = products.slice(0, 6);
+      box.innerHTML = rows.length ? rows.map(product => {
+        const price = Number(product.price || 0).toLocaleString('uz-UZ');
+        return `<a role="option" href="product-details.html?id=${encodeURIComponent(product.id)}"><span><strong>${MBHelpers.escapeHtml(product.name || 'Mahsulot')}</strong><small>${MBHelpers.escapeHtml(product.category || '')}</small></span><b>${price} so‘m</b></a>`;
+      }).join('') : `<div class="catalog-suggestions__empty">“${MBHelpers.escapeHtml(query)}” bo‘yicha taklif topilmadi</div>`;
+      box.hidden = false;
+      input.setAttribute('aria-expanded', 'true');
+    });
+  }
+
   function activeCategory() {
     const button = document.querySelector('.shop-toolbar__filters .filter-btn.active');
     return button ? String(button.dataset.category || '') : '';
@@ -154,6 +200,7 @@
     }
     updateHeading();
     updateLoadMore();
+    if (!append) renderSuggestions(state.products);
   }
 
   async function loadPage(page = 1, options = {}) {
@@ -229,6 +276,7 @@
     document.querySelectorAll('.filter-btn').forEach(button => button.classList.remove('active'));
     const all = document.querySelector('.filter-btn[data-category=""]');
     if (all) all.classList.add('active');
+    hideSuggestions();
     loadPage(1);
   }
 
@@ -278,9 +326,24 @@
   ['sct-search', 'mcf-search'].forEach(id => {
     const input = document.getElementById(id);
     if (!input) return;
-    input.addEventListener('input', refresh);
-    input.addEventListener('keydown', event => { if (event.key === 'Enter') { event.preventDefault(); refresh(); } });
+    suggestionBox(input);
+    input.addEventListener('input', () => { hideSuggestions(input); const box = suggestionBox(input); box.hidden = true; input.setAttribute('aria-expanded', 'false'); refresh(); });
+    input.addEventListener('focus', () => { if (input.value.trim() && state.products.length) renderSuggestions(state.products); });
+    input.addEventListener('keydown', event => {
+      const box = suggestionBox(input);
+      if (event.key === 'ArrowDown' && !box.hidden) { event.preventDefault(); box.querySelector('[role="option"]')?.focus(); }
+      if (event.key === 'Escape') { box.hidden = true; input.setAttribute('aria-expanded', 'false'); }
+      if (event.key === 'Enter') { event.preventDefault(); hideSuggestions(); refresh(); }
+    });
+    suggestionBox(input).addEventListener('keydown', event => {
+      const items = [...event.currentTarget.querySelectorAll('[role="option"]')];
+      const index = items.indexOf(document.activeElement);
+      if (event.key === 'ArrowDown') { event.preventDefault(); (items[index + 1] || items[0])?.focus(); }
+      if (event.key === 'ArrowUp') { event.preventDefault(); if (index <= 0) input.focus(); else items[index - 1].focus(); }
+      if (event.key === 'Escape') { event.preventDefault(); event.currentTarget.hidden = true; input.setAttribute('aria-expanded', 'false'); input.focus(); }
+    });
   });
+  document.addEventListener('click', event => { if (!event.target.closest('.catalog-suggest-host')) hideSuggestions(); });
   document.querySelectorAll('.js-market-search').forEach(form => form.addEventListener('submit', event => {
     event.preventDefault();
     const input = form.querySelector('input');

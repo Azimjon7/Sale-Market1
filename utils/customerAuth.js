@@ -18,8 +18,29 @@ const strongPassword = value => typeof value === 'string' && value.length >= 10 
 
 function installCustomerAuth(app, options) {
   const { dataDir, customersFile, tokensFile, ordersFile, jwt, jwtSecret, adminUsername, adminPassword, credentialsEqual } = options;
-  const authLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 8, standardHeaders: true, legacyHeaders: false,
-    message: { message: "Juda ko'p urinish. 15 daqiqadan keyin qayta urinib ko'ring." } });
+  const registrationLimiter = rateLimit({ windowMs: 60 * 60 * 1000, max: 20, standardHeaders: true, legacyHeaders: false,
+    message: { message: "Juda ko'p hisob yaratish so'rovi yuborildi. Keyinroq qayta urinib ko'ring." } });
+  const verificationLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 30, standardHeaders: true, legacyHeaders: false,
+    message: { message: "Juda ko'p tasdiqlash so'rovi yuborildi. Keyinroq qayta urinib ko'ring." } });
+  const loginAttempts = new Map();
+  const loginAttemptWindowMs = 15 * 60 * 1000;
+  const loginThrottle = (req, res, next) => {
+    const now = Date.now();
+    const identifier = clean(req.body && req.body.identifier, 254).toLowerCase();
+    const key = crypto.createHash('sha256').update(`${req.ip || ''}\0${identifier}`).digest('hex');
+    const previous = loginAttempts.get(key);
+    const failures = previous && now - previous.updatedAt < loginAttemptWindowMs ? previous.failures : 0;
+    if (loginAttempts.size > 5000) {
+      for (const [entryKey, entry] of loginAttempts) if (now - entry.updatedAt >= loginAttemptWindowMs) loginAttempts.delete(entryKey);
+    }
+    res.once('finish', () => {
+      if (res.statusCode >= 200 && res.statusCode < 300) loginAttempts.delete(key);
+      else if (res.statusCode === 401) loginAttempts.set(key, { failures: failures + 1, updatedAt: Date.now() });
+    });
+    const delayMs = Math.min(1500, Math.max(0, failures - 2) * 250);
+    if (delayMs) return setTimeout(next, delayMs);
+    next();
+  };
   const resetLimiter = rateLimit({ windowMs: 60 * 60 * 1000, max: 5, standardHeaders: true, legacyHeaders: false,
     message: { message: "Juda ko'p so'rov yuborildi. Keyinroq qayta urinib ko'ring." } });
   const resendLimiter = rateLimit({ windowMs: 60 * 60 * 1000, max: 3, standardHeaders: true, legacyHeaders: false,
@@ -112,7 +133,7 @@ function installCustomerAuth(app, options) {
     res.json({ authenticated: true, role: 'customer', redirect: '/account.html', customer: safeCustomer(customer), csrfToken });
   }));
 
-  app.post('/api/auth/register', authLimiter, csrf, async (req, res, next) => {
+  app.post('/api/auth/register', registrationLimiter, csrf, async (req, res, next) => {
     try {
       const firstName = clean(req.body.firstName, 80), lastName = clean(req.body.lastName, 80), phone = normalizePhone(req.body.phone), mail = email(req.body.email), password = req.body.password;
       if (!firstName || !lastName || !phone || !/^\S+@\S+\.\S+$/.test(mail) || !strongPassword(password) || password !== req.body.confirmPassword)
@@ -136,7 +157,7 @@ function installCustomerAuth(app, options) {
     } catch (error) { if (error.status) return res.status(error.status).json({ message: error.message }); next(error); }
   });
 
-  app.post('/api/auth/login', authLimiter, csrf, async (req, res, next) => {
+  app.post('/api/auth/login', loginThrottle, csrf, async (req, res, next) => {
     try {
       const identifier = clean(req.body.identifier, 254), password = String(req.body.password || '');
       if (credentialsEqual(identifier, adminUsername) && credentialsEqual(password, adminPassword)) {
@@ -150,7 +171,7 @@ function installCustomerAuth(app, options) {
   });
   app.post('/api/auth/logout', csrf, (req, res, next) => req.session.destroy(error => error ? next(error) : res.clearCookie('dodola_customer').json({ success: true })));
 
-  app.post('/api/auth/verify-email', authLimiter, csrf, route(async (req, res) => {
+  app.post('/api/auth/verify-email', verificationLimiter, csrf, route(async (req, res) => {
     const hash = tokenHash(req.body.token), now = new Date(); let success = false;
     if (customerRepository) success = await customerRepository.consumeEmailVerification(hash);
     else await withIdentifierLock(dataDir, async () => { const tokens = readJSON(tokensFile, []), record = tokens.find(row => row.type === 'verify_email' && row.tokenHash === hash && !row.usedAt); if (!record || new Date(record.expiresAt) <= now) return;

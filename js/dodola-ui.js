@@ -41,5 +41,12 @@
  document.querySelectorAll('img').forEach(img=>{if(img.complete&&!img.naturalWidth)fallback(img);});
  // Pair legacy form labels with their controls without changing submitted names.
  document.querySelectorAll('.auth-field').forEach((field,i)=>{const label=field.querySelector('label'),input=field.querySelector('input,select,textarea');if(label&&input&&!label.htmlFor){if(!input.id)input.id='dodola-field-'+i;label.htmlFor=input.id;}});
+ document.querySelectorAll('input[type="password"]').forEach(input=>{
+  if(input.parentElement?.classList.contains('password-input-wrap'))return;
+  const wrap=document.createElement('div');wrap.className='password-input-wrap';input.parentNode.insertBefore(wrap,input);wrap.append(input);
+  const button=document.createElement('button');button.type='button';button.className='password-toggle';button.setAttribute('aria-pressed','false');button.setAttribute('aria-label','Parolni ko‘rsatish');button.title='Parolni ko‘rsatish';button.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2.5 12s3.5-6 9.5-6 9.5 6 9.5 6 9.5 6-9.5 6-9.5-6-9.5-6Z"/><circle cx="12" cy="12" r="2.7"/></svg>';
+  button.addEventListener('click',()=>{const show=input.type==='password';input.type=show?'text':'password';button.setAttribute('aria-pressed',String(show));button.setAttribute('aria-label',show?'Parolni yashirish':'Parolni ko‘rsatish');button.title=show?'Parolni yashirish':'Parolni ko‘rsatish';input.focus({preventScroll:true});});
+  wrap.append(button);
+ });
  document.querySelectorAll('form.auth-form').forEach(form=>form.addEventListener('submit',()=>{const button=form.querySelector('button[type=submit],button:not([type])');if(!button)return;button.disabled=true;button.setAttribute('aria-busy','true');const message=document.querySelector('#accountMessage,#authMessage');if(!message)return;const observer=new MutationObserver(()=>{button.disabled=false;button.removeAttribute('aria-busy');observer.disconnect();});observer.observe(message,{childList:true,subtree:true,characterData:true});}));
 })();
