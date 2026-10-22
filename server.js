@@ -48,7 +48,7 @@ const { PostgresPromoCodeRepository } = require('./utils/postgres/promoCodeRepos
 const commerce = require('./utils/commerceRules');
 const { installPayments } = require('./utils/payments/routes');
 const { PostgresReviewRepository } = require('./utils/postgres/reviewRepository');
-const { installTelegramBot } = require('./utils/telegramBot');
+const { installTelegramBot, startTelegramPolling } = require('./utils/telegramBot');
 
 // ── Startup environment validation ───────────────────────────────────────────
 function validateEnv() {
@@ -832,6 +832,12 @@ app.get("/api/products", async (req, res, next) => {
   } catch (error) { next(error); }
 });
 installTelegramBot(app, { env: options.env || process.env, fetcher: options.telegramFetch || global.fetch });
+if (String((options.env || process.env).TELEGRAM_TRANSPORT || '').toLowerCase() === 'polling') {
+  app.locals.telegramPolling = startTelegramPolling({
+    env: options.env || process.env,
+    fetcher: options.telegramFetch || global.fetch,
+  });
+}
 
 app.get('/api/catalog/meta', async (req, res, next) => {
   try {

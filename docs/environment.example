@@ -19,6 +19,8 @@ TELEGRAM_BOT_TOKEN=
 TELEGRAM_CHAT_ID=
 # Random secret sent by Telegram in the webhook header. Never expose it in a URL.
 TELEGRAM_WEBHOOK_SECRET=
+# webhook (default) or polling (fallback when the host cannot receive Telegram traffic)
+TELEGRAM_TRANSPORT=webhook
 # Production: https://dodola.uz
 ALLOWED_ORIGIN=https://dodola.uz
 # Customer cookie signing secret. Use a different random value of at least 32 characters.
