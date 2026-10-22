@@ -182,6 +182,7 @@
     })).join('');
     if (append) grid.insertAdjacentHTML('beforeend', markup);
     else grid.innerHTML = markup;
+    if (window.MBStore && MBStore.registerProducts) MBStore.registerProducts(products);
     updateLoadMore();
   }
 
@@ -292,21 +293,6 @@
       if (saved && Date.now() - saved.savedAt < 600000) requestAnimationFrame(() => scrollTo(0, saved.y));
     } catch (_) {}
   }
-
-  grid.addEventListener('click', event => {
-    const button = event.target.closest('.js-add-card');
-    if (!button) return;
-    event.preventDefault();
-    const product = state.products.find(item => String(item.id) === String(button.dataset.id));
-    if (!product) return;
-    const result = MBStore.addToCart({ productId: product.id, qty: 1, size: (product.sizes || [])[0] || '', color: (product.colors || [])[0] || '', product });
-    if (!result.ok) { alert(result.error); return; }
-    if (MBStore.updateCartCounters) MBStore.updateCartCounters();
-    document.dispatchEvent(new CustomEvent('mb:cart-updated'));
-    const original = button.textContent;
-    button.textContent = 'Qo‘shildi ✓';
-    setTimeout(() => { button.textContent = original; }, 1200);
-  });
 
   grid.addEventListener('error', event => {
     const image = event.target.closest && event.target.closest('.d-catalog-image');

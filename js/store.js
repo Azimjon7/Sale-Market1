@@ -81,6 +81,41 @@
     cart[index].qty = Math.max(1, Number(qty) || 1);
     saveCart(cart);
   }
+  function findCartIndex(productId, size = '', color = '') {
+    return getCart().findIndex(item => String(item.productId) === String(productId) &&
+      String(item.size || '') === String(size || '') && String(item.color || '') === String(color || ''));
+  }
+  function getItemQty(productId, size = '', color = '') {
+    const cart = getCart();
+    const index = cart.findIndex(item => String(item.productId) === String(productId) &&
+      String(item.size || '') === String(size || '') && String(item.color || '') === String(color || ''));
+    return index < 0 ? 0 : Math.max(0, Number(cart[index].qty) || 0);
+  }
+  function setItemQty(item, qty) {
+    const cart = getCart();
+    const productId = String(item.productId);
+    const size = String(item.size || '');
+    const color = String(item.color || '');
+    const index = cart.findIndex(row => String(row.productId) === productId && String(row.size || '') === size && String(row.color || '') === color);
+    const nextQty = Math.max(0, Math.min(999, Math.floor(Number(qty) || 0)));
+    if (nextQty === 0) {
+      if (index >= 0) cart.splice(index, 1);
+      saveCart(cart);
+      return { ok: true, qty: 0 };
+    }
+    const currentQty = index >= 0 ? Math.max(0, Number(cart[index].qty) || 0) : 0;
+    if (item.product && nextQty > currentQty) {
+      const withoutCurrent = cart.filter((_, cartIndex) => cartIndex !== index);
+      const error = window.MBProductRules.additionError(item.product, nextQty, withoutCurrent);
+      if (error) return { ok: false, error, qty: currentQty };
+    }
+    const snapshot = productSnapshot(item.product);
+    const next = { ...item, productId, size, color, qty: nextQty, product: snapshot || item.product || null };
+    if (index >= 0) cart[index] = { ...cart[index], ...next };
+    else cart.push(next);
+    saveCart(cart);
+    return { ok: true, qty: nextQty };
+  }
   function clearCart() {
     saveCart([]);
   }
@@ -110,6 +145,60 @@
     document.querySelectorAll('.js-cart-count').forEach(el => el.textContent = count);
     document.dispatchEvent(new CustomEvent('mb:cart-updated', { detail: { count } }));
   }
-  window.MBStore = { getCart, saveCart, addToCart, removeFromCart, updateQty, clearCart, getLocalOrders, saveLocalOrder, findLocalOrder, updateCartCounters };
+  const cardProducts = new Map();
+  function cardVariant(product) {
+    return {
+      productId: String(product.id),
+      size: (window.MBProductRules.options(product.sizes, 'size')[0] || ''),
+      color: (window.MBProductRules.options(product.colors, 'color')[0] || ''),
+      product,
+    };
+  }
+  function renderCardControl(host) {
+    const product = cardProducts.get(String(host.dataset.productId || ''));
+    if (!product) return;
+    const item = cardVariant(product);
+    const qty = getItemQty(item.productId, item.size, item.color);
+    if (!qty) {
+      host.innerHTML = '<button type="button" class="link-btn js-add-card">Savatga</button>';
+      return;
+    }
+    host.innerHTML = `<div class="card-cart-actions">
+      <div class="card-cart-stepper" aria-label="Soni">
+        <button type="button" class="js-card-qty" data-delta="-1" aria-label="Kamaytirish">−</button>
+        <output aria-live="polite">${qty}</output>
+        <button type="button" class="js-card-qty" data-delta="1" aria-label="Ko‘paytirish">+</button>
+      </div>
+      <a class="card-cart-go" href="shop-cart.html" aria-label="Savatga o‘tish"><i class="fa fa-shopping-bag" aria-hidden="true"></i><span>O‘tish</span></a>
+    </div>`;
+  }
+  function renderCardControls() {
+    document.querySelectorAll('[data-cart-control][data-product-id]').forEach(renderCardControl);
+  }
+  function registerProducts(products) {
+    (Array.isArray(products) ? products : []).forEach(product => cardProducts.set(String(product.id), product));
+    renderCardControls();
+  }
+  document.addEventListener('click', event => {
+    const target = event.target.closest('.js-add-card,.js-card-qty');
+    if (!target) return;
+    const host = target.closest('[data-cart-control][data-product-id]');
+    if (!host) return;
+    event.preventDefault();
+    const product = cardProducts.get(String(host.dataset.productId || ''));
+    if (!product) return;
+    const item = cardVariant(product);
+    const current = getItemQty(item.productId, item.size, item.color);
+    const next = target.classList.contains('js-add-card') ? 1 : current + Number(target.dataset.delta || 0);
+    const result = setItemQty(item, next);
+    if (!result.ok) {
+      document.dispatchEvent(new CustomEvent('dodola:cart-error', { detail: { message: result.error } }));
+      if (typeof alert === 'function') alert(result.error);
+      return;
+    }
+    renderCardControl(host);
+  });
+  document.addEventListener('mb:cart-updated', renderCardControls);
+  window.MBStore = { getCart, saveCart, addToCart, removeFromCart, updateQty, findCartIndex, getItemQty, setItemQty, registerProducts, renderCardControls, clearCart, getLocalOrders, saveLocalOrder, findLocalOrder, updateCartCounters };
   document.addEventListener('DOMContentLoaded', updateCartCounters);
 })();

@@ -79,6 +79,20 @@ body.dodola .product__oldprice { display:block!important; color:var(--d-muted)!i
 .dodola .sm-product-sku { font:10px var(--d-body)!important; color:var(--d-muted)!important; }
 body.dodola .product__links { margin:2px 0 0!important; }
 body.dodola .product__links .link-btn { display:flex; min-height:44px; align-items:center; justify-content:center; font-size:13px!important; background:var(--d-soft)!important; border-color:#decee9!important; color:var(--d-accent-dark)!important; width:100%; border-radius:24px; }
+body.dodola .card-cart-actions { display:grid; grid-template-columns:minmax(0,1fr) auto; gap:7px; width:100%; }
+body.dodola .card-cart-stepper { display:grid; grid-template-columns:44px minmax(28px,1fr) 44px; align-items:center; min-height:44px; border:1px solid #d8c6e8; border-radius:24px; overflow:hidden; background:#fff; color:var(--d-deep); }
+body.dodola .card-cart-stepper button { width:44px; min-height:44px; padding:0; border:0; background:transparent; color:var(--d-accent-dark); font:500 22px/1 var(--d-body); cursor:pointer; }
+body.dodola .card-cart-stepper button:hover { background:var(--d-soft); }
+body.dodola .card-cart-stepper output { min-width:28px; text-align:center; font:750 14px/1 var(--d-body); }
+body.dodola .card-cart-go { display:flex; align-items:center; justify-content:center; gap:6px; min-width:96px; min-height:44px; padding:0 14px; border-radius:24px; background:var(--d-primary); color:#fff!important; text-decoration:none!important; font:700 12px/1 var(--d-body); }
+body.dodola .card-cart-go:hover { background:var(--d-accent-dark); }
+body.dodola .pd-cart-state { display:grid; grid-template-columns:minmax(160px,1fr) minmax(120px,.65fr); gap:10px; margin-top:14px; }
+body.dodola .pd-cart-state[hidden] { display:none!important; }
+body.dodola .pd-detail-stepper { display:grid; grid-template-columns:52px 1fr 52px; min-height:52px; align-items:center; border:1px solid var(--d-line); border-radius:16px; overflow:hidden; background:#fff; }
+body.dodola .pd-detail-stepper button { min-height:52px; border:0; background:transparent; color:var(--d-deep); font-size:24px; cursor:pointer; }
+body.dodola .pd-detail-stepper button:hover { background:var(--d-soft); }
+body.dodola .pd-detail-stepper output { text-align:center; font:750 17px var(--d-body); }
+body.dodola .pd-cart-go { display:flex; align-items:center; justify-content:center; gap:8px; min-height:52px; border-radius:16px; background:var(--d-soft); border:1px solid #decee9; color:var(--d-accent-dark)!important; text-decoration:none!important; font-weight:750; }
 body.dodola .sm-card-badges { position:absolute; left:8px; top:8px; right:8px; display:flex; gap:5px; flex-wrap:wrap; z-index:2; }
 body.dodola .sm-card-badge { position:static!important; font:700 11px/1.2 var(--d-body)!important; padding:5px 7px!important; border-radius:6px!important; }
 body.dodola .sm-card-badge--discount { background:#f5ecfb!important; color:#643b88!important; border:1px solid #d8c6e8; }
@@ -247,6 +261,12 @@ body.dodola .site-btn--ghost { background:var(--d-soft)!important; color:var(--d
  .dodola .market-category-grid { grid-template-columns:repeat(3,minmax(0,1fr))!important; }
 }
 @media(max-width:768px) {
+ body.dodola .card-cart-actions { gap:5px; }
+ body.dodola .card-cart-stepper { grid-template-columns:38px minmax(22px,1fr) 38px; }
+ body.dodola .card-cart-stepper button { width:38px; }
+ body.dodola .card-cart-go { min-width:44px; width:44px; padding:0; }
+ body.dodola .card-cart-go span { display:none; }
+ body.dodola .pd-cart-state { grid-template-columns:minmax(0,1fr) 116px; }
  .dodola .sm-catalog-intro { padding:22px 18px!important; border-radius:18px; margin-bottom:16px!important; }
  .dodola .sm-catalog-intro h1 { font-size:clamp(24px,6vw,28px)!important; }
  .dodola .sm-catalog-intro p { font-size:13px!important; }
@@ -426,6 +446,10 @@ body.dodola .site-btn--ghost { background:var(--d-soft)!important; color:var(--d
  .dodola .pd-sticky-price { font-size:12px!important; }
  body.dodola .product__price { font-size:13px!important; }
  body.dodola .product__links .link-btn { font-size:12px!important; }
+ body.dodola .card-cart-stepper { grid-template-columns:38px minmax(22px,1fr) 38px; }
+ body.dodola .card-cart-stepper button { width:38px; }
+ body.dodola .card-cart-go { min-width:44px; width:44px; padding:0; }
+ body.dodola .card-cart-go span { display:none; }
  .dodola .market-remove { font-size:11px; }
 }
 /* Final checkout polish: native disclosure, compact preferences and one action. */

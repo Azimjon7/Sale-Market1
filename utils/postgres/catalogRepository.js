@@ -75,7 +75,9 @@ class PostgresCatalogRepository {
     const term = String(options.search || '').trim();
     const terms = getSearchTerms(term).map(value => `%${value.replace(/[\\%_]/g, '\\$&')}%`);
     if (terms.length) {
-      clauses.push(`(${terms.map(value => `${SEARCH_EXPRESSION} LIKE ${push(value)}`).join(' OR ')})`);
+      const translatedIds = Array.isArray(options.searchIds) ? [...new Set(options.searchIds.map(String).filter(Boolean))] : [];
+      const translatedClause = translatedIds.length ? `p.id=ANY(${push(translatedIds)}::text[])` : '';
+      clauses.push(`(${[...terms.map(value => `${SEARCH_EXPRESSION} LIKE ${push(value)}`), translatedClause].filter(Boolean).join(' OR ')})`);
     }
     if (options.category) clauses.push(`lower(p.category)=lower(${push(String(options.category).trim())})`);
     if (Number.isFinite(Number(options.minPrice))) clauses.push(`p.price>=${push(Number(options.minPrice))}`);

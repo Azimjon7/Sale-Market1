@@ -29,6 +29,7 @@ const { createAdminNotifier } = require('./utils/adminNotifications');
 const { cacheBuyoGalleryImages } = require("./utils/cacheBuyoGalleryImages");
 const productRules = require('./js/product-rules');
 const { searchProducts } = require('./js/search-engine');
+const { localizeProduct, matchingProductIds, isRussian } = require('./utils/productTranslations');
 const verifyAdminToken = require("./middleware/verifyAdminToken");
 const { initializeOrderWithExtendedSchema, confirmOrder, rejectOrder, updateOrderStatus, recordPaymentCollection, getStatusLabel, StatusTransitions, OrderStatus } = require("./js/order-schema");
 const { isInventoryManaged, validateProductStockForCheckout, integer } = require('./utils/inventoryValidator');
@@ -761,6 +762,7 @@ async function sortProducts(products, sort) {
 
 app.get("/api/products", async (req, res, next) => {
   try {
+  const language = isRussian(req.query.lang) ? 'ru' : 'uz';
   const hasPagination = req.query.page !== undefined || req.query.limit !== undefined;
   const hasSort = req.query.sort !== undefined;
 
@@ -786,16 +788,19 @@ app.get("/api/products", async (req, res, next) => {
     const result = await postgresCatalog.listProductsPage({
       page, limit, search: req.query.search, category: req.query.category,
       minPrice, maxPrice, sale: String(req.query.sale || '') === '1', sort: req.query.sort || 'newest',
+      searchIds: language === 'ru' && req.query.search ? matchingProductIds(req.query.search) : [],
     });
     const queryDurationMs = Number(process.hrtime.bigint() - queryStarted) / 1e6;
     res.setHeader('Server-Timing', `db;dur=${queryDurationMs.toFixed(1)}`);
     res.setHeader('Cache-Control', 'private, max-age=10, stale-while-revalidate=20');
     res.removeHeader('Pragma');
     res.removeHeader('Expires');
-    return res.json({ ...result, products: result.products.map(productWithPublicAssets) });
+    return res.json({ ...result, products: result.products.map(productWithPublicAssets).map(product => localizeProduct(product, language)) });
   }
 
-  let all = postgresCatalog ? (await postgresCatalog.listProducts(req.query.search || '')).map(productWithPublicAssets) : loadProductsCached().map(productWithPublicAssets);
+  const databaseSearch = language === 'ru' && req.query.search ? '' : (req.query.search || '');
+  let all = postgresCatalog ? (await postgresCatalog.listProducts(databaseSearch)).map(productWithPublicAssets) : loadProductsCached().map(productWithPublicAssets);
+  all = all.map(product => localizeProduct(product, language));
 
   // Filtering (applies whether or not pagination is requested)
   const category = req.query.category;
@@ -958,7 +963,7 @@ app.get("/api/products/:id", async (req, res, next) => {
     return res.status(404).json({ message: "Mahsulot topilmadi" });
   }
 
-  res.json(productWithPublicAssets(product));
+  res.json(localizeProduct(productWithPublicAssets(product), isRussian(req.query.lang) ? 'ru' : 'uz'));
   } catch (error) { next(error); }
 });
 

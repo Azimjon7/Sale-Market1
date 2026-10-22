@@ -1,3 +1,23 @@
-(async()=>{const grid=document.getElementById('favoritesGrid');let products=[];function render(){let ids=[];try{ids=JSON.parse(localStorage.getItem('dodola_favorites')||'[]');}catch{}const rows=products.filter(p=>ids.includes(String(p.id)));grid.innerHTML=rows.length?rows.map(p=>MBHelpers.productCard(p,{showDescription:false})).join(''):'<div class="account-empty"><h2>Saralanganlar hali yo‘q</h2><p>Yoqtirgan mahsulotlaringizni yurak tugmasi bilan saqlang.</p><a class="d-secondary" href="shop.html">Katalogga o‘tish →</a></div>';}
- try{const r=await fetch('/api/products');if(!r.ok)throw Error('Ma’lumot olinmadi.');products=await r.json();render();}catch(e){document.getElementById('favoritesMessage').textContent=e.message;}
- document.addEventListener('dodola:favorites',render);grid.addEventListener('click',e=>{const b=e.target.closest('.js-add-card');if(!b)return;e.preventDefault();const product=products.find(p=>String(p.id)===b.dataset.id);if(!product)return;if(MBProductRules.options(product.colors).length||MBProductRules.options(product.sizes,'size').length){location.href='product-details.html?id='+encodeURIComponent(product.id);return;}const r=MBStore.addToCart({productId:product.id,qty:1,product});if(!r.ok)document.getElementById('favoritesMessage').textContent=r.error;});})();
+(async () => {
+  const grid = document.getElementById('favoritesGrid');
+  if (!grid) return;
+  let products = [];
+
+  function render() {
+    let ids = [];
+    try { ids = JSON.parse(localStorage.getItem('dodola_favorites') || '[]'); } catch (_) {}
+    const rows = products.filter(product => ids.includes(String(product.id)));
+    grid.innerHTML = rows.length
+      ? rows.map(product => MBHelpers.productCard(product, { showDescription: false })).join('')
+      : '<div class="account-empty"><h2>Saralanganlar hali yo‘q</h2><p>Yoqtirgan mahsulotlaringizni yurak tugmasi bilan saqlang.</p><a class="d-secondary" href="shop.html">Katalogga o‘tish →</a></div>';
+    if (window.MBStore && MBStore.registerProducts) MBStore.registerProducts(rows);
+  }
+
+  try {
+    products = await MBHelpers.loadProducts();
+    render();
+  } catch (error) {
+    document.getElementById('favoritesMessage').textContent = error.message;
+  }
+  document.addEventListener('dodola:favorites', render);
+})();

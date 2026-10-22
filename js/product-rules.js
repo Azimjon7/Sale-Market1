@@ -26,9 +26,10 @@
     const oldPrice = Number(product && product.oldPrice);
     if (!(price > 0) || !(oldPrice > price)) return { visible: false, percent: 0, oldPrice: 0 };
     const percent = Math.round((1 - price / oldPrice) * 100);
+    const ratio = oldPrice / price;
     // Imported concatenated values can produce deceptive 90-100% badges. Keep the
     // selling price intact and hide the unverified comparison price for owner review.
-    if (percent < 1 || percent >= 90) return { visible: false, percent, oldPrice, anomalous: true };
+    if (percent < 1 || percent >= 90 || ratio > 4) return { visible: false, percent, oldPrice, anomalous: true };
     return { visible: true, percent, oldPrice, anomalous: false };
   }
   function cleanDescription(value) {

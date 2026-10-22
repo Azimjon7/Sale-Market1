@@ -373,28 +373,57 @@ function createChipList(items, group) {
     }
 
     function addToCart(product) {
-      const qty = Number(document.getElementById("qtyInput").value);
       const selectedSize = getActiveChipText("size");
       const selectedColor = getActiveChipText("color");
-
-      const safeQty = qty;
       const cartItem = {
         productId: product.id,
-        qty: safeQty,
+        qty: 1,
         size: selectedSize || "",
         color: selectedColor || "",
         product
       };
-
-      const result = MBStore.addToCart(cartItem);
+      const current = MBStore.getItemQty(cartItem.productId, cartItem.size, cartItem.color);
+      const result = MBStore.setItemQty(cartItem, current + 1);
       if (!result.ok) {
         document.getElementById("pdMessage").textContent = result.error;
         return false;
       }
-      document.dispatchEvent(new CustomEvent('mb:cart-updated'));
-
       document.getElementById("pdMessage").textContent = "Mahsulot savatga qo'shildi.";
+      syncDetailCartState(product);
       return true;
+    }
+
+    function selectedCartItem(product) {
+      return {
+        productId: product.id,
+        size: getActiveChipText('size') || '',
+        color: getActiveChipText('color') || '',
+        product,
+      };
+    }
+
+    function syncDetailCartState(product) {
+      const state = document.getElementById('pdCartState');
+      const value = document.getElementById('pdCartQty');
+      const addButton = document.getElementById('addToCartBtn');
+      if (!state || !value) return;
+      const item = selectedCartItem(product);
+      const qty = MBStore.getItemQty(item.productId, item.size, item.color);
+      state.hidden = qty < 1;
+      value.textContent = String(qty);
+      if (addButton) addButton.hidden = qty > 0;
+    }
+
+    function changeDetailQuantity(product, delta) {
+      const item = selectedCartItem(product);
+      const current = MBStore.getItemQty(item.productId, item.size, item.color);
+      const result = MBStore.setItemQty(item, current + delta);
+      if (!result.ok) {
+        document.getElementById('pdMessage').textContent = result.error;
+        return;
+      }
+      document.getElementById('pdMessage').textContent = result.qty ? `Savatda: ${result.qty} ta` : 'Mahsulot savatdan olib tashlandi.';
+      syncDetailCartState(product);
     }
 
     function buyNow(product) {
@@ -461,10 +490,6 @@ function createChipList(items, group) {
                   <div class="pd-label">Rang</div>
                   ${createChipList(colors, "color")}
                 </div>` : ''}
-                <div class="pd-qty-wrap">
-                  <div class="pd-label" style="margin:0;">Soni</div>
-                  <input id="qtyInput" class="pd-qty-input" type="number" min="1" max="${isMTO ? 999 : Math.min(stock, 999)}" value="1">
-                </div>
               </div>
 
               <div class="pd-meta-grid">
@@ -494,6 +519,14 @@ function createChipList(items, group) {
               <div class="pd-actions pd-actions--desktop">
                 <button class="pd-btn pd-btn-primary" id="addToCartBtn" ${inStock ? '' : 'disabled'}>Savatga qo'shish</button>
                 <button class="pd-btn pd-btn-dark" id="buyNowBtn" ${inStock ? '' : 'disabled'}>Hozir olish</button>
+              </div>
+              <div class="pd-cart-state" id="pdCartState" hidden>
+                <div class="pd-detail-stepper" aria-label="Soni">
+                  <button type="button" id="pdQtyMinus" aria-label="Kamaytirish">−</button>
+                  <output id="pdCartQty" aria-live="polite">1</output>
+                  <button type="button" id="pdQtyPlus" aria-label="Ko‘paytirish">+</button>
+                </div>
+                <a class="pd-cart-go" href="shop-cart.html" aria-label="Savatga o‘tish"><i class="fa fa-shopping-bag" aria-hidden="true"></i> O‘tish</a>
               </div>
               <div id="pdMessage" class="pd-message"></div>
 
@@ -639,6 +672,12 @@ function createChipList(items, group) {
       document.getElementById("addToCartBtn").addEventListener("click", function () {
         addToCart(product);
       });
+
+      document.getElementById('pdQtyMinus').addEventListener('click', function () { changeDetailQuantity(product, -1); });
+      document.getElementById('pdQtyPlus').addEventListener('click', function () { changeDetailQuantity(product, 1); });
+      document.querySelectorAll('.pd-chip').forEach(chip => chip.addEventListener('click', function () { syncDetailCartState(product); }));
+      document.addEventListener('mb:cart-updated', function onDetailCartUpdated() { syncDetailCartState(product); });
+      syncDetailCartState(product);
 
       document.getElementById("buyNowBtn").addEventListener("click", function () {
         buyNow(product);

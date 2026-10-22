@@ -83,7 +83,7 @@
     if (ref) ref.parentNode.insertBefore(fragment, ref);
     else rootNew.appendChild(fragment);
 
-    bindQuickAdd(items);
+    if (window.MBStore && MBStore.registerProducts) MBStore.registerProducts(items);
   }
 
   /* ── Infinite scroll: load next batch ───────────────────── */
@@ -302,31 +302,6 @@
         window.location.href = 'shop.html?search=' + encodeURIComponent(q);
       });
 
-    });
-  }
-
-  /* ── Cart quick-add ──────────────────────────────────────── */
-  function bindQuickAdd(products) {
-    rootNew.querySelectorAll('.js-add-card:not([data-bound])').forEach(btn => {
-      btn.setAttribute('data-bound', '1');
-      btn.addEventListener('click', function (e) {
-        e.preventDefault();
-        const p = allProducts.find(x => String(x.id) === String(this.dataset.id));
-        if (!p) return;
-        const result = MBStore.addToCart({
-          productId: p.id, qty: 1,
-          size:  (p.sizes  && p.sizes[0])  || '',
-          color: (p.colors && p.colors[0]) || '',
-          product: p,
-        });
-        if (!result.ok) { alert(result.error); return; }
-        if (MBStore.updateCartCounters) MBStore.updateCartCounters();
-        document.dispatchEvent(new CustomEvent('mb:cart-updated'));
-        const orig = this.textContent;
-        this.textContent = "Qo'shildi ✓";
-        const self = this;
-        setTimeout(() => { self.textContent = orig; }, 1200);
-      });
     });
   }
 

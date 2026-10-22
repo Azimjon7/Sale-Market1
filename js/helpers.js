@@ -87,10 +87,14 @@ window.MBHelpers = {
     if (!res.ok) throw new Error(`Request failed: ${url} (${res.status})`);
     return res.json();
   },
+  language() {
+    try { return localStorage.getItem('dodola_language') === 'ru' ? 'ru' : 'uz'; } catch (_) { return 'uz'; }
+  },
   catalogCacheKey(params = {}) {
     const query = new URLSearchParams();
-    Object.keys(params).sort().forEach(key => {
-      const value = params[key];
+    const localized = { ...params, lang: params.lang || this.language() };
+    Object.keys(localized).sort().forEach(key => {
+      const value = localized[key];
       if (value !== undefined && value !== null && value !== '') query.set(key, String(value));
     });
     return `dodola:catalog:v2:${query.toString()}`;
@@ -112,11 +116,13 @@ window.MBHelpers = {
     } catch (_) {}
   },
   async fetchCatalogPage(params = {}, options = {}) {
-    const requestKey = this.catalogCacheKey(params);
+    const language = this.language();
+    const localizedParams = { ...params, lang: language };
+    const requestKey = this.catalogCacheKey(localizedParams);
     if (!options.signal && this._catalogPromises.has(requestKey)) return this._catalogPromises.get(requestKey);
     const request = (async () => {
     const query = new URLSearchParams();
-    Object.entries(params).forEach(([key, value]) => {
+    Object.entries(localizedParams).forEach(([key, value]) => {
       if (value !== undefined && value !== null && value !== '') query.set(key, String(value));
     });
     const response = await fetch(this.apiUrl(`/api/products?${query}`), {
@@ -128,7 +134,7 @@ window.MBHelpers = {
     const data = await response.json();
     if (!data || !Array.isArray(data.products) || !data.meta) throw new Error('Catalog response is invalid');
     data.products = data.products.map(product => this.normalizeProduct(product));
-    this.writeCatalogCache(params, data);
+    this.writeCatalogCache(localizedParams, data);
     return data;
     })();
     if (options.signal) return request;
@@ -164,7 +170,8 @@ window.MBHelpers = {
     if (!forceRefresh && this._productsPromise) return this._productsPromise;
 
     const loadTask = (async () => {
-      const sources = [this.apiUrl("/api/products")];
+      const language = this.language();
+      const sources = [this.apiUrl(`/api/products?lang=${language}`)];
 
       for (const url of sources) {
         try {
@@ -188,7 +195,8 @@ window.MBHelpers = {
     const id = String(productId || "").trim();
     if (!id) return null;
 
-    const apiProductUrl = this.apiUrl(`/api/products/${encodeURIComponent(id)}`);
+    const language = this.language();
+    const apiProductUrl = this.apiUrl(`/api/products/${encodeURIComponent(id)}?lang=${language}`);
     try {
       const item = await this.fetchJson(apiProductUrl);
       if (item && typeof item === "object") return this.normalizeProduct(item);
@@ -237,7 +245,7 @@ window.MBHelpers = {
     const labelHtml = badges.length ? `<div class="sm-card-badges">${badges.join("")}</div>` : "";
     const oldPrice = discountInfo.visible ? `<span class="product__oldprice">${this.currency(discountInfo.oldPrice)}</span>` : "";
     const descriptionHtml = showDescription ? `<p>${this.escapeHtml(normalized.description)}</p>` : "";
-    const action = inStock ? `<a class="link-btn js-add-card" href="#" data-id="${this.escapeHtml(normalized.id)}">Savatga</a>` : `<span>Stokda yo'q</span>`;
+    const action = inStock ? `<button class="link-btn js-add-card" type="button" data-id="${this.escapeHtml(normalized.id)}">Savatga</button>` : `<span>Stokda yo'q</span>`;
 
     const priority = Boolean(options.priority);
     const loading = priority ? 'eager' : 'lazy';
@@ -255,7 +263,7 @@ window.MBHelpers = {
             <h6><a href="product-details.html?id=${encodeURIComponent(normalized.id)}">${this.escapeHtml(normalized.name || "Mahsulot")}</a></h6>
             ${descriptionHtml}
             <div class="product__price">${this.currency(normalized.price)} ${oldPrice}</div>
-            <div class="product__links">
+            <div class="product__links" ${inStock ? `data-cart-control data-product-id="${this.escapeHtml(normalized.id)}"` : ''}>
               ${action}
             </div>
           </div>

@@ -1,5 +1,5 @@
-/* Central Uzbek/Russian UI catalog. Product names/descriptions and customer data
- * stay in their original language. The DOM adapter supports retained templates. */
+/* Central Uzbek/Russian UI catalog. Product names/descriptions are localized by
+ * the catalog API; customer-entered data stays untouched. */
 (function(){'use strict';
  const normalize=s=>String(s).replace(/[‘’ʻʼ`]/g,"'").replace(/\s+/g,' ').trim();
  const phrases=`Bosh sahifa|Главная
@@ -83,6 +83,13 @@ Saqlangan mahsulotlar shu brauzerda saqlanadi.|Избранное сохраня
 Mahsulot savatga qo‘shildi ✓|Товар добавлен в корзину ✓
 Qo‘shildi ✓|Добавлено ✓
 Savatga|В корзину
+Savatga qo‘shish|Добавить в корзину
+Savatga qo'shish|Добавить в корзину
+Savatga o‘tish|Перейти в корзину
+O‘tish|Перейти
+Kamaytirish|Уменьшить количество
+Ko‘paytirish|Увеличить количество
+Soni|Количество
 Stokda bor|В наличии
 Stokda yo‘q|Нет в наличии
 Buyurtma asosida|Под заказ
@@ -570,7 +577,7 @@ Buyurtma summasi musbat bo‘lishi kerak.|Сумма заказа должна �
  function render(root=document.body){observer?.disconnect();if(root.nodeType===3)textNode(root);else{if(root.nodeType===1)element(root);const walker=document.createTreeWalker(root,NodeFilter.SHOW_TEXT|NodeFilter.SHOW_ELEMENT);let n;while(n=walker.nextNode())n.nodeType===3?textNode(n):element(n);}const title=document.querySelector('title')?.firstChild;if(title)textNode(title);document.documentElement.lang=lang;document.querySelectorAll('[data-language-select]').forEach(s=>s.value=lang);observer?.observe(document.body,{subtree:true,childList:true,characterData:true,attributes:true,attributeFilter:['placeholder','aria-label','title']});}
  let observer=null,queued=false;const pending=new Set();
  function setLanguage(value){lang=value==='ru'?'ru':'uz';try{localStorage.setItem('dodola_language',lang);document.cookie='dodola_language='+lang+'; Path=/; Max-Age=31536000; SameSite=Lax';}catch{}render();document.dispatchEvent(new CustomEvent('dodola:language',{detail:{language:lang}}));}
- function languageControl(compact=false){const label=document.createElement('label');label.className='dodola-language';label.innerHTML='<span class="language-label">Til</span><select data-language-select aria-label="Tilni tanlang"><option value="uz">'+(compact?'UZ':'O‘zbekcha')+'</option><option value="ru">'+(compact?'RU':'Русский')+'</option></select>';label.querySelector('select').value=lang;label.querySelector('select').addEventListener('change',e=>setLanguage(e.target.value));return label;}
+ function languageControl(compact=false){const label=document.createElement('label');label.className='dodola-language';label.innerHTML='<span class="language-label">Til</span><select data-language-select aria-label="Tilni tanlang"><option value="uz">'+(compact?'UZ':'O‘zbekcha')+'</option><option value="ru">'+(compact?'RU':'Русский')+'</option></select>';label.querySelector('select').value=lang;label.querySelector('select').addEventListener('change',e=>{const next=e.target.value==='ru'?'ru':'uz',changed=next!==lang;setLanguage(next);if(changed&&document.querySelector('#shop-grid,#new-products,#favoritesGrid,#productDetailApp'))location.reload();});return label;}
  function boot(){document.querySelector('.dodola-header__inner')?.append(languageControl(true));document.querySelectorAll('[data-language-slot]').forEach(slot=>slot.append(languageControl()));
   observer=new MutationObserver(records=>{for(const r of records){if(r.type==='childList')r.addedNodes.forEach(n=>pending.add(n));else pending.add(r.target);}if(!queued){queued=true;requestAnimationFrame(()=>{queued=false;const roots=[...pending];pending.clear();roots.filter(n=>n.isConnected).forEach(n=>render(n));});}});setLanguage(lang);
   document.addEventListener('invalid',e=>{const el=e.target;if(!el.validity||!el.setCustomValidity)return;const v=el.validity;el.setCustomValidity(lang==='ru'?(v.valueMissing?'Заполните это поле.':v.typeMismatch?'Введите корректный адрес электронной почты.':v.patternMismatch?'Проверьте формат. Телефон: +998 и 9 цифр.':v.tooShort?'Введите более полное значение.':'Проверьте значение поля.'):(v.valueMissing?'Bu maydonni to‘ldiring.':'Maydon qiymatini tekshiring.'));},true);
