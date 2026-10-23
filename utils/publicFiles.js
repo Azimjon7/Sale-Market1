@@ -14,7 +14,7 @@ const scripts = new Set(['admin-upgrade.js', 'admin.js', 'bootstrap.min.js',
   'mobile-catalog-filter.js', 'owl.carousel.min.js', 'panel-manager.js',
   'product-page.js', 'search-engine.js', 'shared-header-init.js', 'shop-products.js',
   'shop-toolbar.js', 'store.js', 'order-submit.js', 'product-rules.js', 'order-labels.js',
-  'auth-page.js', 'account-page.js', 'header-account.js', 'checkout-v2.js', 'payment-page.js', 'commerce-profile.js', 'dodola-ui.js', 'dodola-orders.js', 'dodola-i18n.js', 'profile-settings.js', 'favorites.js']);
+  'auth-page.js', 'account-page.js', 'header-account.js', 'checkout-v2.js', 'payment-page.js', 'commerce-profile.js', 'dodola-ui.js', 'dodola-orders.js', 'dodola-i18n.js', 'dodola-theme.js', 'profile-settings.js', 'favorites.js']);
 const imageExtension = /\.(?:png|jpe?g|webp|gif|avif|svg|ico)$/i;
 
 function safeFile(root, relative) {

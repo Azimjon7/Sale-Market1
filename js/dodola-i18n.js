@@ -20,6 +20,10 @@ Asosiy navigatsiya|Основная навигация
 Til|Язык
 Ilova tili|Язык интерфейса
 Tilni tanlang|Выберите язык
+Tungi rejimni yoqish|Включить тёмную тему
+Kunduzgi rejimni yoqish|Включить светлую тему
+Tungi rejim yoqilgan|Тёмная тема включена
+Kunduzgi rejim yoqilgan|Светлая тема включена
 Saqlash|Сохранить
 Saqlanmoqda…|Сохранение…
 Saqlangan|Сохранено
