@@ -22,6 +22,15 @@
     catch { return 'uz'; }
   }
 
+  const initialLanguage = language();
+  document.documentElement.dataset.language = initialLanguage;
+  document.documentElement.lang = initialLanguage;
+  if (initialLanguage === 'ru') {
+    document.documentElement.classList.add('dodola-i18n-pending');
+    // Never leave the page hidden if a network or script error prevents i18n boot.
+    window.setTimeout(() => document.documentElement.classList.remove('dodola-i18n-pending'), 2200);
+  }
+
   function labels(theme) {
     const isDark = theme === 'dark';
     const ru = language() === 'ru';

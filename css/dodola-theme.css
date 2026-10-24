@@ -237,3 +237,4 @@ html[data-theme="dark"] body.dodola :where(.product__item,.market-category,.mark
   html[data-theme] body.dodola,
   html[data-theme] body.dodola * { animation:none!important; transition:none!important; }
 }
+html.dodola-i18n-pending body.dodola { visibility:hidden; }

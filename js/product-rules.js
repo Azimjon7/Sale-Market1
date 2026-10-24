@@ -27,9 +27,10 @@
     if (!(price > 0) || !(oldPrice > price)) return { visible: false, percent: 0, oldPrice: 0 };
     const percent = Math.round((1 - price / oldPrice) * 100);
     const ratio = oldPrice / price;
-    // Imported concatenated values can produce deceptive 90-100% badges. Keep the
-    // selling price intact and hide the unverified comparison price for owner review.
-    if (percent < 1 || percent >= 90 || ratio > 4) return { visible: false, percent, oldPrice, anomalous: true };
+    // A comparison price is a trust claim. Imported or mechanically inflated values
+    // above 3x the selling price are not shown until an administrator verifies them.
+    // The actual selling price is never changed by this display rule.
+    if (percent < 1 || percent >= 90 || ratio > 3) return { visible: false, percent, oldPrice, anomalous: true };
     return { visible: true, percent, oldPrice, anomalous: false };
   }
   function cleanDescription(value) {

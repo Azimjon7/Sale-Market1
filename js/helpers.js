@@ -253,14 +253,14 @@ window.MBHelpers = {
     return `
       <div class="col-6 col-sm-6 col-md-4 col-lg-3">
         <div class="product__item ${inStock ? "" : "product__item--soldout"}">
-          <a href="product-details.html?id=${encodeURIComponent(normalized.id)}" class="product__item__pic">
+          <a href="/p/${encodeURIComponent(normalized.id)}" class="product__item__pic">
             <img class="d-catalog-image" src="${this.escapeHtml(image)}" alt="${this.escapeHtml(normalized.name || 'Mahsulot')}" loading="${loading}" fetchpriority="${fetchPriority}" decoding="async" sizes="(max-width: 768px) 46vw, (max-width: 1399px) 23vw, 18vw" width="400" height="400">
             ${labelHtml}
           </a>
           <button type="button" class="dodola-favorite" data-favorite="${this.escapeHtml(normalized.id)}" aria-label="Saralanganlar" aria-pressed="false">♡</button>
           <div class="product__item__text">
             ${normalized.sku ? `<span class="sm-product-sku">${this.escapeHtml(normalized.sku)}</span>` : ""}
-            <h6><a href="product-details.html?id=${encodeURIComponent(normalized.id)}">${this.escapeHtml(normalized.name || "Mahsulot")}</a></h6>
+            <h6><a href="/p/${encodeURIComponent(normalized.id)}">${this.escapeHtml(normalized.name || "Mahsulot")}</a></h6>
             ${descriptionHtml}
             <div class="product__price">${this.currency(normalized.price)} ${oldPrice}</div>
             <div class="product__links" ${inStock ? `data-cart-control data-product-id="${this.escapeHtml(normalized.id)}"` : ''}>

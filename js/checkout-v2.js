@@ -21,6 +21,7 @@
  $('checkoutForm').addEventListener('invalid',e=>{e.target.closest('details')?.setAttribute('open','');},true);
  try{
  if(!cart.length){document.querySelector('.checkout-steps').hidden=true;document.querySelector('.checkout-layout').innerHTML='<section id="checkoutEmpty" class="checkout-card"><h2>Savatingiz bo‘sh</h2><p>Katalogdan yoqtirgan mahsulotingizni tanlang.</p><a class="d-secondary" href="shop.html">Katalogga o‘tish →</a></section>';return;}
+ window.DodolaAnalytics?.track('begin_checkout','checkout');
  const [products,area,methods]=await Promise.all([api('/api/products'),api('/api/checkout/delivery'),api('/api/payments/methods')]);
  $('district').insertAdjacentHTML('beforeend',area.districts.map(d=>`<option>${esc(d)}</option>`).join(''));
  $('checkoutItems').innerHTML=cart.map(i=>{const p=products.find(p=>String(p.id)===String(i.productId));if(!p)throw Error('Savatdagi mahsulot topilmadi. Savatni yangilang.');const image=String(p.image||p.images?.[0]||'');const safe=/^(https:\/\/|\/?(?:uploads|img)\/)/.test(image);return `<article class="checkout-item"><img src="${esc(safe?image:'/img/placeholders/dodola-product.svg')}" alt="" loading="lazy"><div><strong>${esc(p.name)}</strong><small>${esc([i.color,i.size].filter(Boolean).join(' · '))} · ${i.qty} ta</small><b>${money(Number(p.price)*i.qty)}</b></div></article>`;}).join('');
@@ -46,6 +47,7 @@
  const payload={name:values.name,phone:values.phone,note:values.note,delivery:{city,district,street,house,apartment},paymentType:'karta',paymentPreference:values.paymentPreference,promoCode:promo,items:cart};
  payload.submissionToken=MBOrderSubmit.submissionToken(payload);
  const order=await MBOrderSubmit.submitOrder({method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
+ window.DodolaAnalytics?.track('submit_order','checkout');
  if(order.trackingToken)sessionStorage.setItem('dodola_order_'+order.id,JSON.stringify({token:order.trackingToken,number:order.orderNumber}));
  sessionStorage.setItem('dodola_last_order',JSON.stringify(order));localStorage.setItem('dodola_payment_preference',values.paymentPreference||'click');MBStore.clearCart();MBOrderSubmit.forgetSubmissionToken();sessionStorage.removeItem('dodola_promo');location.href='/payment.html?order='+encodeURIComponent(order.id);
  }catch(err){$('checkoutMessage').textContent=err.message;}finally{button.disabled=$('city').value!=='tashkent-city'||!quote;}};

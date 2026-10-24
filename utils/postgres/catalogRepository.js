@@ -1,7 +1,7 @@
 'use strict';
 const crypto = require('crypto');
 const { withTransaction } = require('./pool');
-const { cyrillicMap, getSearchTerms } = require('../../js/search-engine');
+const { getSearchTerms } = require('../../js/search-engine');
 const sqlLiteral = value => `'${String(value).replace(/'/g, "''")}'`;
 // Constants come from the browser's search engine; user input is always bound.
 // Filtering in PostgreSQL avoids transferring the full catalog for each search.
@@ -10,17 +10,27 @@ function searchExpression() {
   for (const key of ['title','subcategory','brand','shortDescription','color','colors','sizes','tags','keywords','size','tag']) {
     fields.push(`COALESCE(p.legacy_payload->>${sqlLiteral(key)},'')`);
   }
-  let expression = `lower(${fields.join(" || ' ' || ")})`;
-  const singles = Object.entries(cyrillicMap).filter(([, value]) => value.length === 1);
-  const from = singles.map(([key]) => key).join('') + 'ʻʼ‘’`´';
-  const to = singles.map(([, value]) => value).join('') + "''''''";
-  expression = `translate(${expression},${sqlLiteral(from)},${sqlLiteral(to)})`;
-  for (const [key, value] of Object.entries(cyrillicMap).filter(([, value]) => value.length !== 1)) {
-    expression = `replace(${expression},${sqlLiteral(key)},${sqlLiteral(value)})`;
-  }
-  return `regexp_replace(${expression},'\\s+',' ','g')`;
+  // Query terms are normalized and expanded by getSearchTerms(). Keeping the
+  // stored-field expression simple avoids running a long transliteration chain
+  // for every row and every synonym. Russian names are matched through the
+  // translated product-id list supplied by the application layer.
+  return `lower(${fields.join(" || ' ' || ")})`;
 }
 const SEARCH_EXPRESSION = searchExpression();
+const latinSingleToCyrillic = { a:'а', b:'б', v:'в', g:'г', d:'д', e:'е', j:'ж', z:'з', i:'и', y:'й', k:'к', l:'л', m:'м', n:'н', o:'о', p:'п', r:'р', s:'с', t:'т', u:'у', f:'ф', x:'х', q:'қ', h:'ҳ' };
+function latinToCyrillic(value) {
+  let text = String(value || '').toLowerCase().replace(/[ʻʼ‘’`´]/g, "'");
+  const protectedPairs = [['o\'','ў'],['g\'','ғ'],['yo','ё'],['ts','ц'],['ch','ч'],['sh','ш'],['yu','ю'],['ya','я']];
+  protectedPairs.forEach(([latin, cyrillic]) => { text = text.split(latin).join(cyrillic); });
+  return text.replace(/[abvgdejziyklmnoprstufxhq]/g, letter => latinSingleToCyrillic[letter] || letter);
+}
+function searchTerms(value) {
+  const raw = String(value || '').trim().toLowerCase();
+  // A concise synonym set keeps interactive catalog queries fast. The most
+  // relevant canonical forms are ordered first by the shared search engine.
+  const latinTerms = getSearchTerms(raw).slice(0, 16);
+  return [...new Set([...latinTerms, raw, ...latinTerms.map(latinToCyrillic), latinToCyrillic(raw)].filter(Boolean))];
+}
 const json = value => JSON.stringify(value == null ? null : value);
 const variants = value => Array.isArray(value) ? value.map(String).map(v => v.trim()).filter(Boolean)
   : String(value || '').split(',').map(v => v.trim()).filter(Boolean);
@@ -46,6 +56,8 @@ class PostgresCatalogRepository {
     if (!row) return null;
     const payload = { ...(row.legacy_payload || {}), id: row.id, sku: row.sku, name: row.name, price: Number(row.price),
       desc: row.description, category: row.category, oldPrice: row.old_price == null ? null : Number(row.old_price),
+      createdAt: row.created_at ? new Date(row.created_at).toISOString() : null,
+      updatedAt: row.updated_at ? new Date(row.updated_at).toISOString() : null,
       _inventoryMode: row.inventory_mode, _acceptsMTO: row.accepts_mto, _productionDays: row.production_days,
       image: row.primary_image, images: row.image_paths || [] };
     if (row.inventory_product_id) Object.assign(payload, { inventoryManaged: true, inventoryVersion: Number(row.inventory_version),
@@ -57,10 +69,10 @@ class PostgresCatalogRepository {
   async listProducts(search = '') {
     const term = String(search || '').trim();
     const select = PostgresCatalogRepository.productSelect();
-    const terms = getSearchTerms(term).map(value => `%${value.replace(/[\\%_]/g, '\\$&')}%`);
+    const terms = searchTerms(term).map(value => `%${value.replace(/[\\%_]/g, '\\$&')}%`);
     const result = term ? await this.pool.query(`SELECT ${select}
       FROM products p LEFT JOIN inventory_levels i ON i.product_id=p.id
-      WHERE p.deleted_at IS NULL AND (${terms.map((_, index) => `${SEARCH_EXPRESSION} LIKE $${index + 1}`).join(' OR ') || 'false'}) ORDER BY p.name,p.id`, terms)
+      WHERE p.deleted_at IS NULL AND ${SEARCH_EXPRESSION} LIKE ANY($1::text[]) ORDER BY p.name,p.id`, [terms])
       : await this.pool.query(`SELECT ${select} FROM products p LEFT JOIN inventory_levels i ON i.product_id=p.id
         WHERE p.deleted_at IS NULL ORDER BY p.name,p.id`);
     return result.rows.map(PostgresCatalogRepository.mapProduct);
@@ -73,11 +85,12 @@ class PostgresCatalogRepository {
     const clauses = ['p.deleted_at IS NULL'];
     const push = value => { params.push(value); return `$${params.length}`; };
     const term = String(options.search || '').trim();
-    const terms = getSearchTerms(term).map(value => `%${value.replace(/[\\%_]/g, '\\$&')}%`);
+    const terms = searchTerms(term).map(value => `%${value.replace(/[\\%_]/g, '\\$&')}%`);
     if (terms.length) {
       const translatedIds = Array.isArray(options.searchIds) ? [...new Set(options.searchIds.map(String).filter(Boolean))] : [];
       const translatedClause = translatedIds.length ? `p.id=ANY(${push(translatedIds)}::text[])` : '';
-      clauses.push(`(${[...terms.map(value => `${SEARCH_EXPRESSION} LIKE ${push(value)}`), translatedClause].filter(Boolean).join(' OR ')})`);
+      const searchClause = `${SEARCH_EXPRESSION} LIKE ANY(${push(terms)}::text[])`;
+      clauses.push(`(${[searchClause, translatedClause].filter(Boolean).join(' OR ')})`);
     }
     if (options.category) clauses.push(`lower(p.category)=lower(${push(String(options.category).trim())})`);
     if (Number.isFinite(Number(options.minPrice))) clauses.push(`p.price>=${push(Number(options.minPrice))}`);
@@ -90,6 +103,9 @@ class PostgresCatalogRepository {
       oldest: 'p.created_at ASC NULLS LAST,p.id ASC',
       'most-reviewed': 'review_count DESC,p.created_at DESC NULLS LAST,p.id ASC',
       most_reviewed: 'review_count DESC,p.created_at DESC NULLS LAST,p.id ASC',
+      bestseller: 'sales_count DESC,p.created_at DESC NULLS LAST,p.id ASC',
+      'most-sold': 'sales_count DESC,p.created_at DESC NULLS LAST,p.id ASC',
+      most_sold: 'sales_count DESC,p.created_at DESC NULLS LAST,p.id ASC',
       newest: 'p.created_at DESC NULLS LAST,p.id ASC',
     };
     const sort = String(options.sort || 'newest');
@@ -99,13 +115,20 @@ class PostgresCatalogRepository {
     const reviewJoin = reviewsNeeded
       ? 'LEFT JOIN (SELECT product_id,count(*)::integer AS review_count FROM reviews GROUP BY product_id) rv ON rv.product_id=p.id'
       : '';
+    const salesNeeded = ['bestseller', 'most-sold', 'most_sold'].includes(sort);
+    const salesSelect = salesNeeded ? 'COALESCE(sl.sales_count,0)::integer' : '0::integer';
+    const salesJoin = salesNeeded
+      ? `LEFT JOIN (SELECT coalesce(oi.source_product_id,oi.product_id) AS product_id,sum(oi.quantity)::integer AS sales_count
+          FROM order_items oi JOIN orders o ON o.id=oi.order_id WHERE o.status='delivered'
+          GROUP BY coalesce(oi.source_product_id,oi.product_id)) sl ON sl.product_id=p.id`
+      : '';
     const where = clauses.join(' AND ');
     const queryParams = [...params, limit, (page - 1) * limit];
     const select = PostgresCatalogRepository.productSelect();
     const [countResult, result] = await Promise.all([
       this.pool.query(`SELECT count(*) AS value FROM products p WHERE ${where}`, params),
-      this.pool.query(`SELECT ${select},${reviewSelect} AS review_count
-        FROM products p LEFT JOIN inventory_levels i ON i.product_id=p.id ${reviewJoin}
+      this.pool.query(`SELECT ${select},${reviewSelect} AS review_count,${salesSelect} AS sales_count
+        FROM products p LEFT JOIN inventory_levels i ON i.product_id=p.id ${reviewJoin} ${salesJoin}
         WHERE ${where} ORDER BY ${orderBy} LIMIT $${params.length + 1} OFFSET $${params.length + 2}`, queryParams),
     ]);
     const count = Number(countResult.rows[0].value);

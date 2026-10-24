@@ -35,7 +35,7 @@
 
   /* ── Render one product into the card slot ─────────────── */
   function render(product, animate) {
-    var href   = 'product-details.html?id=' + encodeURIComponent(String(product.id));
+    var href   = '/p/' + encodeURIComponent(String(product.id));
     var name   = String(product.name || 'Mahsulot');
     var price  = fmt(product.price);
     var discountInfo = window.MBProductRules ? window.MBProductRules.discount(product) : { visible: false };

@@ -186,9 +186,7 @@
     /* Release any open panel/scroll-lock before rendering */
     if (window.MBPanels) MBPanels.releaseAll();
     currentQuery     = query || '';
-    const editorialIds=['prd_1784614920759','prd_1784614625228','prd_1783676009196','prd_1784613960253','prd_1784614834803','prd_1784614069126','prd_1784614150176','prd_1784615041900'];
-    const selected=editorialIds.map(id=>list.find(p=>p.id===id)).filter(Boolean);
-    filteredProducts = isPilot && !query ? [...selected,...list.filter(p=>!selected.includes(p))].slice(0,16) : list;
+    filteredProducts = isPilot && !query ? list.slice(0,16) : list;
     renderInitial();
   }
 
@@ -217,7 +215,7 @@
     const e=MBHelpers.escapeHtml;
     const main=list.find(p=>p.id==='prd_1784614920759')||list.find(p=>/Briddy/i.test(p.name))||list[0];
     const side=list.find(p=>p.id==='prd_1784614625228')||list.find(p=>p!==main&&p.category===main.category)||list[1];
-    function tile(p, label, cls) { if(!p)return ''; return '<a class="'+cls+'" href="product-details.html?id='+encodeURIComponent(p.id)+'"><img src="'+e(p.image)+'" alt="'+e(p.name)+'" width="600" height="720" loading="eager" fetchpriority="'+(cls==='lx-photo-link'?'high':'auto')+'"><div class="lx-product-caption"><small>'+label+'</small><strong>'+e(p.name.replace(/[\p{Extended_Pictographic}\uFE0F]/gu,''))+'</strong><span>'+MBHelpers.currency(p.price)+' <b aria-hidden="true">↗</b></span></div></a>'; }
+    function tile(p, label, cls) { if(!p)return ''; return '<a class="'+cls+'" href="/p/'+encodeURIComponent(p.id)+'"><img src="'+e(p.image)+'" alt="'+e(p.name)+'" width="600" height="720" loading="eager" fetchpriority="'+(cls==='lx-photo-link'?'high':'auto')+'"><div class="lx-product-caption"><small>'+label+'</small><strong>'+e(p.name.replace(/[\p{Extended_Pictographic}\uFE0F]/gu,''))+'</strong><span>'+MBHelpers.currency(p.price)+' <b aria-hidden="true">↗</b></span></div></a>'; }
     document.getElementById('luxury-main-photo').innerHTML=tile(main,'YUMSHOQ TEKSTURALAR','lx-photo-link');
     document.getElementById('luxury-side-photo').innerHTML=tile(side,'USLUBINGIZGA BIR DETAL','lx-side-link');
   }
@@ -244,7 +242,7 @@
     if (!window.MBHelpers) await ensureScript('js/helpers.js');
 
     try {
-      const firstPage = await MBHelpers.fetchCatalogPage({ page: 1, limit: 24, sort: 'newest' });
+      const firstPage = await MBHelpers.fetchCatalogPage({ page: 1, limit: 24, sort: 'bestseller' });
       const editorialIds=['prd_1784614920759','prd_1784614625228','prd_1783676009196','prd_1784613960253','prd_1784614834803','prd_1784614069126','prd_1784614150176','prd_1784615041900'];
       const present = new Set(firstPage.products.map(product => String(product.id)));
       const editorial = await Promise.all(editorialIds.filter(id => !present.has(id)).map(id => MBHelpers.loadProductById(id).catch(() => null)));
@@ -261,17 +259,13 @@
       return;
     }
 
-    // Homepage always starts with the newest catalog additions.
-    allProducts.sort((a, b) => {
-      const ta = new Date(a.createdAt || 0).getTime() || 0;
-      const tb = new Date(b.createdAt || 0).getTime() || 0;
-      return tb - ta;
-    });
+    // The server returns delivered-order bestsellers first and falls back to
+    // newest products while the store is still collecting real sales data.
 
     renderCategories(allProducts);
     if (isPilot) renderEditorial(allProducts);
     const featured=allProducts.find(p=>p.featured)||allProducts[0],slot=document.getElementById('hero-single-card');
-    if(featured&&slot){const e=MBHelpers.escapeHtml;slot.innerHTML='<a class="d-featured" href="product-details.html?id='+encodeURIComponent(featured.id)+'"><img src="'+e(featured.image)+'" alt="'+e(featured.name)+'" width="240" height="240" fetchpriority="high"><div><small>KATALOGDAN TANLOV</small><strong>'+e(featured.name)+'</strong><b>'+MBHelpers.currency(featured.price)+'</b><em>Mahsulotni ko‘rish →</em></div></a>';}
+    if(featured&&slot){const e=MBHelpers.escapeHtml;slot.innerHTML='<a class="d-featured" href="/p/'+encodeURIComponent(featured.id)+'"><img src="'+e(featured.image)+'" alt="'+e(featured.name)+'" width="240" height="240" fetchpriority="high"><div><small>KATALOGDAN TANLOV</small><strong>'+e(featured.name)+'</strong><b>'+MBHelpers.currency(featured.price)+'</b><em>Mahsulotni ko‘rish →</em></div></a>';}
     const hasSale=allProducts.some(p=>MBProductRules.discount(p).visible);document.getElementById('flash-sale').hidden=!hasSale;
 
     // Check if there's a search query in the URL (user came from another page via search)

@@ -212,10 +212,20 @@ test('PostgreSQL categories, promo redemption and reviews use authoritative repo
     assert.equal(Number((await ctx.pool.query("SELECT redeemed_count FROM promo_codes WHERE code='ONCE10'")).rows[0].redeemed_count), 1);
     await request(ctx.app).delete('/api/promocodes/ONCE10').set(auth).expect(409);
 
-    const created = await request(ctx.app).post('/api/reviews').send({ productId: 'pg-product', name: 'Sinovchi', rating: 5, review: 'Yaxshi mahsulot' }).expect(200);
-    assert.equal(created.body.review.productId, 'pg-product');
-    assert.equal((await request(ctx.app).get('/api/reviews?productId=pg-product').expect(200)).body.length, 1);
+    await request(ctx.app).post('/api/reviews').send({ productId: 'pg-product', rating: 5, review: 'Yaxshi mahsulot' }).expect(401);
+    const reviewer = request.agent(ctx.app); let reviewerCsrf = await csrf(reviewer);
+    await reviewer.post('/api/auth/register').set('X-CSRF-Token', reviewerCsrf).send({ firstName:'Sinovchi',lastName:'Xaridor',phone:'+998901110099',email:'reviewer@example.invalid',password:'Securepass123',confirmPassword:'Securepass123' }).expect(201);
+    const reviewerVerify = tokenFrom(ctx.emails.at(-1), 'verify');
+    await reviewer.post('/api/auth/verify-email').set('X-CSRF-Token', reviewerCsrf).send({ token: reviewerVerify }).expect(200);
+    const reviewerLogin = await reviewer.post('/api/auth/login').set('X-CSRF-Token', reviewerCsrf).send({ identifier:'+998901110099',password:'Securepass123' }).expect(200);
+    reviewerCsrf = reviewerLogin.body.csrfToken;
+    const reviewOrder = await reviewer.post('/api/orders').send(orderBody('pg-mto','review-order-token-0001')).expect(201);
+    await ctx.pool.query("UPDATE orders SET status='delivered' WHERE id=$1", [reviewOrder.body.order.id]);
+    const created = await reviewer.post('/api/reviews').set('X-CSRF-Token', reviewerCsrf).send({ productId: 'pg-mto', rating: 5, review: 'Yaxshi mahsulot' }).expect(200);
+    assert.equal(created.body.review.productId, 'pg-mto');
+    assert.equal(created.body.review.verifiedPurchase, true);
+    assert.equal((await request(ctx.app).get('/api/reviews?productId=pg-mto').expect(200)).body.length, 1);
     await request(ctx.app).delete(`/api/reviews/${created.body.review.id}`).set(auth).expect(200);
-    assert.equal((await request(ctx.app).get('/api/reviews?productId=pg-product').expect(200)).body.length, 0);
+    assert.equal((await request(ctx.app).get('/api/reviews?productId=pg-mto').expect(200)).body.length, 0);
   } finally { await ctx.pool.end(); fs.rmSync(ctx.files.root, { recursive: true, force: true }); }
 });

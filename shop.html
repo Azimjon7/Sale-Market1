@@ -3,22 +3,18 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <meta name="description" content="Dodola — Katalog va mahsulotlar">
-  <link rel="stylesheet" href="css/design-system.css" type="text/css">
-  <link rel="stylesheet" href="css/components.css" type="text/css">
-  <link rel="stylesheet" href="css/bootstrap.min.css" type="text/css">
-  <link rel="stylesheet" href="css/font-awesome.min.css" type="text/css">
-  <link rel="stylesheet" href="css/elegant-icons.css" type="text/css">
-  <link rel="stylesheet" href="css/slicknav.min.css" type="text/css">
-  <link rel="stylesheet" href="css/style.css" type="text/css">
-  <link rel="stylesheet" href="css/marketplace-upgrade.css" type="text/css">
-  <link rel="stylesheet" href="css/mobile-premium.css" type="text/css">
-  <link rel="stylesheet" href="css/shared-header.css" type="text/css">
-  <link rel="stylesheet" href="css/mobile-320-480-fix.css" type="text/css">
-  <link rel="stylesheet" href="css/mobile-catalog-filter.css" type="text/css">
-  <link rel="stylesheet" href="css/shop-toolbar.css" type="text/css">
-<title>Dodola | Katalog</title>  <link rel="stylesheet" href="css/live-upgrade-fixes.css" type="text/css">
-  <link rel="stylesheet" href="css/customer-navigation.css" type="text/css">
-<link rel="stylesheet" href="css/dodola-tokens.css"><link rel="stylesheet" href="css/dodola-customer.css"><link rel="stylesheet" href="css/dodola-marketplace.css"><link rel="stylesheet" href="css/catalog-compact.css"><meta name="theme-color" content="#fcfaf7"><link rel="stylesheet" href="css/dodola-theme.css"><script src="js/dodola-theme.js"></script></head>
+<title>Dodola | Katalog</title><meta name="theme-color" content="#fcfaf7"><link rel="stylesheet" href="/css/storefront-catalog.bundle.css"><script src="js/dodola-theme.js"></script>
+  <link rel="manifest" href="/site.webmanifest">
+  <link rel="apple-touch-icon" href="/img/logo.png">
+  <link rel="canonical" href="https://dodola.uz/shop.html">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Dodola">
+  <meta property="og:title" content="Dodola katalogi — kiyim, uy va kundalik mahsulotlar">
+  <meta property="og:description" content="Dodola katalogidagi haqiqiy narxlar, kategoriyalar va mahsulotlarni o‘zbek va rus tillarida ko‘ring.">
+  <meta property="og:url" content="https://dodola.uz/shop.html">
+  <meta property="og:image" content="https://dodola.uz/img/logo.png">
+  <meta name="twitter:card" content="summary_large_image">
+</head>
 <body class="market-body shop-page dodola">
   <a class="dodola-skip" href="#dodola-content">Asosiy mazmunga o‘tish</a><header class="dodola-header"><div class="dodola-header__inner"><a class="dodola-logo" href="index.html" aria-label="Dodola — bosh sahifa">Dodola<span>·</span></a><form class="dodola-search" action="shop.html" method="get" role="search"><input type="search" name="search" placeholder="Nima izlayapsiz?" aria-label="Mahsulotlarni qidirish"><button aria-label="Qidirish" type="submit">⌕</button></form><nav aria-label="Do‘kon bo‘limlari"><a data-nav-page="shop" href="shop.html">Katalog</a><a data-nav-page="shop-cart" href="shop-cart.html"><span class="nav-label">Savat</span> <span class="js-cart-count">0</span></a><a data-nav-page="account" href="account.html">Profilim</a></nav></div></header>
 
@@ -52,6 +48,7 @@
         <option value="price_asc">Narxi: arzon → qimmat</option>
         <option value="price_desc">Narxi: qimmat → arzon</option>
         <option value="most_reviewed">Ko'p sharhlangan</option>
+        <option value="bestseller">Ko‘p sotilgan</option>
       </select>
       <input type="number" id="shop-price-min" min="0" placeholder="0">
       <input type="number" id="shop-price-max" min="0" placeholder="∞">
@@ -157,6 +154,7 @@
         <li class="sct-sort-opt"                      data-value="oldest"        role="option" tabindex="0"><i class="fa fa-history"></i>Eskidan yangiga</li>
         <li class="sct-sort-opt"                      data-value="price_asc"     role="option" tabindex="0"><i class="fa fa-sort-amount-asc"></i>Arzondan qimmatga</li>
         <li class="sct-sort-opt"                      data-value="price_desc"    role="option" tabindex="0"><i class="fa fa-sort-amount-desc"></i>Qimmatdan arzonga</li>
+        <li class="sct-sort-opt"                      data-value="bestseller"    role="option" tabindex="0"><i class="fa fa-star"></i>Ko‘p sotilgan</li>
       </ul>
     </div>
   </div>
@@ -263,21 +261,7 @@
   </footer>
 
 
-  <script src="js/jquery-3.3.1.min.js"></script>
-  <script src="js/bootstrap.min.js"></script>
-  <script src="js/jquery.slicknav.js"></script>
-  <script src="js/main.js"></script>
-  <script src="js/product-rules.js"></script>
-  <script src="js/helpers.js"></script>
-  <script src="js/search-engine.js"></script>
-  <script src="js/store.js"></script>
-  <script src="js/marketplace-upgrade.js"></script>
-
-  <script src="js/shared-header-init.js"></script>
-  <script src="js/shop-products.js"></script>
-  <script src="js/shop-toolbar.js"></script>
-  <script src="js/header-account.js"></script>
-<script src="js/dodola-ui.js"></script></body></html>
+  <script src="/js/storefront-catalog.bundle.js"></script></body></html>
 
 
 

@@ -196,6 +196,7 @@
       if (typeof alert === 'function') alert(result.error);
       return;
     }
+    if (next > current) window.DodolaAnalytics?.track('add_to_cart', item.productId);
     renderCardControl(host);
   });
   document.addEventListener('mb:cart-updated', renderCardControls);

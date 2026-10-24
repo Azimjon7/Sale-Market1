@@ -70,7 +70,7 @@
       const rows = products.slice(0, 6);
       box.innerHTML = rows.length ? rows.map(product => {
         const price = Number(product.price || 0).toLocaleString('uz-UZ');
-        return `<a role="option" href="product-details.html?id=${encodeURIComponent(product.id)}"><span><strong>${MBHelpers.escapeHtml(product.name || 'Mahsulot')}</strong><small>${MBHelpers.escapeHtml(product.category || '')}</small></span><b>${price} so‘m</b></a>`;
+        return `<a role="option" href="/p/${encodeURIComponent(product.id)}"><span><strong>${MBHelpers.escapeHtml(product.name || 'Mahsulot')}</strong><small>${MBHelpers.escapeHtml(product.category || '')}</small></span><b>${price} so‘m</b></a>`;
       }).join('') : `<div class="catalog-suggestions__empty">“${MBHelpers.escapeHtml(query)}” bo‘yicha taklif topilmadi</div>`;
       box.hidden = false;
       input.setAttribute('aria-expanded', 'true');

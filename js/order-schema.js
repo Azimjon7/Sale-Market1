@@ -300,6 +300,7 @@ function rejectOrder(order, reason, changedBy) {
   updatedOrder.status = OrderStatus.REJECTED;
   updatedOrder.rejectedAt = now;
   updatedOrder.rejectionReason = reason.slice(0, 500); // Max 500 chars
+  if (updatedOrder.paymentCollectedAt === undefined) updatedOrder.paymentCollectedAt = null;
   updatedOrder.updatedAt = now;
   
   // Record in history

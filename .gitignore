@@ -40,6 +40,7 @@ blob-report/
 Source/
 
 # Generated QA evidence stays local and is not part of deployment.
+artifacts/
 artifacts/catalog-quality/
 artifacts/catalog-responsive-release/
 artifacts/production-fix/

@@ -12,6 +12,7 @@ const jwt = require("jsonwebtoken");
 const express = require("express");
 const cors = require("cors");
 const helmet = require("helmet");
+const compression = require("compression");
 const rateLimit = require("express-rate-limit");
 const fs = require("fs");
 const multer = require("multer");
@@ -118,6 +119,8 @@ const IDENTIFIERS_FILE = path.join(DATA_DIR, "identifier-counters.json");
 const INVENTORY_STATE_FILE = path.join(DATA_DIR, "inventory-state.json");
 const CUSTOMERS_FILE = path.join(DATA_DIR, 'customers.json');
 const CUSTOMER_SESSIONS_FILE = path.join(DATA_DIR, 'customer-sessions.json');
+const PUBLIC_SITE_URL = String((options.env || process.env).PUBLIC_SITE_URL || 'https://dodola.uz').replace(/\/+$/, '');
+const PRODUCT_PAGE_TEMPLATE = fs.readFileSync(path.join(__dirname, 'product-details.html'), 'utf8');
 const AUTH_TOKENS_FILE = path.join(DATA_DIR, 'auth-tokens.json');
 
 const DEFAULT_CATEGORIES = [
@@ -187,6 +190,7 @@ const MAX_UPLOAD_SIZE = 10 * 1024 * 1024;
 
 // ── Security & body-parsing middleware (order matters) ───────────────────────
 app.use(helmet({ contentSecurityPolicy: false }));
+app.use(compression({ threshold: 1024 }));
 
 // Railway terminates HTTPS at its proxy. Trust exactly that first proxy so
 // secure customer session cookies and rate-limit client IPs work correctly.
@@ -269,6 +273,24 @@ app.get('/api/health', async (req, res) => {
     });
   } catch (error) {
     res.status(503).json({ ok: false, code: 'DEPENDENCY_UNAVAILABLE' });
+  }
+});
+
+const storefrontEventLimiter = rateLimit({ windowMs: 60 * 1000, max: 90, standardHeaders: true, legacyHeaders: false });
+const STOREFRONT_EVENTS = new Set(['page_view', 'view_item', 'search', 'add_to_cart', 'begin_checkout', 'submit_order']);
+app.post('/api/analytics/events', storefrontEventLimiter, async (req, res, next) => {
+  try {
+    const eventName = String(req.body?.event || '').trim();
+    const subjectId = String(req.body?.subjectId || '').trim().slice(0, 120);
+    if (!STOREFRONT_EVENTS.has(eventName) || !/^[\w./:-]{0,120}$/.test(subjectId)) return res.sendStatus(400);
+    if (postgresPool) await postgresPool.query(`INSERT INTO storefront_events_daily (event_day,event_name,subject_id,event_count,updated_at)
+      VALUES (CURRENT_DATE,$1,$2,1,now()) ON CONFLICT (event_day,event_name,subject_id)
+      DO UPDATE SET event_count=storefront_events_daily.event_count+1,updated_at=now()`, [eventName, subjectId]);
+    res.sendStatus(204);
+  } catch (error) {
+    // Analytics must never interrupt shopping while a new additive migration is pending.
+    if (error.code === '42P01') return res.sendStatus(204);
+    next(error);
   }
 });
 
@@ -697,6 +719,15 @@ const customerAuth = installCustomerAuth(app, { dataDir: DATA_DIR, customersFile
 
 // Backwards-compatible alias — delegates to the reusable middleware module.
 const verifyAdmin = verifyAdminToken;
+app.get('/api/analytics/summary', verifyAdmin, async (req, res, next) => {
+  try {
+    if (!postgresPool) return res.json({ days: [] });
+    const rows = await postgresPool.query(`SELECT event_day,event_name,subject_id,event_count
+      FROM storefront_events_daily WHERE event_day >= CURRENT_DATE - INTERVAL '30 days'
+      ORDER BY event_day DESC,event_name,subject_id LIMIT 5000`);
+    res.json({ days: rows.rows });
+  } catch (error) { if (error.code === '42P01') return res.json({ days: [] }); next(error); }
+});
 const payments = installPayments(app, { pool: postgresPool, env: options.env || process.env, auth: customerAuth, verifyAdmin, publicWrites: PUBLIC_WRITES_ENABLED, fetcher: options.paymentFetch,
   readOrder: id => postgresOrderRead ? postgresOrderRead.findById(id) : readJson(ORDERS_FILE).find(o=>o.id===id) });
 app.get('/api/checkout/delivery', (req,res) => res.json({city:'tashkent-city',districts:commerce.DISTRICTS,fee:0}));
@@ -747,6 +778,26 @@ async function sortProducts(products, sort) {
       return [...products].sort(
         (a, b) => (counts[b.id] || 0) - (counts[a.id] || 0) || cmp(a, b)
       );
+    }
+    case "bestseller":
+    case "most-sold":
+    case "most_sold": {
+      const counts = {};
+      if (postgresPool) {
+        const rows = (await postgresPool.query(`SELECT coalesce(oi.source_product_id,oi.product_id) AS product_id,sum(oi.quantity)::bigint AS value
+          FROM order_items oi JOIN orders o ON o.id=oi.order_id WHERE o.status='delivered'
+          GROUP BY coalesce(oi.source_product_id,oi.product_id)`)).rows;
+        rows.forEach(row => { counts[String(row.product_id)] = Number(row.value); });
+      } else {
+        readJson(ORDERS_FILE, []).filter(order => order.status === 'delivered').forEach(order => {
+          (order.items || []).forEach(item => {
+            const id = String(item.productId || item.id || '');
+            if (id) counts[id] = (counts[id] || 0) + Math.max(0, Number(item.qty || item.quantity) || 0);
+          });
+        });
+      }
+      return [...products].sort((a, b) => (counts[b.id] || 0) - (counts[a.id] || 0)
+        || (new Date(b.createdAt || 0) - new Date(a.createdAt || 0)) || cmp(a, b));
     }
     case "oldest":
       return [...products].sort(
@@ -1296,21 +1347,36 @@ app.get("/api/reviews", async (req, res, next) => {
   } catch (error) { next(error); }
 });
 
-app.post("/api/reviews", async (req, res, next) => {
+app.post("/api/reviews", customerAuth.requireCustomer, customerAuth.csrf, async (req, res, next) => {
   try {
   const productId = sanitizeText(req.body.productId, 80);
-  const name = sanitizeText(req.body.name, 80);
   const rating = clampNumber(req.body.rating, 1, 5, 5);
   const review = sanitizeMultiline(req.body.review, 800);
 
-  if (!productId || !name || !review) {
+  if (!productId || !review) {
     return res.status(400).json({ message: "Sharh uchun ma'lumot yetarli emas" });
   }
 
+  const customer = req.customer;
+  const customerOrders = postgresCustomers
+    ? await postgresCustomers.listOrders(customer.id)
+    : readJson(ORDERS_FILE).filter(order => order.customerId === customer.id);
+  const verifiedPurchase = customerOrders.some(order =>
+    order.status === 'delivered' && Array.isArray(order.items) &&
+    order.items.some(item => String(item.productId || item.id) === String(productId))
+  );
+  if (!verifiedPurchase) {
+    return res.status(403).json({ message: 'Sharhni faqat yetkazilgan buyurtma egasi yozishi mumkin.' });
+  }
+
+  const existing = postgresReviews ? await postgresReviews.list(productId) : readJson(REVIEWS_FILE, []);
+  if (existing.some(item => item.customerId === customer.id)) {
+    return res.status(409).json({ message: 'Bu mahsulotga avval sharh qoldirgansiz.' });
+  }
+  const name = `${customer.firstName || ''} ${customer.lastName || ''}`.trim() || 'Dodola xaridori';
+
   if (postgresReviews) {
-    const customer = req.session && req.session.customerId ? await postgresCustomers.findById(req.session.customerId) : null;
-    const item = await postgresReviews.create({ productId, name: customer ? `${customer.firstName} ${customer.lastName}`.trim() : name,
-      rating, review, customerId: customer ? customer.id : null });
+    const item = await postgresReviews.create({ productId, name, rating, review, customerId: customer.id, verifiedPurchase: true });
     if (!item) return res.status(404).json({ message: "Mahsulot topilmadi" });
     return res.json({ success: true, review: item });
   }
@@ -1327,6 +1393,8 @@ app.post("/api/reviews", async (req, res, next) => {
     name,
     rating,
     review,
+    customerId: customer.id,
+    verifiedPurchase: true,
     createdAt: new Date().toISOString(),
   };
 
@@ -2016,6 +2084,80 @@ app.post("/api/orders", orderUpload, async (req, res, next) => {
     }
     next(error);
   }
+});
+
+function seoEscape(value) {
+  return String(value == null ? '' : value)
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+}
+
+function absolutePublicUrl(value) {
+  const raw = String(value || '').trim();
+  if (!raw) return `${PUBLIC_SITE_URL}/img/logo.png`;
+  if (/^https:\/\//i.test(raw)) return raw;
+  return `${PUBLIC_SITE_URL}/${raw.replace(/^\//, '')}`;
+}
+
+function seoDate(value) {
+  const date = value ? new Date(value) : null;
+  return date && Number.isFinite(date.getTime()) ? date.toISOString().slice(0, 10) : '';
+}
+
+app.get('/robots.txt', (req, res) => {
+  res.type('text/plain').set('Cache-Control', 'public, max-age=3600');
+  res.send(`User-agent: *\nAllow: /\nDisallow: /admin.html\nDisallow: /api/\nSitemap: ${PUBLIC_SITE_URL}/sitemap.xml\n`);
+});
+
+app.get('/site.webmanifest', (req, res) => {
+  res.type('application/manifest+json').set('Cache-Control', 'public, max-age=86400');
+  res.json({
+    name: 'Dodola', short_name: 'Dodola', lang: 'uz', start_url: '/', display: 'standalone',
+    background_color: '#fcfaf7', theme_color: '#7b42ad',
+    icons: [{ src: '/img/logo.png', sizes: '512x512', type: 'image/png', purpose: 'any maskable' }],
+  });
+});
+
+app.get('/favicon.ico', (req, res) => res.redirect(302, '/img/logo.png'));
+
+app.get('/sitemap.xml', async (req, res, next) => {
+  try {
+    const products = postgresCatalog ? await postgresCatalog.listProducts() : loadProductsCached();
+    const fixed = ['', '/shop.html', '/contact.html', '/returns.html', '/privacy.html', '/terms.html'];
+    const urls = [
+      ...fixed.map(location => ({ location: `${PUBLIC_SITE_URL}${location || '/'}`, priority: location ? '0.7' : '1.0' })),
+      ...products.map(product => ({
+        location: `${PUBLIC_SITE_URL}/p/${encodeURIComponent(product.id)}`,
+        priority: '0.8',
+        modified: product.updatedAt || product.createdAt || null,
+      })),
+    ];
+    const xml = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls.map(item => { const modified = seoDate(item.modified); return `  <url><loc>${seoEscape(item.location)}</loc>${modified ? `<lastmod>${modified}</lastmod>` : ''}<priority>${item.priority}</priority></url>`; }).join('\n')}\n</urlset>`;
+    res.type('application/xml').set('Cache-Control', 'public, max-age=3600, stale-while-revalidate=86400').send(xml);
+  } catch (error) { next(error); }
+});
+
+app.get('/p/:id', async (req, res, next) => {
+  try {
+    const source = postgresCatalog ? await postgresCatalog.getProduct(req.params.id) : loadProductsCached().find(item => String(item.id) === String(req.params.id));
+    if (!source) return res.status(404).send('Mahsulot topilmadi');
+    const product = productWithPublicAssets(source);
+    const description = productRules.cleanDescription(product.desc || product.description || '') || `${product.name} — Dodola katalogidagi mahsulot.`;
+    const canonical = `${PUBLIC_SITE_URL}/p/${encodeURIComponent(product.id)}`;
+    const image = absolutePublicUrl(product.image || product.images?.[0]);
+    const structured = JSON.stringify({
+      '@context': 'https://schema.org', '@type': 'Product', name: product.name,
+      description, sku: product.sku || product.id, image: (product.images?.length ? product.images : [product.image]).filter(Boolean).map(absolutePublicUrl),
+      category: product.category || undefined,
+      offers: { '@type': 'Offer', url: canonical, priceCurrency: 'UZS', price: Number(product.price),
+        availability: productRules.availability(product).purchasable ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock' },
+    }).replace(/</g, '\\u003c');
+    const metadata = `<link rel="canonical" href="${seoEscape(canonical)}"><meta property="og:type" content="product"><meta property="og:site_name" content="Dodola"><meta property="og:title" content="${seoEscape(product.name)}"><meta property="og:description" content="${seoEscape(description)}"><meta property="og:url" content="${seoEscape(canonical)}"><meta property="og:image" content="${seoEscape(image)}"><meta property="product:price:amount" content="${seoEscape(product.price)}"><meta property="product:price:currency" content="UZS"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="${seoEscape(product.name)}"><meta name="twitter:description" content="${seoEscape(description)}"><meta name="twitter:image" content="${seoEscape(image)}"><script type="application/ld+json">${structured}</script><script>window.DODOLA_PRODUCT_ID=${JSON.stringify(String(product.id)).replace(/</g, '\\u003c')};</script>`;
+    const html = PRODUCT_PAGE_TEMPLATE
+      .replace(/<title>[^<]*<\/title>/i, `<title>${seoEscape(product.name)} — Dodola</title>${metadata}`)
+      .replace(/<meta name="description" content="[^"]*"\s*\/>/i, `<meta name="description" content="${seoEscape(description)}" />`);
+    res.set('Cache-Control', 'public, max-age=60, stale-while-revalidate=300').send(html);
+  } catch (error) { next(error); }
 });
 
 app.get("/", (req, res) => {

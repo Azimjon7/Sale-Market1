@@ -112,6 +112,7 @@ tanlov.|выбор.
 Uslubingizga mos kiyimlar.|Одежда в вашем стиле.
 Hayotingizga yaqin detallar.|Детали для вашей жизни.
 Katalogni kashf eting|Открыть каталог
+O‘zingizga mosini toping.|Найдите то, что подходит именно вам.
 Siz tanlaysiz. Biz mavjudligini tasdiqlaymiz.|Вы выбираете. Мы подтверждаем наличие.
 Kategoriyalarni ochish|Открыть категории
 Yaxshi tanlov|Хороший выбор
@@ -259,6 +260,11 @@ Katalogni ko‘rish →|Посмотреть каталог →
 Katalogga o‘tish →|Перейти в каталог →
 Tanlovingizni tekshiring va buyurtmani tasdiqqa yuboring.|Проверьте выбор и отправьте заказ на подтверждение.
 Buyurtmani kuzatish|Отследить заказ
+Buyurtmani kuzatish ↗|Отследить заказ ↗
+Ma’lumot|Информация
+Qaytarish va almashtirish|Возврат и обмен
+Maxfiylik|Конфиденциальность
+Xarid shartlari|Условия покупки
 Buyurtmani tekshirish|Проверить заказ
 Buyurtma raqami|Номер заказа
 Maxfiy kuzatuv kaliti|Секретный ключ отслеживания
@@ -519,6 +525,7 @@ Eski ↑|Старые ↑
 Narx ↑|Цена ↑
 Narx ↓|Цена ↓
 Mashhur|Популярные
+Ko‘p sotilgan|Хиты продаж
 Mahsulot nomi, rang, razmer...|Название, цвет, размер…
 Narx oralig‘i (so‘m)|Диапазон цен (сум)
 Min narx|Мин. цена
@@ -580,7 +587,7 @@ Buyurtma summasi musbat bo‘lishi kerak.|Сумма заказа должна �
  function element(el){if(el.closest(protectedSelector))return;if(el.tagName==='OPTION'&&!el.hasAttribute('value'))el.setAttribute('value',el.value);let records=attrs.get(el)||{};for(const a of ['placeholder','aria-label','title']){const value=el.getAttribute(a);if(value==null)continue;let r=records[a];if(!r||value!==r.rendered)r={source:value};r.rendered=t(r.source);records[a]=r;if(value!==r.rendered)el.setAttribute(a,r.rendered);}attrs.set(el,records);}
  function render(root=document.body){observer?.disconnect();if(root.nodeType===3)textNode(root);else{if(root.nodeType===1)element(root);const walker=document.createTreeWalker(root,NodeFilter.SHOW_TEXT|NodeFilter.SHOW_ELEMENT);let n;while(n=walker.nextNode())n.nodeType===3?textNode(n):element(n);}const title=document.querySelector('title')?.firstChild;if(title)textNode(title);document.documentElement.lang=lang;document.querySelectorAll('[data-language-select]').forEach(s=>s.value=lang);observer?.observe(document.body,{subtree:true,childList:true,characterData:true,attributes:true,attributeFilter:['placeholder','aria-label','title']});}
  let observer=null,queued=false;const pending=new Set();
- function setLanguage(value){lang=value==='ru'?'ru':'uz';try{localStorage.setItem('dodola_language',lang);document.cookie='dodola_language='+lang+'; Path=/; Max-Age=31536000; SameSite=Lax';}catch{}render();document.dispatchEvent(new CustomEvent('dodola:language',{detail:{language:lang}}));}
+ function setLanguage(value){lang=value==='ru'?'ru':'uz';document.documentElement.dataset.language=lang;try{localStorage.setItem('dodola_language',lang);document.cookie='dodola_language='+lang+'; Path=/; Max-Age=31536000; SameSite=Lax';}catch{}render();document.documentElement.classList.remove('dodola-i18n-pending');document.dispatchEvent(new CustomEvent('dodola:language',{detail:{language:lang}}));}
  function languageControl(compact=false){const label=document.createElement('label');label.className='dodola-language';label.innerHTML='<span class="language-label">Til</span><select data-language-select aria-label="Tilni tanlang"><option value="uz">'+(compact?'UZ':'O‘zbekcha')+'</option><option value="ru">'+(compact?'RU':'Русский')+'</option></select>';label.querySelector('select').value=lang;label.querySelector('select').addEventListener('change',e=>{const next=e.target.value==='ru'?'ru':'uz',changed=next!==lang;setLanguage(next);if(changed&&document.querySelector('#shop-grid,#new-products,#favoritesGrid,#productDetailApp'))location.reload();});return label;}
  function boot(){document.querySelector('.dodola-header__inner')?.append(languageControl(true));document.querySelectorAll('[data-language-slot]').forEach(slot=>slot.append(languageControl()));
   observer=new MutationObserver(records=>{for(const r of records){if(r.type==='childList')r.addedNodes.forEach(n=>pending.add(n));else pending.add(r.target);}if(!queued){queued=true;requestAnimationFrame(()=>{queued=false;const roots=[...pending];pending.clear();roots.filter(n=>n.isConnected).forEach(n=>render(n));});}});setLanguage(lang);

@@ -1,7 +1,15 @@
 (function(){'use strict';
  window.DodolaConfig=Object.freeze({support:Object.freeze({telegram:'https://t.me/DodolaSupportBot',phone:'+998990020015'})});
+ const analytics={track(event,subjectId=''){try{const body=JSON.stringify({event,subjectId:String(subjectId||'').slice(0,120)});if(navigator.sendBeacon){navigator.sendBeacon('/api/analytics/events',new Blob([body],{type:'application/json'}));return;}fetch('/api/analytics/events',{method:'POST',headers:{'Content-Type':'application/json'},body,keepalive:true}).catch(()=>{});}catch{}}};
+ window.DodolaAnalytics=analytics;
+ analytics.track('page_view',(location.pathname.split('/').pop()||'index.html').replace(/[^\w.:-]/g,''));
+ document.querySelectorAll('form[role="search"],.dodola-search').forEach(form=>form.addEventListener('submit',()=>{if(form.querySelector('input[type="search"],input[name="search"]')?.value.trim())analytics.track('search','catalog');}));
  document.querySelectorAll('a[href*="t.me/salemarket_uz"],a[href*="t.me/DodolaSupportBot"]').forEach(link=>{
   link.href=window.DodolaConfig.support.telegram;link.target='_blank';link.rel='noopener noreferrer';
+ });
+ document.querySelectorAll('.sm-footer__grid').forEach(grid=>{
+  if(grid.querySelector('[data-dodola-policies]'))return;
+  const info=document.createElement('div');info.dataset.dodolaPolicies='';info.innerHTML='<h6>Ma’lumot</h6><a href="/returns.html">Qaytarish va almashtirish</a><a href="/privacy.html">Maxfiylik</a><a href="/terms.html">Xarid shartlari</a>';grid.append(info);
  });
  // Shared customer-only shell, including pages without the legacy marketplace script.
  if(document.body.classList.contains('dodola')){

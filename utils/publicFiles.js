@@ -6,6 +6,7 @@ const pages = new Set(['index.html', 'admin.html', 'shop.html', 'shop-cart.html'
   'checkout.html', 'success.html', 'track-order.html', 'product-details.html',
   'contact.html', 'blog.html', 'blog-details.html', 'main.html', 'auth.html',
   'account.html', 'profile-settings.html', 'favorites.html', 'reset-password.html', 'payment.html']);
+pages.add('returns.html'); pages.add('privacy.html'); pages.add('terms.html');
 const scripts = new Set(['admin-upgrade.js', 'admin.js', 'bootstrap.min.js',
   'cart-page.js', 'checkout-page.js', 'helpers.js', 'hero-preview.js', 'home-luxe.js',
   'index-products.js', 'jquery-3.3.1.min.js', 'jquery-ui.min.js',
@@ -15,6 +16,7 @@ const scripts = new Set(['admin-upgrade.js', 'admin.js', 'bootstrap.min.js',
   'product-page.js', 'search-engine.js', 'shared-header-init.js', 'shop-products.js',
   'shop-toolbar.js', 'store.js', 'order-submit.js', 'product-rules.js', 'order-labels.js',
   'auth-page.js', 'account-page.js', 'header-account.js', 'checkout-v2.js', 'payment-page.js', 'commerce-profile.js', 'dodola-ui.js', 'dodola-orders.js', 'dodola-i18n.js', 'dodola-theme.js', 'profile-settings.js', 'favorites.js']);
+['storefront-home.bundle.js','storefront-catalog.bundle.js','storefront-cart.bundle.js','storefront-checkout.bundle.js'].forEach(file => scripts.add(file));
 const imageExtension = /\.(?:png|jpe?g|webp|gif|avif|svg|ico)$/i;
 
 function safeFile(root, relative) {
@@ -43,7 +45,7 @@ function publicFiles({ root, uploadsDir, getProducts, isPublicUpload, objectStor
     const isStaticImage = relative.startsWith('img/') && imageExtension.test(relative);
     if (pages.has(relative) ||
         (relative.startsWith('js/') && scripts.has(relative.slice(3))) ||
-        (/^css\/[\w-]+(?:\.min)?\.css$/.test(relative)) ||
+        (/^css\/[\w-]+(?:\.(?:min|bundle))?\.css$/.test(relative)) ||
         (/^fonts\//.test(relative) && /\.(?:woff2?|ttf|eot|otf|svg)$/i.test(relative)) ||
         isStaticImage) {
       if (isStaticImage && relative !== 'img/placeholders/dodola-product.svg' && objectStorage) {
@@ -64,7 +66,16 @@ function publicFiles({ root, uploadsDir, getProducts, isPublicUpload, objectStor
       if (referenced) file = safeFile(uploadsDir, relative.slice(8));
     }
     if (!file) return next();
-    res.sendFile(path.basename(file), { root: path.dirname(file), dotfiles: 'deny', headers: { 'X-Content-Type-Options': 'nosniff' } });
+    const longLivedAsset = /^(?:fonts|img)\//.test(relative);
+    const headers = {
+      'X-Content-Type-Options': 'nosniff',
+      'Cache-Control': longLivedAsset
+        ? 'public, max-age=3600, stale-while-revalidate=86400'
+        : /^(?:css|js)\//.test(relative)
+          ? 'public, max-age=300, stale-while-revalidate=3600'
+          : 'no-cache, must-revalidate',
+    };
+    res.sendFile(path.basename(file), { root: path.dirname(file), dotfiles: 'deny', headers });
     } catch (error) { next(error); }
   };
 }

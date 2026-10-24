@@ -629,8 +629,10 @@ body.dodola .site-btn--ghost { background:var(--d-soft)!important; color:var(--d
  .returns-help { margin:16px 12px; padding:18px; }
 }
 @media(max-width:760px){
- body.dodola.checkout-page:has(#mb-bottom-nav){padding-bottom:calc(154px + env(safe-area-inset-bottom,0px))!important}
- body.dodola.checkout-page.checkout-editing:has(#mb-bottom-nav),body.dodola.checkout-page:has(#checkoutEmpty){padding-bottom:calc(58px + env(safe-area-inset-bottom,0px))!important}
+ body.dodola.checkout-page #mb-bottom-nav{display:none!important}
+ body.dodola.checkout-page:has(#mb-bottom-nav){padding-bottom:calc(94px + env(safe-area-inset-bottom,0px))!important}
+ body.dodola.checkout-page .checkout-submit{bottom:0!important}
+ body.dodola.checkout-page.checkout-editing:has(#mb-bottom-nav),body.dodola.checkout-page:has(#checkoutEmpty){padding-bottom:calc(16px + env(safe-area-inset-bottom,0px))!important}
 }
 /* The legacy filter toolbar reads its own palette variables. Bind those to
    the approved luxury tokens so later legacy rules cannot restore green. */

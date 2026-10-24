@@ -4,18 +4,9 @@
   <meta charset="UTF-8" />
   <meta name="description" content="Dodola — mahsulot tafsilotlari, narx va xususiyatlar" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <link rel="manifest" href="/site.webmanifest">
+  <link rel="apple-touch-icon" href="/img/logo.png">
   <title>Dodola | Mahsulot</title>
-
-  <link rel="stylesheet" href="css/design-system.css" type="text/css">
-  <link rel="stylesheet" href="css/components.css" type="text/css">
-  <link rel="stylesheet" href="css/bootstrap.min.css" type="text/css">
-  <link rel="stylesheet" href="css/font-awesome.min.css" type="text/css">
-  <link rel="stylesheet" href="css/elegant-icons.css" type="text/css">
-  <link rel="stylesheet" href="css/style.css" type="text/css">
-  <link rel="stylesheet" href="css/marketplace-upgrade.css" type="text/css">
-  <link rel="stylesheet" href="css/mobile-premium.css" type="text/css">
-  <link rel="stylesheet" href="css/shared-header.css" type="text/css">
-  <link rel="stylesheet" href="css/mobile-320-480-fix.css" type="text/css">
 
   <style>
     :root {
@@ -113,6 +104,24 @@
     .pd-feature-list li { position:relative; color:var(--text); font-size:15px; line-height:1.55; padding-left:18px; }
     .pd-feature-list li:before { content:""; position:absolute; left:0; top:0.68em; width:6px; height:6px; border-radius:50%; background:var(--accent); box-shadow:0 0 0 3px rgba(184,134,70,0.12); }
 
+    .pd-reviews-head { display:flex; align-items:flex-end; justify-content:space-between; gap:18px; margin-bottom:18px; }
+    .pd-review-score { display:flex; align-items:center; gap:10px; color:var(--muted); }
+    .pd-review-score strong { color:var(--text); font-size:26px; }
+    .pd-review-stars { color:#8b54bd; letter-spacing:2px; }
+    .pd-review-list { display:grid; gap:12px; }
+    .pd-review { border:1px solid var(--border); border-radius:14px; padding:15px 16px; background:var(--surface); }
+    .pd-review__top { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:8px; }
+    .pd-review__name { color:var(--text); font-weight:800; }
+    .pd-review__verified { color:var(--success); font-size:11px; font-weight:700; }
+    .pd-review p { color:var(--muted); margin:8px 0 0; line-height:1.65; }
+    .pd-review-form { display:grid; gap:12px; margin-top:18px; padding-top:18px; border-top:1px solid var(--border); }
+    .pd-review-form label { color:var(--text); font-weight:700; }
+    .pd-review-form select,.pd-review-form textarea { width:100%; margin-top:6px; min-height:46px; border:1px solid var(--border); border-radius:12px; padding:11px 12px; background:var(--surface); color:var(--text); }
+    .pd-review-form textarea { min-height:100px; resize:vertical; }
+    .pd-review-form button { width:max-content; min-height:46px; border:0; border-radius:999px; padding:11px 20px; background:var(--accent); color:#fff; font-weight:800; }
+    .pd-review-empty,.pd-review-gate { color:var(--muted); margin:0; }
+    .pd-review-gate a { color:var(--accent); font-weight:800; }
+
 
 
     @media (max-width: 991px) {
@@ -153,10 +162,7 @@
       .pd-cat-chip        { display: none !important; }
       .pd-meta-rows       { display: none !important; }
     }
-  </style>
-  <link rel="stylesheet" href="css/live-upgrade-fixes.css" type="text/css">
-  <link rel="stylesheet" href="css/customer-navigation.css" type="text/css">
-<link rel="stylesheet" href="css/dodola-tokens.css"><link rel="stylesheet" href="css/dodola-customer.css"><link rel="stylesheet" href="css/dodola-marketplace.css"><meta name="theme-color" content="#fcfaf7"><link rel="stylesheet" href="css/dodola-theme.css"><script src="js/dodola-theme.js"></script></head>
+  </style><meta name="theme-color" content="#fcfaf7"><link rel="stylesheet" href="/css/storefront-product.bundle.css"><script src="js/dodola-theme.js"></script></head>
 <body class="market-body dodola">
   <a class="dodola-skip" href="#dodola-content">Asosiy mazmunga o‘tish</a><header class="dodola-header"><div class="dodola-header__inner"><a class="dodola-logo" href="index.html" aria-label="Dodola — bosh sahifa">Dodola<span>·</span></a><form class="dodola-search" action="shop.html" method="get" role="search"><input type="search" name="search" placeholder="Nima izlayapsiz?" aria-label="Mahsulotlarni qidirish"><button aria-label="Qidirish" type="submit">⌕</button></form><nav aria-label="Do‘kon bo‘limlari"><a data-nav-page="shop" href="shop.html">Katalog</a><a data-nav-page="shop-cart" href="shop-cart.html"><span class="nav-label">Savat</span> <span class="js-cart-count">0</span></a><a data-nav-page="account" href="account.html">Profilim</a></nav></div></header>
 
@@ -211,6 +217,7 @@
   <script src="js/store.js"></script>
   <script src="js/marketplace-upgrade.js"></script>
   <script src="js/shared-header-init.js"></script>
+  <script src="js/dodola-ui.js"></script>
   <script>
     function getQueryParam(name) {
       const urlParams = new URLSearchParams(window.location.search);
@@ -328,11 +335,63 @@
       return `<p class="pd-about-text">${escapeHtml(compactText)}</p>`;
     }
 
-    /* Reviews section removed — these stubs prevent errors if any
-       external code still references these functions. */
-    function updateRatingRow() {}
-    async function initReviews() {}
-    async function loadReviews() {}
+    function reviewerName(value) {
+      const parts = String(value || 'Dodola xaridori').trim().split(/\s+/);
+      return parts.length > 1 ? `${parts[0]} ${parts[1].slice(0, 1)}.` : parts[0];
+    }
+
+    function reviewMarkup(item) {
+      return `<article class="pd-review">
+        <div class="pd-review__top"><div><span class="pd-review__name">${escapeHtml(reviewerName(item.name))}</span>${item.verifiedPurchase ? ' <span class="pd-review__verified">✓ Tasdiqlangan xarid</span>' : ''}</div><span class="pd-review-stars" aria-label="${Number(item.rating || 0)} yulduz">${renderStars(item.rating)}</span></div>
+        <p>${escapeHtml(item.review || '')}</p>
+      </article>`;
+    }
+
+    async function loadReviews(productId) {
+      const list = document.getElementById('pdReviewList');
+      const score = document.getElementById('pdReviewScore');
+      if (!list) return;
+      try {
+        const response = await fetch(`/api/reviews?productId=${encodeURIComponent(productId)}`, { credentials: 'same-origin' });
+        if (!response.ok) throw new Error('Sharhlar yuklanmadi');
+        const reviews = await response.json();
+        const average = reviews.length ? reviews.reduce((sum, item) => sum + Number(item.rating || 0), 0) / reviews.length : 0;
+        if (score) score.innerHTML = reviews.length ? `<strong>${average.toFixed(1)}</strong><span class="pd-review-stars">${renderStars(average)}</span><span>${reviews.length} ta sharh</span>` : '<span>Hozircha sharh yo‘q</span>';
+        list.innerHTML = reviews.length ? reviews.map(reviewMarkup).join('') : '<p class="pd-review-empty">Bu mahsulot uchun birinchi tasdiqlangan sharhni qoldiring.</p>';
+      } catch {
+        list.innerHTML = '<p class="pd-review-empty">Sharhlarni yuklab bo‘lmadi. Keyinroq qayta urinib ko‘ring.</p>';
+      }
+    }
+
+    async function initReviews(product) {
+      const section = document.createElement('section');
+      section.className = 'pd-section';
+      section.id = 'productReviews';
+      section.innerHTML = `<div class="pd-reviews-head"><h2 class="pd-section-title">Xaridorlar sharhlari</h2><div class="pd-review-score" id="pdReviewScore">Yuklanmoqda…</div></div><div class="pd-review-list" id="pdReviewList"></div><div id="pdReviewAction"></div>`;
+      document.getElementById('productDetailApp')?.append(section);
+      await loadReviews(product.id);
+      const action = document.getElementById('pdReviewAction');
+      try {
+        const sessionResponse = await fetch('/api/auth/session', { credentials: 'same-origin' });
+        const session = await sessionResponse.json();
+        if (!sessionResponse.ok || !session.customer) throw new Error('LOGIN_REQUIRED');
+        action.innerHTML = `<form class="pd-review-form" id="pdReviewForm"><label>Baho<select name="rating"><option value="5">5 — A’lo</option><option value="4">4 — Yaxshi</option><option value="3">3 — O‘rtacha</option><option value="2">2 — Qoniqarsiz</option><option value="1">1 — Yomon</option></select></label><label>Sharhingiz<textarea name="review" required minlength="8" maxlength="800" placeholder="Mahsulot haqidagi haqiqiy tajribangizni yozing"></textarea></label><button type="submit">Sharhni yuborish</button><p class="pd-review-gate" id="pdReviewMessage">Faqat yetkazilgan buyurtma egasi sharh yozishi mumkin.</p></form>`;
+        document.getElementById('pdReviewForm').addEventListener('submit', async event => {
+          event.preventDefault();
+          const form = event.currentTarget, button = form.querySelector('button'), message = document.getElementById('pdReviewMessage');
+          button.disabled = true;
+          try {
+            const payload = Object.fromEntries(new FormData(form)); payload.productId = product.id;
+            const response = await fetch('/api/reviews', { method:'POST', credentials:'same-origin', headers:{ 'Content-Type':'application/json', 'X-CSRF-Token':session.csrfToken }, body:JSON.stringify(payload) });
+            const data = await response.json(); if (!response.ok) throw new Error(data.message || 'Sharh yuborilmadi.');
+            form.reset(); message.textContent = 'Sharhingiz qabul qilindi.'; await loadReviews(product.id);
+          } catch (error) { message.textContent = error.message; }
+          finally { button.disabled = false; }
+        });
+      } catch {
+        action.innerHTML = '<p class="pd-review-gate"><a href="/auth.html">Hisobga kiring</a> va yetkazilgan xaridingiz haqida sharh qoldiring.</p>';
+      }
+    }
 
     function makeChips(items, group) {
   const list = Array.isArray(items) ? items : [];
@@ -388,6 +447,7 @@ function createChipList(items, group) {
         document.getElementById("pdMessage").textContent = result.error;
         return false;
       }
+      window.DodolaAnalytics?.track('add_to_cart', String(product.id));
       document.getElementById("pdMessage").textContent = "Mahsulot savatga qo'shildi.";
       syncDetailCartState(product);
       return true;
@@ -683,6 +743,7 @@ function createChipList(items, group) {
         buyNow(product);
       });
 
+      initReviews(product);
       loadRelatedProducts(product);
     }
 
@@ -735,7 +796,7 @@ function createChipList(items, group) {
             ${relatedDiscount.visible ? `<div style="text-decoration:line-through;color:var(--muted)">${formatPrice(relatedDiscount.oldPrice)}</div>` : ''}
           </div>
         `;
-        card.addEventListener('click', function(){ window.location.href = 'product-details.html?id=' + encodeURIComponent(p.id); });
+        card.addEventListener('click', function(){ window.location.href = '/p/' + encodeURIComponent(p.id); });
         inner.appendChild(card);
       });
     }
@@ -754,7 +815,7 @@ function createChipList(items, group) {
     }
 
 (async function initPage() {
-  const productId = getQueryParam("id");
+  const productId = window.DODOLA_PRODUCT_ID || getQueryParam("id");
   if (!productId) {
     renderNotFound();
     return;
@@ -775,10 +836,11 @@ function createChipList(items, group) {
   }
 
   renderProduct(product);
+  window.DodolaAnalytics?.track('view_item', String(product.id));
 })();
 </script>
   <script src="js/header-account.js"></script>
-<script src="js/dodola-ui.js"></script></body>
+</body>
 </html>
 
 

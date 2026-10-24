@@ -20,7 +20,8 @@ class PostgresReviewRepository {
     const id = input.id || `rev_${crypto.randomUUID()}`, createdAt = input.createdAt || new Date().toISOString();
     const exists = (await this.pool.query('SELECT 1 FROM products WHERE id=$1 AND deleted_at IS NULL', [input.productId])).rowCount > 0;
     if (!exists) return null;
-    const payload = { id, productId: input.productId, name: input.name, rating: input.rating, review: input.review, createdAt };
+    const payload = { id, productId: input.productId, name: input.name, rating: input.rating, review: input.review,
+      verifiedPurchase: input.verifiedPurchase === true, createdAt };
     const row = (await this.pool.query(`INSERT INTO reviews (id,product_id,source_product_id,customer_id,customer_name,rating,review_text,created_at,updated_at,legacy_payload)
       VALUES ($1,$2,$2,$3,$4,$5,$6,$7,$7,$8) RETURNING *`, [id, input.productId, input.customerId || null, input.name,
       input.rating, input.review, createdAt, json(payload)])).rows[0];
