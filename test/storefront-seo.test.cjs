@@ -21,6 +21,28 @@ test('public SEO routes expose canonical product metadata without exposing priva
     assert.match(product.text, /property="og:type" content="product"/);
     assert.match(product.text, /application\/ld\+json/);
     assert.match(product.text, /window\.DODOLA_PRODUCT_ID="p1"/);
+    // Nested canonical routes must load the same dependencies as the legacy page.
+    // A 200 HTML response alone previously missed eight /p/js/* 404s.
+    for (const route of ['/p/p1', '/product-details.html?id=p1']) {
+      const page = await request(ctx.app).get(route).expect(200);
+      const baseHref = page.text.match(/<base\s+href="([^"]+)"/i)?.[1];
+      assert.equal(baseHref, '/');
+      assert(page.text.indexOf('<base ') < page.text.indexOf('<script '));
+      const base = new URL(baseHref, `https://dodola.uz${route}`);
+      const scripts = [...page.text.matchAll(/<script\s+src="([^"]+)"/g)].map(m => new URL(m[1], base));
+      assert(scripts.some(url => url.pathname === '/js/helpers.js'));
+      assert(scripts.findIndex(url => url.pathname === '/js/product-rules.js') < scripts.findIndex(url => url.pathname === '/js/helpers.js'));
+      assert(scripts.findIndex(url => url.pathname === '/js/helpers.js') < scripts.findIndex(url => url.pathname === '/js/store.js'));
+      for (const script of scripts) {
+        const asset = await request(ctx.app).get(script.pathname).expect(200);
+        assert.match(asset.headers['content-type'], /javascript/);
+      }
+      assert.match(page.text, /window\.location\.pathname \+ window\.location\.search \+ '#dodola-content'/);
+      assert.match(page.text, /window\.location\.pathname\.match\(\/\^\\\/p\\\//);
+      assert.match(page.text, /MBHelpers dependency is unavailable/);
+      assert.match(page.text, /Product request timed out/);
+      assert.match(page.text, /renderLoadError\(\)/);
+    }
     await request(ctx.app).get('/p/does-not-exist').expect(404);
 
     for (const page of ['/returns.html', '/privacy.html', '/terms.html']) {

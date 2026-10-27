@@ -2,6 +2,9 @@
 <html lang="uz">
 <head>
   <meta charset="UTF-8" />
+  <!-- This template is served at both /p/:id and /product-details.html.
+       Resolve shared scripts, media and navigation from the storefront root. -->
+  <base href="/" />
   <meta name="description" content="Dodola — mahsulot tafsilotlari, narx va xususiyatlar" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <link rel="manifest" href="/site.webmanifest">
@@ -219,9 +222,28 @@
   <script src="js/shared-header-init.js"></script>
   <script src="js/dodola-ui.js"></script>
   <script>
+    // A root base also affects fragment links; keep the skip link on this product.
+    document.querySelector('.dodola-skip').href = window.location.pathname + window.location.search + '#dodola-content';
+
     function getQueryParam(name) {
       const urlParams = new URLSearchParams(window.location.search);
       return urlParams.get(name);
+    }
+
+    function getProductId() {
+      const injectedId = String(window.DODOLA_PRODUCT_ID || '').trim();
+      if (injectedId) return injectedId;
+
+      const queryId = String(getQueryParam('id') || '').trim();
+      if (queryId) return queryId;
+
+      const pathMatch = window.location.pathname.match(/^\/p\/([^/]+)\/?$/);
+      if (!pathMatch) return '';
+      try {
+        return decodeURIComponent(pathMatch[1]).trim();
+      } catch (_error) {
+        return '';
+      }
     }
 
     function goBackToSite() {
@@ -230,7 +252,7 @@
         return;
       }
 
-      let fallback = "index.html";
+      let fallback = "/index.html";
       if (document.referrer) {
         try {
           const refUrl = new URL(document.referrer);
@@ -488,7 +510,7 @@ function createChipList(items, group) {
 
     function buyNow(product) {
       if (addToCart(product)) {
-        window.location.href = "checkout.html";
+        window.location.href = "/checkout.html";
       }
     }
 
@@ -805,38 +827,66 @@ function createChipList(items, group) {
       document.getElementById("productDetailApp").innerHTML = `
         <div class="pd-error">
           Mahsulot topilmadi.<br><br>
-          <a href="shop.html">Dokonga qaytish</a>
+          <a href="/shop.html">Do'konga qaytish</a>
         </div>
       `;
     }
 
+    function renderLoadError() {
+      document.getElementById("productDetailApp").innerHTML = `
+        <div class="pd-error" role="alert">
+          Mahsulotni yuklab bo'lmadi. Sahifani yangilang yoki katalogga qayting.<br><br>
+          <button type="button" class="btn btn-primary" onclick="window.location.reload()">Qayta urinish</button>
+          <a href="/shop.html">Do'konga qaytish</a>
+        </div>
+      `;
+    }
+
+    function withTimeout(promise, timeoutMs) {
+      return new Promise(function(resolve, reject) {
+        const timer = window.setTimeout(function() {
+          reject(new Error('Product request timed out'));
+        }, timeoutMs);
+        Promise.resolve(promise).then(function(value) {
+          window.clearTimeout(timer);
+          resolve(value);
+        }, function(error) {
+          window.clearTimeout(timer);
+          reject(error);
+        });
+      });
+    }
+
     async function loadProductById(productId) {
-      return MBHelpers.loadProductById(productId);
+      if (!window.MBHelpers || typeof window.MBHelpers.loadProductById !== 'function') {
+        throw new Error('MBHelpers dependency is unavailable');
+      }
+      return withTimeout(window.MBHelpers.loadProductById(productId), 15000);
     }
 
 (async function initPage() {
-  const productId = window.DODOLA_PRODUCT_ID || getQueryParam("id");
-  if (!productId) {
-    renderNotFound();
-    return;
-  }
+  try {
+    const productId = getProductId();
+    if (!productId) {
+      renderNotFound();
+      return;
+    }
 
-  let product = await loadProductById(productId);
-  if (product && window.MBHelpers && typeof window.MBHelpers.normalizeProduct === "function") {
-    product = window.MBHelpers.normalizeProduct(product);
-  }
-  if (!product) {
-    document.getElementById("productDetailApp").innerHTML = `
-      <div class="pd-error">
-        Mahsulotni yuklashda xatolik bo'ldi.<br><br>
-        <a href="shop.html">Do'konga qaytish</a>
-      </div>
-    `;
-    return;
-  }
+    let product = await loadProductById(productId);
+    if (product && typeof window.MBHelpers.normalizeProduct === "function") {
+      product = window.MBHelpers.normalizeProduct(product);
+    }
+    if (!product) {
+      renderNotFound();
+      return;
+    }
 
-  renderProduct(product);
-  window.DodolaAnalytics?.track('view_item', String(product.id));
+    renderProduct(product);
+    window.DodolaAnalytics?.track('view_item', String(product.id));
+  } catch (error) {
+    console.error('Product detail initialization failed:', error);
+    renderLoadError();
+  }
 })();
 </script>
   <script src="js/header-account.js"></script>
