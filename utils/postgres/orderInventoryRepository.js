@@ -207,8 +207,11 @@ class PostgresOrderInventoryRepository {
     return withTransaction(this.pool, async client => {
       const order = (await client.query('SELECT id FROM orders WHERE id=$1 FOR UPDATE', [String(orderId)])).rows[0];
       if (!order) return { found: false, deleted: false };
-      const active = await client.query(`SELECT 1 FROM inventory_reservations WHERE order_id=$1 LIMIT 1`, [orderId]);
+      const active = await client.query(`SELECT 1 FROM inventory_reservations
+        WHERE order_id=$1 AND state IN ('reserved','committed') LIMIT 1`, [orderId]);
       if (active.rowCount) return { found: true, deleted: false };
+      await client.query(`DELETE FROM inventory_reservations
+        WHERE order_id=$1 AND state IN ('released','restored')`, [orderId]);
       await client.query('DELETE FROM orders WHERE id=$1', [orderId]);
       return { found: true, deleted: true };
     });

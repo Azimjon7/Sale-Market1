@@ -76,6 +76,7 @@ test('transactional repository prevents duplicate orders and double settlement',
     const input = { submissionToken: 'once-only', items: [{ productId: 'p1', name: 'Sinov', qty: 2, price: 1000 }], name: 'Test', phone: '+998900000000', address: 'Test manzil', subtotal: 2000, total: 2000, status: 'payment_pending', paymentStatus: 'pending', paymentType: 'karta' };
     const first = await repository.placeOrder(input), duplicate = await repository.placeOrder(input);
     assert.equal(first.created, true); assert.equal(duplicate.created, false); assert.equal(duplicate.orderId, first.orderId);
+    assert.deepEqual(await repository.deleteOrder(first.orderId), { found: true, deleted: false });
     let stock = (await pool.query("SELECT available,reserved,sold FROM inventory_levels WHERE product_id='p1'")).rows[0];
     assert.deepEqual([Number(stock.available), Number(stock.reserved), Number(stock.sold)], [3, 2, 0]);
     await assert.rejects(repository.recordCashPayment(first.orderId, 'admin'), error => error.code === 'PROVIDER_VERIFICATION_REQUIRED');
@@ -88,6 +89,12 @@ test('transactional repository prevents duplicate orders and double settlement',
     assert.equal((await repository.releaseReservation(first.orderId)).changed, false);
     stock = (await pool.query("SELECT available,reserved,sold,returned FROM inventory_levels WHERE product_id='p1'")).rows[0];
     assert.deepEqual([Number(stock.available), Number(stock.reserved), Number(stock.sold), Number(stock.returned)], [5, 0, 0, 2]);
+    assert.deepEqual(await repository.deleteOrder(first.orderId), { found: true, deleted: true });
+    assert.equal(Number((await pool.query('SELECT count(*) AS value FROM orders')).rows[0].value), 0);
+    assert.equal(Number((await pool.query('SELECT count(*) AS value FROM inventory_reservations')).rows[0].value), 0);
+    const movements = await pool.query('SELECT order_id FROM inventory_movements ORDER BY occurred_at,id');
+    assert.equal(movements.rowCount, 3);
+    assert.ok(movements.rows.every(row => row.order_id === null));
   } finally { await pool.end(); }
 });
 

@@ -155,7 +155,12 @@ test('PostgreSQL-backed Express routes cover auth, profile, checkout, tracking a
     await request(ctx.app).patch(`/api/orders/${placed.body.order.id}/confirm`).set(auth).send({}).expect(200);
     await request(ctx.app).patch(`/api/orders/${placed.body.order.id}/payment`).set(auth).send({ reason: 'Naqd to‘lov olindi' }).expect(200);
     await request(ctx.app).patch(`/api/orders/${placed.body.order.id}/payment`).set(auth).send({ reason: 'Takroriy so‘rov' }).expect(200);
+    await request(ctx.app).delete(`/api/orders/${placed.body.order.id}`).set(auth).expect(409);
     await request(ctx.app).patch(`/api/orders/${guest.body.order.id}/reject`).set(auth).send({ reason: 'Sinov rad etish' }).expect(200);
+    await request(ctx.app).delete(`/api/orders/${guest.body.order.id}`).set(auth).expect(200);
+    assert.equal((await ctx.pool.query('SELECT count(*) AS value FROM orders WHERE id=$1', [guest.body.order.id])).rows[0].value, 0);
+    assert.equal((await ctx.pool.query('SELECT count(*) AS value FROM inventory_reservations WHERE order_id=$1', [guest.body.order.id])).rows[0].value, 0);
+    assert.ok((await ctx.pool.query('SELECT order_id FROM inventory_movements WHERE legacy_payload IS NOT NULL')).rows.some(row => row.order_id === null));
     const level = (await ctx.pool.query("SELECT available,reserved FROM inventory_levels WHERE product_id='pg-mto'")).rows[0];
     assert.deepEqual([Number(level.available), Number(level.reserved)], [4, 0]);
     const paidLevel = (await ctx.pool.query("SELECT available,reserved,sold FROM inventory_levels WHERE product_id='pg-product'")).rows[0];
