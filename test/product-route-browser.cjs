@@ -86,6 +86,7 @@ const app = require('../server').createApp({ dataDir, uploadsDir, notifyOrder: a
           // New browser context per viewport; clear only this test-origin cart between products.
           await page.evaluate(() => localStorage.removeItem('mujskoy_cart'));
           await page.reload({ waitUntil: 'domcontentloaded' });
+          await page.locator('.pd-title').waitFor();
           const sizes = page.locator('.pd-chip[data-group="size"]');
           if (await sizes.count() > 1) await sizes.nth(1).click();
           const colors = page.locator('.pd-chip[data-group="color"]');
@@ -99,6 +100,7 @@ const app = require('../server').createApp({ dataDir, uploadsDir, notifyOrder: a
           const overflow = await page.evaluate(() => document.documentElement.scrollWidth > innerWidth + 2);
           assert.equal(overflow, false, `Horizontal overflow at ${viewport.width} ${id}`);
           await page.reload({ waitUntil: 'domcontentloaded' });
+          await page.locator('.pd-title').waitFor();
           const reloadedSizes = page.locator('.pd-chip[data-group="size"]');
           if (await reloadedSizes.count() > 1) await reloadedSizes.nth(1).click();
           const reloadedColors = page.locator('.pd-chip[data-group="color"]');
@@ -132,7 +134,7 @@ const app = require('../server').createApp({ dataDir, uploadsDir, notifyOrder: a
         await page.locator('.dodola-search input').fill('Astronavt');
         await page.locator('.dodola-search button').click();
       }
-      await page.waitForURL('**/shop.html?search=Astronavt');
+      await page.waitForURL(url => url.pathname === '/shop.html' && (url.searchParams.get('search') || url.searchParams.get('q')) === 'Astronavt', { waitUntil: 'domcontentloaded' });
       await page.locator('a[href^="/p/"]').first().click();
       await page.locator('.pd-title').waitFor();
       await page.reload({ waitUntil: 'domcontentloaded' });

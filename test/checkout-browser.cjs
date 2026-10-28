@@ -10,6 +10,7 @@ const {chromium}=require('playwright');const assert=require('assert/strict'),fs=
    const context=await browser.newContext({viewport:{width,height:1000}}),page=await context.newPage();page.on('pageerror',e=>errors.push(e.message));
    await page.goto(base+'/checkout.html');await page.evaluate(()=>localStorage.setItem('mujskoy_cart',JSON.stringify([{productId:'p1',qty:1}])));await page.reload();
    await page.locator('#checkoutTotals .grand').waitFor();assert.match(await page.locator('#checkoutTotals').innerText(),/100/);
+   await page.waitForFunction(()=>document.querySelector('#checkoutForm').onsubmit?.constructor.name==='AsyncFunction');
    assert.equal(await page.locator('input[autocomplete="cc-number"], input[name="cvv"], input[type="file"]').count(),0);
    await page.selectOption('#city','outside');assert.equal(await page.locator('#placeOrder').isDisabled(),true);await page.selectOption('#city','tashkent-city');
    await page.fill('#promoCode','SAVE20');await page.locator('#promoForm button[type=submit]').click();await page.waitForFunction(()=>document.querySelector('#checkoutTotals').innerText.includes('80'));assert.match(await page.locator('#checkoutTotals').innerText(),/80/);
@@ -21,7 +22,14 @@ const {chromium}=require('playwright');const assert=require('assert/strict'),fs=
     for(const fail of failures){await page.route('**/api/orders',r=>r.fulfill({...fail,contentType:'application/json'}));await page.click('#placeOrder');await page.waitForFunction(()=>!document.querySelector('#placeOrder').disabled);assert.equal(await page.evaluate(()=>MBStore.getCart().length),1);await page.unroute('**/api/orders');count++;}
     await page.route('**/api/orders',r=>r.abort());await page.click('#placeOrder');await page.waitForFunction(()=>!document.querySelector('#placeOrder').disabled);assert.equal(await page.evaluate(()=>MBStore.getCart().length),1);await page.unroute('**/api/orders');count++;
    }
-   await page.click('#placeOrder');await page.waitForURL('**/payment.html?order=*');await page.locator('.payment-state').waitFor();assert.match(await page.locator('#paymentTitle').innerText(),/tasdig‘i/);assert.equal(await page.locator('#paymentMethods button').count(),4);assert.equal(await page.locator('#paymentMethods button:enabled').count(),0);
+   await page.click('#placeOrder');
+   try { await page.waitForURL('**/payment.html?order=*'); }
+   catch (error) {
+    await page.screenshot({path:path.join(out,'checkout-failure-'+width+'.png'),fullPage:true});
+    console.error(JSON.stringify({width,url:page.url(),message:await page.locator('#checkoutMessage').innerText(),invalid:await page.locator('#checkoutForm :invalid').evaluateAll(elements=>elements.map(e=>({id:e.id,message:e.validationMessage})))}));
+    throw error;
+   }
+   await page.locator('.payment-state').waitFor();assert.match(await page.locator('#paymentTitle').innerText(),/tasdig‘i/);assert.equal(await page.locator('#paymentMethods button').count(),4);assert.equal(await page.locator('#paymentMethods button:enabled').count(),0);
    assert.equal(await page.evaluate(()=>JSON.parse(localStorage.getItem('mujskoy_cart')).length),0);
    await page.screenshot({path:path.join(out,'confirmation-'+width+'.png'),fullPage:true});count+=5;await context.close();
   }
