@@ -440,16 +440,24 @@ td { border-color: var(--adm-line) !important; }
   .sidebar {
     position: relative !important;
     top: auto !important;
-    left: 10px !important;
-    right: 10px !important;
-    width: auto !important;
-    margin: 8px 0 0 !important;
+    left: auto !important;
+    right: auto !important;
+    width: calc(100% - 20px) !important;
+    margin: 8px 10px 0 !important;
+    padding: 0 !important;
+    box-sizing: border-box !important;
+    overflow: hidden !important;
     max-height: 52px !important;
     border-radius: 15px !important;
     background: rgba(48, 34, 56, .97) !important;
     box-shadow: 0 8px 28px rgba(35, 22, 42, .22) !important;
   }
-  .sidebar.sidebar--open { max-height: calc(100vh - 16px) !important; border-radius: 15px !important; }
+  .sidebar.sidebar--open {
+    max-height: calc(100vh - 16px) !important;
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+    border-radius: 15px !important;
+  }
   .sidebar .brand { min-height: 52px !important; padding: 8px 12px !important; border-radius: 15px !important; background: transparent !important; }
   .sidebar .brand-mark { color: var(--adm-plum) !important; background: #d8bee9 !important; }
   .sidebar .brand::after { color: rgba(255,255,255,.78) !important; }
@@ -475,6 +483,55 @@ td { border-color: var(--adm-line) !important; }
 }
 
 @media (max-width: 640px) {
+  /* The collapsed mobile navigation used to be only 52px high.  Its padded
+     34px logo and two-line label were clipped on real phone viewports. */
+  .sidebar {
+    max-height: 70px !important;
+    border-radius: 18px !important;
+  }
+  .sidebar.sidebar--open {
+    max-height: calc(100vh - 16px) !important;
+  }
+  .sidebar .brand {
+    min-height: 70px !important;
+    padding: 10px 15px !important;
+    border-radius: 18px !important;
+  }
+  .sidebar .brand-mark,
+  .sidebar .brand-mark--circle {
+    width: 42px !important;
+    height: 42px !important;
+    flex-basis: 42px !important;
+    font-size: 14px !important;
+  }
+  .sidebar .brand h2 {
+    font-size: 20px !important;
+    line-height: 1.08 !important;
+  }
+  .sidebar .brand p {
+    display: block !important;
+    margin-top: 3px !important;
+    font-size: 11px !important;
+    line-height: 1.1 !important;
+  }
+  .sidebar .brand::after {
+    padding-left: 14px !important;
+    font-size: 22px !important;
+  }
+  .topbar {
+    padding: 15px !important;
+    gap: 11px !important;
+  }
+  .admin-global-search {
+    min-height: 46px !important;
+    height: 46px !important;
+    border-radius: 14px !important;
+  }
+  .topbar .admin-mini-avatar {
+    width: 46px !important;
+    height: 46px !important;
+    min-height: 46px !important;
+  }
   .login-page { padding: 14px !important; }
   .login-card { padding: 24px 20px !important; border-radius: 18px !important; }
   .login-card h1 { font-size: 27px !important; }
