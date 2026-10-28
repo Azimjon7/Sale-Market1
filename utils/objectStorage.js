@@ -209,6 +209,24 @@ function createObjectStorage({ env = process.env, projectRoot, uploadsDir, s3Cli
       }));
       return this.head(reference, { visibility });
     },
+    async putBuffer(reference, body, { visibility = 'public' } = {}) {
+      const clean = keyFor(reference);
+      if (!clean || !Buffer.isBuffer(body)) throw new Error('Noto‘g‘ri rasm ma’lumoti.');
+      assertImageBytes(body, clean);
+      const sha256 = createHash('sha256').update(body).digest('hex');
+      if (backend === 'local') {
+        if (!clean.startsWith('uploads/')) throw new Error('Noto‘g‘ri lokal rasm yo‘li.');
+        await fs.promises.mkdir(localUploads, { recursive: true });
+        await fs.promises.writeFile(path.join(localUploads, clean.slice(8)), body, { flag: 'wx' });
+        return { size: body.length, sha256 };
+      }
+      await client.send(new PutObjectCommand({
+        Bucket: bucketFor(visibility), Key: clean, Body: body,
+        ContentType: contentTypeFor(clean), Metadata: { sha256 },
+        CacheControl: visibility === 'private' ? 'no-store' : 'public, max-age=31536000, immutable',
+      }));
+      return { size: body.length, sha256 };
+    },
     _client: client,
   };
 }

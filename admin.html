@@ -3269,46 +3269,35 @@
         return;
       }
 
-      const buildFormData = (legacyOnly = false) => {
-        const fd = new FormData();
-        fd.append("name", name);
-        fd.append("price", price);
-        fd.append("category", category);
-        fd.append("oldPrice", oldPrice);
-        fd.append("sizes", sizes);
-        fd.append("colors", colors);
-        fd.append("stock", stock || "999");
-        fd.append("label", label);
-        fd.append("desc", desc);
-        fd.append("discountPercent", discountPercent);
-        fd.append("existingImages", existingImages);
-        fd.append("existingImage", existingImages.split(",")[0] || "");
-
-        if (legacyOnly) {
-          if (imageFiles[0]) fd.append("imageFile", imageFiles[0]);
-        } else {
-          imageFiles.forEach((file) => fd.append("imageFiles", file));
-        }
-
-        return fd;
-      };
-
-      const makeRequest = async (method, endpoint, legacyOnly = false) => {
-        const res = await apiFetch(endpoint, { method, body: buildFormData(legacyOnly) });
-        const data = await readResponse(res);
-        return { res, data };
-      };
-
       try {
-        let mode = "POST";
-        const endpoint = editingProductId ? ("/api/products/" + encodeURIComponent(editingProductId) + "/update") : "/api/products";
-        const { res, data } = await makeRequest(mode, endpoint, false);
+        const fields = {
+          name, price, category, oldPrice, sizes, colors, stock: stock || "999",
+          label, desc, discountPercent, existingImages,
+          existingImage: existingImages.split(",")[0] || ""
+        };
+        const filePayloads = await Promise.all(imageFiles.map(file => new Promise((resolve, reject) => {
+          if (file.size > 10 * 1024 * 1024) return reject(new Error("Har bir rasm 10 MB dan kichik bo‘lishi kerak."));
+          const reader = new FileReader();
+          reader.onerror = () => reject(new Error("Rasmni o‘qib bo‘lmadi."));
+          reader.onload = () => resolve({ name: file.name, data: String(reader.result).split(",")[1] || "" });
+          reader.readAsDataURL(file);
+        })));
+        const isEditing = Boolean(editingProductId);
+        const endpoint = isEditing
+          ? ("/api/products/" + encodeURIComponent(editingProductId) + "/json-update")
+          : "/api/products/json";
+        const res = await apiFetch(endpoint, {
+          method: "POST",
+          headers: { "Content-Type": "application/vnd.dodola.product+json" },
+          body: JSON.stringify({ fields, files: filePayloads })
+        });
+        const data = await readResponse(res);
 
         if (!res.ok) {
           throw new Error(data.message || "Mahsulotni saqlashda xatolik bo'ldi");
         }
 
-        const notice = mode === "PUT" ? "Mahsulot yangilandi" : "Mahsulot muvaffaqiyatli qo'shildi";
+        const notice = isEditing ? "Mahsulot yangilandi" : "Mahsulot muvaffaqiyatli qo'shildi";
         resetForm();
         showNotice(notice);
         await loadProducts();

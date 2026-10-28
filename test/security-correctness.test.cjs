@@ -81,6 +81,33 @@ test('admin cookie update rejects a cross-site Origin', async () => {
   await agent.post('/api/products/mto/update').set('Origin', 'https://attacker.invalid').field('price', '250').expect(403);
   assert.equal(read('products')[1].price, 100);
 });
+test('admin JSON image transport persists validated images without multipart', async () => {
+  const agent = request.agent(app);
+  await agent.post('/api/admin/login').send({
+    username: process.env.ADMIN_USERNAME,
+    password: process.env.ADMIN_PASSWORD,
+  }).expect(200);
+  const png = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=', 'base64');
+  const result = await agent.post('/api/products/mto/json-update')
+    .set('Content-Type', 'application/vnd.dodola.product+json')
+    .send(JSON.stringify({
+      fields: { price: '275', existingImages: 'uploads/product.png' },
+      files: [{ name: 'fresh.png', data: png.toString('base64') }],
+    })).expect(200);
+  assert.equal(result.body.product.price, 275);
+  assert.match(result.body.product.images[0], /^uploads\/prd_/);
+  await request(app).get('/' + result.body.product.images[0]).expect(200);
+});
+
+test('admin JSON image transport rejects spoofed image bytes without persistence', async () => {
+  const agent = request.agent(app);
+  await agent.post('/api/admin/login').send({ username: process.env.ADMIN_USERNAME, password: process.env.ADMIN_PASSWORD }).expect(200);
+  await agent.post('/api/products/mto/json-update')
+    .set('Content-Type', 'application/vnd.dodola.product+json')
+    .send(JSON.stringify({ fields: { price: '999' }, files: [{ name: 'fake.png', data: Buffer.from('not an image').toString('base64') }] }))
+    .expect(400);
+  assert.equal(read('products')[1].price, 100);
+});
 
 test('incorrect isolated admin password is rejected without a token', async () => {
   const login = await request(app).post('/api/admin/login').send({

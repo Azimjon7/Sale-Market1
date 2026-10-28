@@ -651,6 +651,55 @@ function guardedUpload(middleware) {
   });
 }
 const productUpload = guardedUpload(upload.any());
+const productJsonBody = express.raw({ type: 'application/vnd.dodola.product+json', limit: '64mb' });
+
+function productJsonUpload(req, res, next) {
+  productJsonBody(req, res, async parseError => {
+    if (parseError) return next(parseError);
+    const uploaded = [];
+    try {
+      const payload = JSON.parse(Buffer.isBuffer(req.body) ? req.body.toString('utf8') : '');
+      if (!payload || typeof payload !== 'object' || !payload.fields || typeof payload.fields !== 'object') {
+        throw Object.assign(new Error('Mahsulot ma’lumoti noto‘g‘ri.'), { status: 400 });
+      }
+      const files = Array.isArray(payload.files) ? payload.files : [];
+      if (files.length > 12) throw Object.assign(new Error('Ko‘pi bilan 12 ta rasm yuklash mumkin.'), { status: 400 });
+      let totalBytes = 0;
+      for (const file of files) {
+        const originalname = path.basename(String(file && file.name || '')).slice(0, 180);
+        const data = String(file && file.data || '');
+        if (!originalname || !/^[A-Za-z0-9+/]+={0,2}$/.test(data)) {
+          throw Object.assign(new Error('Rasm ma’lumoti noto‘g‘ri.'), { status: 400 });
+        }
+        const buffer = Buffer.from(data, 'base64');
+        if (!buffer.length || buffer.length > MAX_UPLOAD_SIZE) {
+          throw Object.assign(new Error('Har bir rasm 10 MB dan kichik bo‘lishi kerak.'), { status: 400 });
+        }
+        totalBytes += buffer.length;
+        if (totalBytes > 45 * 1024 * 1024) {
+          throw Object.assign(new Error('Rasmlarning umumiy hajmi 45 MB dan oshmasligi kerak.'), { status: 400 });
+        }
+        const filename = objectStorage.makeFilename(originalname, 'prd');
+        const storageRef = `uploads/${filename}`;
+        const stored = await objectStorage.putBuffer(storageRef, buffer, { visibility: 'public' });
+        uploaded.push({ fieldname: 'imageFiles', filename, originalname, storageRef, visibility: 'public', size: stored.size, sha256: stored.sha256 });
+      }
+      req.body = payload.fields;
+      req.files = uploaded;
+      let committed = false;
+      req.commitUploadedFiles = () => { committed = true; };
+      res.once('finish', () => {
+        if (committed) return;
+        Promise.all(uploaded.map(file => objectStorage.delete(file.storageRef, { visibility: 'public' })))
+          .catch(error => console.warn('[storage-cleanup]', { code: error.code || error.name || 'CLEANUP_FAILED' }));
+      });
+      next();
+    } catch (error) {
+      await Promise.all(uploaded.map(file => objectStorage.delete(file.storageRef, { visibility: 'public' }))).catch(() => {});
+      next(error);
+    }
+  });
+}
 
 function normalizeProduct(body, uploadedFiles) {
   const existingImages = parseList(body.existingImages || body.existingImage);
@@ -1026,7 +1075,7 @@ app.get("/api/products/:id", async (req, res, next) => {
   } catch (error) { next(error); }
 });
 
-app.post("/api/products", verifyAdmin, productUpload, async (req, res, next) => {
+async function createProduct(req, res, next) {
   try {
     if (postgresCatalog) {
       const product = normalizeProduct(req.body, req.files);
@@ -1074,7 +1123,10 @@ app.post("/api/products", verifyAdmin, productUpload, async (req, res, next) => 
     }
     next(err);
   }
-});
+}
+
+app.post("/api/products", verifyAdmin, productUpload, createProduct);
+app.post("/api/products/json", verifyAdmin, verifyAdminToken.requireAdminOrigin, productJsonUpload, createProduct);
 
 async function updateProduct(req, res, next) {
   try {
@@ -1150,6 +1202,7 @@ async function updateProduct(req, res, next) {
 // endpoint for the admin panel.
 app.put("/api/products/:id", verifyAdmin, verifyAdminToken.requireAdminOrigin, productUpload, updateProduct);
 app.post("/api/products/:id/update", verifyAdmin, verifyAdminToken.requireAdminOrigin, productUpload, updateProduct);
+app.post("/api/products/:id/json-update", verifyAdmin, verifyAdminToken.requireAdminOrigin, productJsonUpload, updateProduct);
 
 app.delete("/api/products/:id", verifyAdmin, async (req, res, next) => {
   try {
