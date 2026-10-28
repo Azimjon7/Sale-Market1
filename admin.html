@@ -2105,7 +2105,20 @@
       const token = getToken();
       if (token) headers.set("Authorization", "Bearer " + token);
 
-      const res = await fetch(url, { ...options, headers, credentials: "same-origin" });
+      const request = { ...options, headers, credentials: "same-origin" };
+      let res = await fetch(url, request);
+      // TCloud's managed per-site rate limiter can emit an HTML 403 before the
+      // request reaches Express. Retry only that unmistakable proxy response;
+      // JSON 403s from the application are never retried.
+      const isProxyRateLimit = () => res.status === 403
+        && /text\/html/i.test(res.headers.get("content-type") || "")
+        && /^\/api\/products\/.+\/update$/.test(url)
+        && options.body instanceof FormData;
+      for (const delay of [1500, 3500, 7000]) {
+        if (!isProxyRateLimit()) break;
+        await new Promise(resolve => setTimeout(resolve, delay));
+        res = await fetch(url, request);
+      }
       if (res.status === 401) {
         showLoginPage();
         throw new Error("Sessiya muddati tugadi. Qayta kiring.");
