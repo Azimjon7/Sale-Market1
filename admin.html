@@ -2096,7 +2096,10 @@
       try {
         return raw ? JSON.parse(raw) : {};
       } catch {
-        return { message: raw };
+        if (res.status === 403 && /<title>403 Forbidden<\/title>/i.test(raw)) {
+          return { message: "Hosting xavfsizlik limiti so'rovni to'xtatdi. Ma'lumot saqlanmadi; bir ozdan keyin qayta urinib ko'ring." };
+        }
+        return { message: raw || "Server javobi o'qilmadi" };
       }
     }
 
