@@ -700,6 +700,7 @@ app.post("/api/admin/login", loginLimiter, (req, res) => {
       { expiresIn: "24h" }
     );
 
+    verifyAdminToken.setAdminCookie(res, token);
     return res.json({
       success: true,
       token,
@@ -712,10 +713,17 @@ app.post("/api/admin/login", loginLimiter, (req, res) => {
   });
 });
 
+app.post("/api/admin/logout", (req, res) => {
+  verifyAdminToken.clearAdminCookie(res);
+  res.json({ success: true });
+});
+
 const customerAuth = installCustomerAuth(app, { dataDir: DATA_DIR, customersFile: CUSTOMERS_FILE, tokensFile: AUTH_TOKENS_FILE,
   ordersFile: ORDERS_FILE, jwt, jwtSecret: JWT_SECRET, adminUsername: process.env.ADMIN_USERNAME,
   adminPassword: process.env.ADMIN_PASSWORD, credentialsEqual, emailSender: options.emailSender,
-  emailService: options.emailService, customerRepository: postgresCustomers });
+  emailService: options.emailService, customerRepository: postgresCustomers,
+  setAdminCookie: (res, token) => verifyAdminToken.setAdminCookie(res, token),
+  clearAdminCookie: res => verifyAdminToken.clearAdminCookie(res) });
 
 // Backwards-compatible alias — delegates to the reusable middleware module.
 const verifyAdmin = verifyAdminToken;
@@ -1068,7 +1076,7 @@ app.post("/api/products", verifyAdmin, productUpload, async (req, res, next) => 
   }
 });
 
-app.put("/api/products/:id", verifyAdmin, productUpload, async (req, res, next) => {
+async function updateProduct(req, res, next) {
   try {
     if (postgresCatalog) {
       const current = await postgresCatalog.getProduct(req.params.id);
@@ -1135,7 +1143,13 @@ app.put("/api/products/:id", verifyAdmin, productUpload, async (req, res, next) 
   } catch (error) {
     next(error);
   }
-});
+}
+
+// TCloud's Nginx rejects multipart PUT before it reaches Express.  Keep the
+// legacy route for compatible direct clients and provide a same-origin POST
+// endpoint for the admin panel.
+app.put("/api/products/:id", verifyAdmin, verifyAdminToken.requireAdminOrigin, productUpload, updateProduct);
+app.post("/api/products/:id/update", verifyAdmin, verifyAdminToken.requireAdminOrigin, productUpload, updateProduct);
 
 app.delete("/api/products/:id", verifyAdmin, async (req, res, next) => {
   try {

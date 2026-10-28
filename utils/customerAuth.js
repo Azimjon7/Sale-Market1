@@ -18,6 +18,8 @@ const strongPassword = value => typeof value === 'string' && value.length >= 10 
 
 function installCustomerAuth(app, options) {
   const { dataDir, customersFile, tokensFile, ordersFile, jwt, jwtSecret, adminUsername, adminPassword, credentialsEqual } = options;
+  const setAdminCookie = options.setAdminCookie || (() => {});
+  const clearAdminCookie = options.clearAdminCookie || (() => {});
   const registrationLimiter = rateLimit({ windowMs: 60 * 60 * 1000, max: 20, standardHeaders: true, legacyHeaders: false,
     message: { message: "Juda ko'p hisob yaratish so'rovi yuborildi. Keyinroq qayta urinib ko'ring." } });
   const verificationLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 30, standardHeaders: true, legacyHeaders: false,
@@ -122,11 +124,11 @@ function installCustomerAuth(app, options) {
       throw error;
     }
   }
-  function adminFromBearer(req) { try { const value = String(req.get('Authorization') || ''); if (!value.startsWith('Bearer ')) return false; const payload = jwt.verify(value.slice(7), jwtSecret); return payload.role === 'admin'; } catch { return false; } }
+  function adminFromRequest(req) { try { const value = String(req.get('Authorization') || ''); const bearer = value.startsWith('Bearer ') ? value.slice(7) : ''; const cookie = String(req.get('Cookie') || '').split(';').map(item => item.trim()).find(item => item.startsWith('dodola_admin=')); const token = bearer || (cookie ? decodeURIComponent(cookie.slice('dodola_admin='.length)) : ''); if (!token) return false; const payload = jwt.verify(token, jwtSecret); return payload.role === 'admin'; } catch { return false; } }
 
   app.get('/api/auth/session', route(async (req, res) => {
     const csrfToken = ensureCsrf(req);
-    if (adminFromBearer(req)) return res.json({ authenticated: true, role: 'admin', redirect: '/admin.html', csrfToken });
+    if (adminFromRequest(req)) return res.json({ authenticated: true, role: 'admin', redirect: '/admin.html', csrfToken });
     if (!req.session.customerId) return res.json({ authenticated: false, role: null, redirect: '/auth.html', csrfToken });
     const customer = await getById(req.session.customerId);
     if (!customer || customer.sessionVersion !== req.session.sessionVersion) return req.session.destroy(() => res.json({ authenticated: false, role: null, redirect: '/auth.html', csrfToken: null }));
@@ -162,6 +164,7 @@ function installCustomerAuth(app, options) {
       const identifier = clean(req.body.identifier, 254), password = String(req.body.password || '');
       if (credentialsEqual(identifier, adminUsername) && credentialsEqual(password, adminPassword)) {
         const adminToken = jwt.sign({ username: adminUsername, role: 'admin' }, jwtSecret, { expiresIn: '24h' });
+        setAdminCookie(res, adminToken);
         return res.json({ success: true, role: 'admin', redirect: '/admin.html', adminToken });
       }
       const phone = normalizePhone(identifier); const customer = phone && await getByPhone(phone);
@@ -169,7 +172,7 @@ function installCustomerAuth(app, options) {
       req.session.regenerate(error => { if (error) return next(error); req.session.customerId = customer.id; req.session.sessionVersion = customer.sessionVersion; req.session.csrfToken = crypto.randomBytes(24).toString('base64url'); req.session.save(err => err ? next(err) : res.json({ success: true, role: 'customer', redirect: '/account.html', customer: safeCustomer(customer), csrfToken: req.session.csrfToken })); });
     } catch (error) { next(error); }
   });
-  app.post('/api/auth/logout', csrf, (req, res, next) => req.session.destroy(error => error ? next(error) : res.clearCookie('dodola_customer').json({ success: true })));
+  app.post('/api/auth/logout', csrf, (req, res, next) => req.session.destroy(error => { if (error) return next(error); clearAdminCookie(res); res.clearCookie('dodola_customer').json({ success: true }); }));
 
   app.post('/api/auth/verify-email', verificationLimiter, csrf, route(async (req, res) => {
     const hash = tokenHash(req.body.token), now = new Date(); let success = false;

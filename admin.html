@@ -1596,7 +1596,7 @@
   <!-- Mobile sidebar overlay -->
   <div id="adminSidebarOverlay" class="adm-sidebar-overlay hidden" onclick="closeMobileSidebar()"></div>
 
-  <div id="loginPage" class="login-page">
+  <div id="loginPage" class="login-page hidden">
     <div class="login-card">
       <div class="admin-login-logo">
         <i class="admin-logo-icon">&#128717;</i>
@@ -2080,8 +2080,8 @@
     }
 
     function showLoginPage() {
-      document.getElementById("adminApp").classList.add("hidden");
-      document.getElementById("loginPage").classList.remove("hidden");
+      clearSession();
+      window.location.replace("/auth.html?return=%2Fadmin.html");
     }
 
     function showAdminApp() {
@@ -2105,9 +2105,8 @@
       const token = getToken();
       if (token) headers.set("Authorization", "Bearer " + token);
 
-      const res = await fetch(url, { ...options, headers });
-      if (res.status === 401 || res.status === 403) {
-        clearSession();
+      const res = await fetch(url, { ...options, headers, credentials: "same-origin" });
+      if (res.status === 401) {
         showLoginPage();
         throw new Error("Sessiya muddati tugadi. Qayta kiring.");
       }
@@ -2269,9 +2268,10 @@
       });
     });
 
-    function logout() {
+    async function logout() {
+      await fetch("/api/admin/logout", { method: "POST", credentials: "same-origin" }).catch(() => {});
       clearSession();
-      location.reload();
+      location.replace("/auth.html?return=%2Fadmin.html");
     }
 
     function goToSite() {
@@ -3284,13 +3284,9 @@
       };
 
       try {
-        let mode = editingProductId ? "PUT" : "POST";
-        const endpoint = editingProductId ? ("/api/products/" + editingProductId) : "/api/products";
-        let { res, data } = await makeRequest(mode, endpoint, false);
-
-        if (!res.ok) {
-          ({ res, data } = await makeRequest(mode, endpoint, true));
-        }
+        let mode = "POST";
+        const endpoint = editingProductId ? ("/api/products/" + encodeURIComponent(editingProductId) + "/update") : "/api/products";
+        const { res, data } = await makeRequest(mode, endpoint, false);
 
         if (!res.ok) {
           throw new Error(data.message || "Mahsulotni saqlashda xatolik bo'ldi");
@@ -3303,37 +3299,9 @@
         await loadDashboard();
         showSection("products");
       } catch (err) {
-        const localProducts = readLocalArray("mujskoy_products");
-        const images = existingImages ? existingImages.split(",") : [];
-        const localProduct = {
-          id: editingProductId || ("local-" + Date.now()),
-          name,
-          price: Number(price || 0),
-          category,
-          oldPrice: Number(oldPrice || 0),
-          sizes,
-          colors,
-          stock: Number(stock || 999),
-          label,
-          desc,
-          discountPercent: Number(discountPercent || 0),
-          image: images[0] || "img/placeholders/product.svg",
-          images: images.length ? images : ["img/placeholders/product.svg"],
-        };
-
-        cachedProducts = editingProductId
-          ? localProducts.map((item) => String(item.id) === String(editingProductId) ? localProduct : item)
-          : [localProduct, ...localProducts];
-        if (editingProductId && !cachedProducts.some((item) => String(item.id) === String(localProduct.id))) {
-          cachedProducts.unshift(localProduct);
-        }
-        writeLocalArray("mujskoy_products", cachedProducts);
-        const notice = editingProductId ? "Mahsulot yangilandi" : "Mahsulot muvaffaqiyatli qo'shildi";
-        resetForm();
-        showNotice(notice);
-        renderProducts();
-        await loadDashboard();
-        showSection("products");
+        const message = err.message || "Mahsulotni saqlab bo'lmadi. Qayta urinib ko'ring.";
+        addMessage.innerHTML = '<div class="error-text">' + escapeHtml(message) + "</div>";
+        showNotice(message, "error");
       }
     }
 
@@ -3794,8 +3762,7 @@
     }
 
     async function bootstrapAdminSession() {
-      showLoginPage();
-      if (!getToken() || getToken() === 'fallback-admin-token') { clearSession(); return; }
+      if (getToken() === 'fallback-admin-token') clearSession();
       try {
         // Verify the saved session against an authenticated endpoint before showing the app.
         await requestJson('/api/orders');
@@ -3807,7 +3774,6 @@
     }
 
     document.addEventListener("DOMContentLoaded", function () {
-      showLoginPage();
       const imageInput = document.getElementById("productImageFile");
       const uploadBox = document.getElementById("uploadBox");
       const productSearch = document.getElementById("productSearch");

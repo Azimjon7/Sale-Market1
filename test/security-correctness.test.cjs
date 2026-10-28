@@ -58,6 +58,30 @@ test('isolated admin credentials issue a JWT accepted by protected middleware', 
   await request(app).get('/api/orders').set('Authorization', 'Bearer ' + login.body.token).expect(200);
 });
 
+test('admin cookie keeps multipart product image updates authenticated', async () => {
+  const agent = request.agent(app);
+  const login = await agent.post('/api/admin/login').send({
+    username: process.env.ADMIN_USERNAME,
+    password: process.env.ADMIN_PASSWORD,
+  }).expect(200);
+  const cookies = login.headers['set-cookie'] || [];
+  assert.ok(cookies.some(value => /^dodola_admin=/.test(value) && /HttpOnly/i.test(value) && /SameSite=Strict/i.test(value)));
+  const png = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=', 'base64');
+  const result = await agent.post('/api/products/mto/update')
+    .field('price', '250')
+    .field('existingImages', 'uploads/product.png')
+    .attach('imageFiles', png, { filename: 'fresh.png', contentType: 'image/png' })
+    .expect(200);
+  assert.match(result.body.product.images[0], /^uploads\/prd_/);
+  await request(app).get('/' + result.body.product.images[0]).expect(200);
+});
+test('admin cookie update rejects a cross-site Origin', async () => {
+  const agent = request.agent(app);
+  await agent.post('/api/admin/login').send({ username: process.env.ADMIN_USERNAME, password: process.env.ADMIN_PASSWORD }).expect(200);
+  await agent.post('/api/products/mto/update').set('Origin', 'https://attacker.invalid').field('price', '250').expect(403);
+  assert.equal(read('products')[1].price, 100);
+});
+
 test('incorrect isolated admin password is rejected without a token', async () => {
   const login = await request(app).post('/api/admin/login').send({
     username: process.env.ADMIN_USERNAME,
