@@ -104,10 +104,14 @@ are absent from the production branch; the old main/history was preserved.
 
 ## Default branch and transfer
 
-Do not merge the unrelated `main` ZIP history into this branch. After owner
-approval, make `deploy/tcloud-production-2026-10-28` the GitHub default branch and
-update any branch protection/deployment references deliberately. No default
-branch setting or repository ownership was changed during this synchronization.
+Do not merge the unrelated `main` ZIP history into this branch. With owner
+approval, `deploy/tcloud-production-2026-10-28` became the GitHub default branch
+on 28 October 2026. Git remote `HEAD` and the GitHub API both verified the change.
+The old `main` and all other branches remain intact. At verification time the
+repository had no workflow files, Actions runs, deployments, environments,
+webhooks or GitHub Pages site, so the default-branch change and this report update
+did not initiate an automatic production deployment. Repository ownership was
+not changed.
 
 Before final functional acceptance, investigate the 320-pixel checkout result
 and run the isolated real-PostgreSQL concurrency test if that assurance is
